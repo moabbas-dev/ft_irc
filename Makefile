@@ -1,6 +1,6 @@
-NAME = PmergeMe
-SRCS = 	PmergeMe.cpp	\
-		main.cpp		\
+NAME = ircserv
+
+SRCS = main.cpp		\
 
 OBJDIR = objs
 OBJCS = $(SRCS:%.cpp=$(OBJDIR)/%.o)
