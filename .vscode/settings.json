@@ -1,0 +1,6 @@
+{
+	"files.associations": {
+		"bircd.h": "c",
+		"csignal": "cpp"
+	}
+}

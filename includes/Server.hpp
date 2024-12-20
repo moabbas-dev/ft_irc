@@ -4,7 +4,11 @@
 #include <vector>
 #include "Client.hpp"
 #include <poll.h>
-
+#include <unistd.h>
+#include <netinet/in.h>
+#include <fcntl.h>
+#include <csignal>
+#include <arpa/inet.h> 
 class Server {
 	private:
 		int port;
