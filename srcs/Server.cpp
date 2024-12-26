@@ -6,6 +6,11 @@ Server::Server() {
 
 }
 
+Server::Server(int port, std::string password) {
+    this->port = port;
+    this->password = password;
+}
+
 void Server::serverInit() {
 	this->port = 4444;
 	createServerSocket();
@@ -81,7 +86,31 @@ void Server::acceptNewClient() {
 }
 
 void Server::recieveData(int fd) {
- (void) fd;
+    char buffer[1024]; // Buffer to store received data
+    memset(buffer, 0, sizeof(buffer)); // Clear the buffer
+
+    // Read data from the client
+    ssize_t bytesRead = read(fd, buffer, sizeof(buffer) - 1); // Leave space for null terminator
+    if (bytesRead > 0) {
+        // Data received successfully
+        std::cout << "Received from client <" << fd << ">: " << buffer << std::endl;
+
+        // Process data (for now, just echo it back)
+        std::string response = "Server received: " + std::string(buffer);
+        if (write(fd, response.c_str(), response.size()) == -1) {
+            perror("Error sending response to client");
+        }
+    } else if (bytesRead == 0) {
+        // Client disconnected
+        std::cout << "Client <" << fd << "> disconnected." << std::endl;
+        close(fd); // Close the client socket
+        clearClients(fd); // Remove client from the poll list and clients vector
+    } else {
+        // Error occurred
+        perror("Error reading from client");
+        close(fd); // Close the client socket
+        clearClients(fd); // Clean up resources
+    }
 }
 
 void Server::signalHandler(int signum) {
@@ -109,4 +138,71 @@ void Server::clearClients(int fd) {
 			clients.erase(clients.begin() + i);
 			break;
 		}
+}
+
+void Server::run() {
+    while (!isSignalReceived) {
+        // Wait for events using poll
+        int pollCount = poll(fds.data(), fds.size(), -1); // -1 for infinite timeout
+        if (pollCount == -1) {
+            if (errno == EINTR) continue; // Interrupted by signal, retry
+            perror("poll failed");
+            break;
+        }
+
+        // Iterate through the poll list to handle events
+        for (size_t i = 0; i < fds.size(); ++i) {
+            if (fds[i].revents & POLLIN) {
+                if (fds[i].fd == serSocketFd) {
+                    // Server socket is readable -> Accept new client
+                    acceptNewClient();
+                } else {
+                    // Client socket is readable -> Receive data
+                    recieveData(fds[i].fd);
+                }
+            }
+        }
+    }
+
+    // Cleanup before exiting
+    closeFds();
+    std::cout << "Server shutting down gracefully." << std::endl;
+}
+
+void Server::handleJoin(int fd, const std::string& channelName) {
+    // Locate or create the channel
+    Channel* channel = NULL;
+    std::map<std::string, Channel>::iterator it = channels.find(channelName);
+    if (it == channels.end()) {
+        // Channel does not exist, create it
+        channels[channelName] = Channel(channelName);
+        channel = &channels[channelName];
+    } else {
+        channel = &it->second;
+    }
+
+    // Retrieve the client
+    std::vector<Client>::iterator clientIt = std::__find_if(clients.begin(), clients.end(), [fd](const Client& c) {
+        return c.getFd() == fd;
+    });
+
+    if (clientIt == clients.end()) {
+        send(fd, "Error: Client not found.\r\n", 26, 0);
+        return;
+    }
+
+    // Add the client to the channel
+    Client& client = *clientIt;
+    if (!channel->addClient(client)) {
+        send(fd, "Error: Could not join channel. Check the key or user limit.\r\n", 61, 0);
+        return;
+    }
+
+    // Notify the client
+    std::string joinedChannelMsg = "Joined channel " + channelName + "\r\n";
+    send(fd, joinedChannelMsg.c_str(), joinedChannelMsg.size(), 0);
+
+    // Notify other members in the channel
+    std::string joinMsg = client.getNickname() + " has joined the channel.\r\n";
+    channel->broadcastMessage(joinMsg, fd);
 }

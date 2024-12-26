@@ -15,9 +15,10 @@ class Client {
 		std::string messageBuffer;
 	public:
 		Client();
-		int getFd();
+		int getFd() const;
+		std::string getNickname() const;
 		void setFd(int fd);
-		std::string getIPadd();
+		std::string getIPadd() const ;
 		void setIPadd(std::string IPadd);
 		bool isOperator(const std::string& channel);
 		void joinChannel(const std::string& channel);

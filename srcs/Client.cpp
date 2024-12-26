@@ -4,7 +4,7 @@ Client::Client() {
 
 }
 
-int Client::getFd() {
+int Client::getFd() const {
 	return fd;
 }
 
@@ -12,7 +12,11 @@ void Client::setFd(int fd) {
 	this->fd = fd;
 }
 
-std::string Client::getIPadd() {
+std::string Client::getNickname() const {
+	return nickname;
+}
+
+std::string Client::getIPadd() const {
 	return IPadd;
 }
 
