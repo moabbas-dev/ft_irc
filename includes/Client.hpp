@@ -3,26 +3,28 @@
 
 #include <iostream>
 #include <vector>
+#include <string>
 
 class Client {
-	private:
-		int fd;
-		std::string IPadd;
-		std::string nickname;
-		std::string username;
-		bool isAuthenticated;
-		std::vector<std::string> channels;
-		std::string messageBuffer;
-	public:
-		Client();
-		int getFd() const;
-		std::string getNickname() const;
-		void setFd(int fd);
-		std::string getIPadd() const ;
-		void setIPadd(std::string IPadd);
-		bool isOperator(const std::string& channel);
-		void joinChannel(const std::string& channel);
-		void leaveChannel(const std::string& channel);
+private:
+    int fd;
+    std::string IPadd;
+    std::string nickname;
+    std::string username;
+    bool isAuthenticated;
+    std::vector<std::string> channels;
+    std::string messageBuffer;
+
+public:
+    Client();
+    int getFd() const;
+    std::string getNickname() const;
+    void setFd(int fd);
+    std::string getIPadd() const;
+    void setIPadd(const std::string& IPadd);
+    bool isOperator(const std::string& channel) const;
+    void joinChannel(const std::string& channel);
+    void leaveChannel(const std::string& channel);
 };
 
 #endif

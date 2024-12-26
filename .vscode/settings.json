@@ -1,5 +1,6 @@
 {
 	"files.associations": {
+		"*.tpp": "cpp",
 		"bircd.h": "c",
 		"csignal": "cpp",
 		"array": "cpp",
@@ -47,6 +48,8 @@
 		"ostream": "cpp",
 		"stdexcept": "cpp",
 		"streambuf": "cpp",
-		"typeinfo": "cpp"
+		"typeinfo": "cpp",
+		"cstring": "cpp",
+		"sstream": "cpp"
 	}
 }

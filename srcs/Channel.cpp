@@ -16,9 +16,7 @@ Channel::Channel(std::string name): name(name) {
     mode['l'] = false;
 }
 
-Channel::~Channel() {
-
-}
+Channel::~Channel() { }
 
 std::string Channel::getName() const {
 	return name;
@@ -52,11 +50,11 @@ bool Channel::isClientInChannel(int fd) const {
 }
 
 bool Channel::isOperator(int fd) const {
-    std::unordered_map<int, bool>::const_iterator it = operators.find(fd);
+    std::map<int, bool>::const_iterator it = operators.find(fd);
     return it != operators.end() && it->second;
 }
 
-bool Channel::addClient(Client& client, const std::string& key = "") {
+bool Channel::addClient(Client& client, const std::string& key) {
     for (size_t i = 0;i < clients.size();i++) {
         if (clients[i].getFd() == client.getFd()) {
             return false; // already in the channel
@@ -80,7 +78,7 @@ void Channel::removeClient(int fd) {
     }
 
     // Remove the client from the operators list if they are an operator
-    std::unordered_map<int, bool>::iterator it = operators.find(fd);
+    std::map<int, bool>::iterator it = operators.find(fd);
     if (it != operators.end()) {
         operators.erase(it);
         std::cout << "Client <" << fd << "> removed from operators list." << std::endl;
@@ -99,7 +97,7 @@ void Channel::addOperator(int fd) {
 }
 
 void Channel::removeOperator(int fd) {
-    std::unordered_map<int, bool>::iterator it = operators.find(fd);
+    std::map<int, bool>::iterator it = operators.find(fd);
     if (it == operators.end() || !it->second) {
         std::cout << "Client <" << fd << "> is not an operator." << std::endl;
         return;
@@ -112,7 +110,7 @@ void Channel::broadcastMessage(const std::string& message, int senderFd) {
     for (size_t i = 0;i < clients.size(); i++)
         if (clients[i].getFd() != senderFd)
             if (send(clients[i].getFd(), message.c_str(), message.size(), 0) == -1) 
-                perror("send failed");
+                std::cerr << "Send failed" << std::endl;
 }
 
 void Channel::handleKick(int operatorFd, int targetFd) {
@@ -137,9 +135,11 @@ void Channel::handleKick(int operatorFd, int targetFd) {
     send(targetFd, kickMsg.c_str(), kickMsg.size(), 0);
 
     // Notify all remaining clients in the channel
-    std::string broadcastMsg = "User " + std::to_string(targetFd) +
-                               " has been kicked from the channel by Operator " +
-                               std::to_string(operatorFd) + ".\n";
+    std::ostringstream oss;
+    oss << "User " << targetFd 
+    << " has been kicked from the channel by Operator " 
+    << operatorFd << ".\n";
+std::string broadcastMsg = oss.str();
     broadcastMessage(broadcastMsg, operatorFd);
 
     // Remove the client from the channel
@@ -172,13 +172,19 @@ void Channel::handleInvite(int operatorFd, int targetFd) {
     }
 
     // Notify the targetFd of the invitation
-    std::string inviteMsg = "You have been invited to join the channel by Operator " +
-                            std::to_string(operatorFd) + ".\n";
+    // std::string inviteMsg = "You have been invited to join the channel by Operator " +
+    //                         std::to_string(operatorFd) + ".\n";
+    std::ostringstream os;
+    os << "You have been invited to join the channel by Operator " << operatorFd << ".\n";
+    std::string inviteMsg = os.str();
     send(targetFd, inviteMsg.c_str(), inviteMsg.size(), 0);
 
     // Notify the operator that the invitation was sent
-    std::string confirmMsg = "User " + std::to_string(targetFd) +
-                             " has been invited to the channel.\n";
+    // std::string confirmMsg = "User " + std::to_string(targetFd) +
+    //                          " has been invited to the channel.\n";
+    std::ostringstream oss;
+    oss << "User " << targetFd << " has been invited to the channel.\n";
+    std::string confirmMsg = oss.str();
     send(operatorFd, confirmMsg.c_str(), confirmMsg.size(), 0);
 }
 
@@ -223,7 +229,13 @@ void Channel::handleMode(int operatorFd, const std::string& mode) {
                 if (addMode) {
                     if (i + 1 >= mode.size())
                         throw std::runtime_error("Error: Limit mode requires an argument.");
-                    this->userLimit = std::stoi(mode.substr(i + 1));
+                    std::istringstream iss(mode.substr(i + 1));
+                    int value;
+                    if (iss >> value) {
+                        this->userLimit = value;
+                    } else {
+                        throw std::invalid_argument("Invalid integer format");
+                    }
                     i = mode.size(); // Skip the rest of the string
                 } else {
                     this->userLimit = 0; // Remove user limit
