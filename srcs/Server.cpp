@@ -50,14 +50,13 @@ void Server::acceptNewClient() {
 
     int clientFd = accept(serSocketFd, (struct sockaddr*)&clientAddr, &addrLen);
     if (clientFd < 0) {
-        if (errno != EWOULDBLOCK) {
-            perror("Error: accept client connection failed");
-        }
+        if (errno != EWOULDBLOCK)
+            std::cerr << "Error: accept client connection failed\n";
         return;
     }
 
     if (fcntl(clientFd, F_SETFL, O_NONBLOCK) == -1) {
-        perror("Error: failed to set non-blocking mode on client socket");
+        std::cerr << "Error: failed to set non-blocking mode on client socket\n";
         close(clientFd);
         return;
     }
@@ -85,15 +84,14 @@ void Server::receiveData(int fd) {
     if (bytesRead > 0) {
         std::cout << "Received from client <" << fd << ">: " << buffer << std::endl;
         std::string response = "Server received: " + std::string(buffer);
-        if (write(fd, response.c_str(), response.size()) == -1) {
-            perror("Error sending response to client");
-        }
+        if (write(fd, response.c_str(), response.size()) == -1)
+            std::cerr << "Error sending response to client\n";
     } else if (bytesRead == 0) {
         std::cout << "Client <" << fd << "> disconnected." << std::endl;
         close(fd);
         clearClients(fd);
     } else {
-        perror("Error reading from client");
+        std::cerr<< "Error reading from client\n";
         close(fd);
         clearClients(fd);
     }
@@ -132,17 +130,16 @@ void Server::run() {
         int pollCount = poll(&fds[0], fds.size(), -1);
         if (pollCount == -1) {
             if (errno == EINTR) continue;
-            perror("poll failed");
+                std::cerr << "Error: poll failed\n";
             break;
         }
 
         for (size_t i = 0; i < fds.size(); ++i) {
             if (fds[i].revents & POLLIN) {
-                if (fds[i].fd == serSocketFd) {
+                if (fds[i].fd == serSocketFd)
                     acceptNewClient();
-                } else {
+                else
                     receiveData(fds[i].fd);
-                }
             }
         }
     }
