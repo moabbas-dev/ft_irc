@@ -6,7 +6,7 @@
 /*   By: afarachi <afarachi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:10:02 by afarachi          #+#    #+#             */
-/*   Updated: 2024/12/27 23:54:20 by afarachi         ###   ########.fr       */
+/*   Updated: 2024/12/28 14:56:55 by afarachi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,9 @@ public:
     typedef void (*CommandCallback)(const Cmd&, Server&, Client&); // sho ra2ykon bhal  fekra : :P ⚠️⚠️⚠️⚠️⚠️ s2alt chat GPT w alli mni7a bass ma t3ida⚠️⚠️⚠️⚠️⚠️⚠️
 
 private:
-    std::string _name;
-    std::vector<std::string> _params;
-    static std::map<std::string, CommandCallback> _commands;
+    std::string _cmdName;
+    std::vector<std::string> _cmdParams;
+    static std::map<std::string, CommandCallback> _commands; // map 3al cmdsssss
 
 public:
     Cmd(const std::string& name, const std::vector<std::string>& params);
