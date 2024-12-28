@@ -2,6 +2,7 @@
 #include <csignal>
 #include <cstdlib> // For std::atoi
 #include "includes/Server.hpp"
+#include "includes/Cmd.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -23,6 +24,7 @@ int main(int argc, char *argv[])
         signal(SIGQUIT, Server::signalHandler);
         server.serverInit(port);
         server.run();
+        // Cmd cmd = Cmd::parseClientCommand(server.receiveData());
     }
     catch (const std::exception &e) {
         server.closeFds();

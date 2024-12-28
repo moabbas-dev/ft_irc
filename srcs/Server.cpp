@@ -1,4 +1,5 @@
 #include "../includes/Server.hpp"
+#include "../includes/Cmd.hpp"
 
 bool Server::isSignalReceived = false;
 
@@ -76,26 +77,74 @@ void Server::acceptNewClient() {
               << ", IP = " << newClient.getIPadd() << std::endl;
 }
 
+// void Server::receiveData(int fd) {
+//     char buffer[1024];
+//     memset(buffer, 0, sizeof(buffer));
+
+//     ssize_t bytesRead = read(fd, buffer, sizeof(buffer) - 1);
+//     if (bytesRead > 0) {
+//         std::cout << "Received from client <" << fd << ">: " << buffer << std::endl;
+//         std::string response = "Server received: " + std::string(buffer);
+//         if (write(fd, response.c_str(), response.size()) == -1)
+//             std::cerr << "Error sending response to client\n";
+//     } else if (bytesRead == 0) {
+//         std::cout << "Client <" << fd << "> disconnected." << std::endl;
+//         close(fd);
+//         clearClients(fd);
+//     } else {
+//         std::cerr<< "Error reading from client\n";
+//         close(fd);
+//         clearClients(fd);
+//     }
+// }
+
 void Server::receiveData(int fd) {
     char buffer[1024];
     memset(buffer, 0, sizeof(buffer));
 
     ssize_t bytesRead = read(fd, buffer, sizeof(buffer) - 1);
     if (bytesRead > 0) {
-        std::cout << "Received from client <" << fd << ">: " << buffer << std::endl;
-        std::string response = "Server received: " + std::string(buffer);
-        if (write(fd, response.c_str(), response.size()) == -1)
-            std::cerr << "Error sending response to client\n";
+        std::string input(buffer);
+        std::string commandName;
+        std::vector<std::string> params;
+
+        // Parse the command
+        size_t pos = input.find(' ');
+        if (pos != std::string::npos) {
+            commandName = input.substr(0, pos);
+            std::string paramString = input.substr(pos + 1);
+
+            size_t start = 0;
+            size_t end;
+            while ((end = paramString.find(' ', start)) != std::string::npos) {
+                params.push_back(paramString.substr(start, end - start));
+                start = end + 1;
+            }
+            if (start < paramString.length())
+                params.push_back(paramString.substr(start));
+        } else {
+            commandName = input;
+        }
+
+        // Create and execute the command
+        Cmd cmd(commandName, params);
+        for (size_t i = 0; i < clients.size(); ++i) {
+            if (clients[i].getFd() == fd) {
+                cmd.execute(*this, clients[i]);
+                break;
+            }
+        }
     } else if (bytesRead == 0) {
         std::cout << "Client <" << fd << "> disconnected." << std::endl;
         close(fd);
         clearClients(fd);
     } else {
-        std::cerr<< "Error reading from client\n";
+        std::cerr << "Error reading from client\n";
         close(fd);
         clearClients(fd);
     }
 }
+
 
 void Server::signalHandler(int signum) {
     (void)signum;
