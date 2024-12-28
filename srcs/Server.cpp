@@ -98,6 +98,19 @@ void Server::acceptNewClient() {
 //     }
 // }
 
+std::string trimString(const std::string &str)
+{
+    std::string::size_type start = 0;
+    while (start < str.length() && std::isspace(str[start]))
+        ++start;
+
+    std::string::size_type end = str.length();
+    while (end > start && std::isspace(str[end - 1]))
+        --end;
+
+    return str.substr(start, end - start);
+}
+
 void Server::receiveData(int fd) {
     char buffer[1024];
     memset(buffer, 0, sizeof(buffer));
@@ -105,14 +118,18 @@ void Server::receiveData(int fd) {
     ssize_t bytesRead = read(fd, buffer, sizeof(buffer) - 1);
     if (bytesRead > 0) {
         std::string input(buffer);
+        std::string trimmed;
         std::string commandName;
         std::vector<std::string> params;
 
         // Parse the command
-        size_t pos = input.find(' ');
+        trimmed = trimString(input);
+        if (trimmed == "" || trimmed == "CAP LS")
+            return;
+        size_t pos = trimmed.find(' ');
         if (pos != std::string::npos) {
-            commandName = input.substr(0, pos);
-            std::string paramString = input.substr(pos + 1);
+            commandName = trimmed.substr(0, pos);
+            std::string paramString = trimmed.substr(pos + 1);
 
             size_t start = 0;
             size_t end;
@@ -123,7 +140,7 @@ void Server::receiveData(int fd) {
             if (start < paramString.length())
                 params.push_back(paramString.substr(start));
         } else {
-            commandName = input;
+            commandName = trimmed;
         }
 
         // Create and execute the command
