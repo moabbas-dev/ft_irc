@@ -77,7 +77,7 @@ void Server::acceptNewClient() {
               << ", IP = " << newClient.getIPadd() << std::endl;
 }
 
-// void Server::receiveData(int fd) {
+// void Server::receiveDataV1(int fd) {
 //     char buffer[1024];
 //     memset(buffer, 0, sizeof(buffer));
 
@@ -111,54 +111,116 @@ std::string trimString(const std::string &str)
     return str.substr(start, end - start);
 }
 
+// void Server::receiveDataV2(int fd) {
+//     char buffer[1024];
+//     memset(buffer, 0, sizeof(buffer));
+
+//     ssize_t bytesRead = read(fd, buffer, sizeof(buffer) - 1);
+//     if (bytesRead > 0) {
+//         std::string input(buffer);
+//         std::string trimmed;
+//         std::string commandName;
+//         std::vector<std::string> params;
+
+//         // Parse the command
+//         trimmed = trimString(input);
+//         if (trimmed == "" || trimmed == "CAP LS")
+//             return;
+//         size_t pos = trimmed.find(' ');
+//         if (pos != std::string::npos) {
+//             commandName = trimmed.substr(0, pos);
+//             std::string paramString = trimmed.substr(pos + 1);
+
+//             size_t start = 0;
+//             size_t end;
+//             while ((end = paramString.find(' ', start)) != std::string::npos) {
+//                 params.push_back(paramString.substr(start, end - start));
+//                 start = end + 1;
+//             }
+//             if (start < paramString.length())
+//                 params.push_back(paramString.substr(start));
+//         } else {
+//             commandName = trimmed;
+//         }
+
+//         // Create and execute the command
+//         Cmd cmd(commandName, params);
+//         for (size_t i = 0; i < clients.size(); ++i) {
+//             if (clients[i].getFd() == fd) {
+//                 cmd.execute(*this, clients[i]);
+//                 break;
+//             }
+//         }
+//     } else if (bytesRead == 0) {
+//         std::cout << "Client <" << fd << "> disconnected." << std::endl;
+//         close(fd);
+//         clearClients(fd);
+//     } else {
+//         std::cerr << "Error reading from client\n";
+//         close(fd);
+//         clearClients(fd);
+//     }
+// }
+
 void Server::receiveData(int fd) {
     char buffer[1024];
     memset(buffer, 0, sizeof(buffer));
 
     ssize_t bytesRead = read(fd, buffer, sizeof(buffer) - 1);
     if (bytesRead > 0) {
-        std::string input(buffer);
-        std::string trimmed;
-        std::string commandName;
-        std::vector<std::string> params;
+        clientBuffers[fd] = std::string(buffer);
 
-        // Parse the command
-        trimmed = trimString(input);
-        if (trimmed == "" || trimmed == "CAP LS")
-            return;
-        size_t pos = trimmed.find(' ');
-        if (pos != std::string::npos) {
-            commandName = trimmed.substr(0, pos);
-            std::string paramString = trimmed.substr(pos + 1);
+        // Process complete commands
+        size_t pos;
+        while ((pos = clientBuffers[fd].find('\n')) != std::string::npos) {
+            std::string command = clientBuffers[fd].substr(0, pos);
+            clientBuffers[fd].erase(0, pos + 1); // Remove processed command from buffer
 
-            size_t start = 0;
-            size_t end;
-            while ((end = paramString.find(' ', start)) != std::string::npos) {
-                params.push_back(paramString.substr(start, end - start));
-                start = end + 1;
+            // Trim and process the command
+            std::string trimmed = trimString(command);
+            if (trimmed.empty() || trimmed == "CAP LS")
+                continue;
+
+            std::string commandName;
+            std::vector<std::string> params;
+
+            // Parse command
+            size_t spacePos = trimmed.find(' ');
+            if (spacePos != std::string::npos) {
+                commandName = trimmed.substr(0, spacePos);
+                std::string paramString = trimmed.substr(spacePos + 1);
+
+                size_t start = 0;
+                size_t end;
+                while ((end = paramString.find(' ', start)) != std::string::npos) {
+                    params.push_back(paramString.substr(start, end - start));
+                    start = end + 1;
+                }
+                if (start < paramString.length())
+                    params.push_back(paramString.substr(start));
+            } else {
+                commandName = trimmed;
             }
-            if (start < paramString.length())
-                params.push_back(paramString.substr(start));
-        } else {
-            commandName = trimmed;
-        }
 
-        // Create and execute the command
-        Cmd cmd(commandName, params);
-        for (size_t i = 0; i < clients.size(); ++i) {
-            if (clients[i].getFd() == fd) {
-                cmd.execute(*this, clients[i]);
-                break;
+            // Execute the command
+            Cmd cmd(commandName, params);
+            for (size_t i = 0; i < clients.size(); ++i) {
+                if (clients[i].getFd() == fd) {
+                    cmd.execute(*this, clients[i]);
+                    break;
+                }
             }
         }
     } else if (bytesRead == 0) {
         std::cout << "Client <" << fd << "> disconnected." << std::endl;
         close(fd);
         clearClients(fd);
+        clientBuffers.erase(fd); // Clear buffer for disconnected client
     } else {
         std::cerr << "Error reading from client\n";
         close(fd);
         clearClients(fd);
+        clientBuffers.erase(fd); // Clear buffer for error
     }
 }
 

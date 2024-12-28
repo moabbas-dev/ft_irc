@@ -27,6 +27,7 @@ private:
     std::vector<struct pollfd> fds;
     std::string password;
     std::map<std::string, Channel> channels;
+    std::map<int, std::string> clientBuffers;
 
 public:
     Server();
