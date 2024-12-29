@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cmd.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:11:08 by afarachi          #+#    #+#             */
-/*   Updated: 2024/12/29 18:45:36 by moabbas          ###   ########.fr       */
+/*   Updated: 2024/12/29 20:01:45 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,17 +144,18 @@ bool invalidParameters(std::string command, const std::vector<std::string> param
     else if (command == "PASS") {
         return params.size() != 1;
     } else if (command == "JOIN") {
-        return params.size() != 2;
+        return (params.size() != 1 || params.size() != 2);
     } else if (command == "NICK") {
         return params.size() != 1;
     } else if (command == "PART") {
-        return params.size() != 1;
+        return (params.size() != 1 || params.size() != 2);
     } else if (command == "PING") {
         return params.size() != 1;
     } else if (command == "PRIVMSG") {
-        return params.size() != 1;
+        return (params.size() != 2 || params.size() != 3 || params.size() != 9); // here, first case is the normal one
+        // channel or client, second case is the bot case, the third one is the file transfer case (not sure about it 😅)
     } else if (command == "USER") {
-        return params.size() != 1;
+        return params.size() != 4;
     }
     return false;
 }
@@ -170,18 +171,18 @@ std::list<Cmd> Parser::splitCommands(std::string input, int clientFd) {
         if (!commandFound(parsedCommand.getName())) {
             start = end + 1;
             if (!parsedCommand.getName().empty() && trimString(command).compare("CAP LS")) {
-                std::string errMsg = "Invalid command: " + command;
+                std::string errMsg = "Invalid command: " + command + "\n";
                 Cmd::errorServerClient("", errMsg, clientFd);
             }
             continue;
         }
         if (commandFound(parsedCommand.getName()) && invalidParameters(parsedCommand.getName(), parsedCommand.getParams())) {
             start = end + 1;
-            std::string errMsg = "Invalid Parameters for: " + parsedCommand.getName();
+            std::string errMsg = "Invalid Parameters for: " + parsedCommand.getName() + "\n";
             Cmd::errorServerClient("", errMsg, clientFd);
             continue;
         }
-        result.push_front(parsedCommand);
+        result.push_back(parsedCommand);
         start = end + 1;
     }
     return result;
