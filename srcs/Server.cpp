@@ -3,10 +3,10 @@
 
 bool Server::isSignalReceived = false;
 
-Server::Server() : port(0), serSocketFd(-1) {}
+Server::Server(): port(0) ,serSocketFd(-1) {}
 
-Server::Server(int port, const std::string& password)
-    : port(port), serSocketFd(-1), password(password) {}
+Server::Server(int port ,const std::string& password)
+    : port(port) ,serSocketFd(-1) ,password(password) {}
 
 void Server::serverInit(int port) {
     this->port = port;
@@ -21,21 +21,21 @@ void Server::createServerSocket() {
     add.sin_port = htons(this->port);
     add.sin_addr.s_addr = INADDR_ANY;
 
-    serSocketFd = socket(AF_INET, SOCK_STREAM, 0);
-    if (serSocketFd < 0)
+    serSocketFd = socket(AF_INET ,SOCK_STREAM ,0);
+    if(serSocketFd < 0)
         throw std::runtime_error("Error: failed to create socket");
 
     int en = 1;
-    if (setsockopt(serSocketFd, SOL_SOCKET, SO_REUSEADDR, &en, sizeof(en)) == -1)
+    if(setsockopt(serSocketFd ,SOL_SOCKET ,SO_REUSEADDR ,&en ,sizeof(en)) == -1)
         throw std::runtime_error("Error: failed to set option (SO_REUSEADDR) on socket");
 
-    if (fcntl(serSocketFd, F_SETFL, O_NONBLOCK) == -1)
+    if(fcntl(serSocketFd ,F_SETFL ,O_NONBLOCK) == -1)
         throw std::runtime_error("Error: failed to set option (O_NONBLOCK) on socket");
 
-    if (bind(serSocketFd, (struct sockaddr*)&add, sizeof(add)) == -1)
+    if(bind(serSocketFd ,(struct sockaddr*)&add ,sizeof(add)) == -1)
         throw std::runtime_error("Error: failed to bind socket");
 
-    if (listen(serSocketFd, SOMAXCONN) == -1)
+    if(listen(serSocketFd ,SOMAXCONN) == -1)
         throw std::runtime_error("Error: failed to listen for incoming connections");
 
     struct pollfd newPoll;
@@ -49,14 +49,14 @@ void Server::acceptNewClient() {
     struct sockaddr_in clientAddr;
     socklen_t addrLen = sizeof(clientAddr);
 
-    int clientFd = accept(serSocketFd, (struct sockaddr*)&clientAddr, &addrLen);
-    if (clientFd < 0) {
-        if (errno != EWOULDBLOCK)
+    int clientFd = accept(serSocketFd ,(struct sockaddr*)&clientAddr ,&addrLen);
+    if(clientFd < 0) {
+        if(errno != EWOULDBLOCK)
             std::cerr << "Error: accept client connection failed\n";
         return;
     }
 
-    if (fcntl(clientFd, F_SETFL, O_NONBLOCK) == -1) {
+    if(fcntl(clientFd ,F_SETFL ,O_NONBLOCK) == -1) {
         std::cerr << "Error: failed to set non-blocking mode on client socket\n";
         close(clientFd);
         return;
@@ -65,7 +65,7 @@ void Server::acceptNewClient() {
     Client newClient;
     newClient.setFd(clientFd);
     newClient.setIPadd(std::string(inet_ntoa(clientAddr.sin_addr)));
-    clients.push_back(newClient);
+    clients.insert(std::pair<int, Client>(clientFd, newClient));
 
     struct pollfd newPoll;
     newPoll.fd = clientFd;
@@ -74,7 +74,7 @@ void Server::acceptNewClient() {
     fds.push_back(newPoll);
 
     std::cout << "New client connected: FD = " << clientFd
-              << ", IP = " << newClient.getIPadd() << std::endl;
+        << ", IP = " << newClient.getIPadd() << std::endl;
 }
 
 // void Server::receiveDataV1(int fd) {
@@ -98,18 +98,7 @@ void Server::acceptNewClient() {
 //     }
 // }
 
-std::string trimString(const std::string &str)
-{
-    std::string::size_type start = 0;
-    while (start < str.length() && std::isspace(str[start]))
-        ++start;
 
-    std::string::size_type end = str.length();
-    while (end > start && std::isspace(str[end - 1]))
-        --end;
-
-    return str.substr(start, end - start);
-}
 
 // void Server::receiveDataV2(int fd) {
 //     char buffer[1024];
@@ -163,64 +152,26 @@ std::string trimString(const std::string &str)
 // }
 
 void Server::receiveData(int fd) {
-    char buffer[1024];
-    memset(buffer, 0, sizeof(buffer));
+    char buffer[1024] = {};
+    // memset is forbidden and {} behaves the same as memset since we're into c++98
 
-    ssize_t bytesRead = read(fd, buffer, sizeof(buffer) - 1);
-    if (bytesRead > 0) {
-        clientBuffers[fd] = std::string(buffer);
-
-        // Process complete commands
-        size_t pos;
-        while ((pos = clientBuffers[fd].find('\n')) != std::string::npos) {
-            std::string command = clientBuffers[fd].substr(0, pos);
-            clientBuffers[fd].erase(0, pos + 1); // Remove processed command from buffer
-
-            // Trim and process the command
-            std::string trimmed = trimString(command);
-            if (trimmed.empty() || trimmed == "CAP LS")
-                continue;
-
-            std::string commandName;
-            std::vector<std::string> params;
-
-            // Parse command
-            size_t spacePos = trimmed.find(' ');
-            if (spacePos != std::string::npos) {
-                commandName = trimmed.substr(0, spacePos);
-                std::string paramString = trimmed.substr(spacePos + 1);
-
-                size_t start = 0;
-                size_t end;
-                while ((end = paramString.find(' ', start)) != std::string::npos) {
-                    params.push_back(paramString.substr(start, end - start));
-                    start = end + 1;
-                }
-                if (start < paramString.length())
-                    params.push_back(paramString.substr(start));
-            } else {
-                commandName = trimmed;
-            }
-
-            // Execute the command
-            Cmd cmd(commandName, params);
-            for (size_t i = 0; i < clients.size(); ++i) {
-                if (clients[i].getFd() == fd) {
-                    cmd.execute(*this, clients[i]);
-                    break;
-                }
-            }
-        }
-    } else if (bytesRead == 0) {
+    ssize_t bytesRead = read(fd ,buffer ,sizeof(buffer) - 1);
+    if(bytesRead > 0) {
+        Cmd cmd = Cmd::parseClientCommand(std::string(buffer));
+        std::map<int, Client>::iterator it = clients.find(fd);
+        if (it != clients.end())
+            cmd.execute(*this, it->second);
+    }
+    else if(bytesRead == 0) {
         std::cout << "Client <" << fd << "> disconnected." << std::endl;
         close(fd);
         clearClients(fd);
-        clientBuffers.erase(fd); // Clear buffer for disconnected client
+        // clientBuffers.erase(fd); // Clear buffer for disconnected client
     } else {
         std::cerr << "Error reading from client\n";
         close(fd);
         clearClients(fd);
-        clientBuffers.erase(fd); // Clear buffer for error
+        // clientBuffers.erase(fd);
     }
 }
 
@@ -232,21 +183,21 @@ void Server::signalHandler(int signum) {
 }
 
 void Server::closeFds() {
-    for (std::vector<Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
-        std::cout << "Client <" << it->getFd() << "> Disconnected\n";
-        close(it->getFd());
+    for(std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
+        std::cout << "Client <" << it->first << "> Disconnected\n";
+        close(it->first);
     }
 }
 
 void Server::clearClients(int fd) {
-    for (std::vector<struct pollfd>::iterator it = fds.begin(); it != fds.end(); ++it) {
-        if (it->fd == fd) {
+    for(std::vector<struct pollfd>::iterator it = fds.begin(); it != fds.end(); ++it) {
+        if(it->fd == fd) {
             fds.erase(it);
             break;
         }
     }
-    for (std::vector<Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
-        if (it->getFd() == fd) {
+    for(std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
+        if(it->first == fd) {
             clients.erase(it);
             break;
         }
@@ -254,24 +205,24 @@ void Server::clearClients(int fd) {
 }
 
 void Server::run() {
-    while (!isSignalReceived) {
-        int pollCount = poll(&fds[0], fds.size(), -1);
-        if (pollCount == -1) {
-            if (errno == EINTR) continue;
-                std::cerr << "Error: poll failed\n";
+    while(!isSignalReceived) {
+        int pollCount = poll(&fds[0] ,fds.size() ,-1);
+        if(pollCount == -1) {
+            if(errno == EINTR) continue;
+            std::cerr << "Error: poll failed\n";
             break;
         }
 
-        for (size_t i = 0; i < fds.size(); ++i) {
-            if (fds[i].revents & POLLIN) {
-                if (fds[i].fd == serSocketFd)
+        for(size_t i = 0; i < fds.size(); ++i) {
+            if(fds[i].revents & POLLIN) {
+                if(fds[i].fd == serSocketFd)
                     acceptNewClient();
                 else
                     receiveData(fds[i].fd);
             }
         }
     }
-
     closeFds();
-    std::cout << "Server shutting down gracefully." << std::endl;
+    // std::cout << "Server shutting down gracefully." << std::endl;
 }
+// /root/irssi-1.4.4

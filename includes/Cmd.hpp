@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cmd.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: afarachi <afarachi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:10:02 by afarachi          #+#    #+#             */
-/*   Updated: 2024/12/28 15:57:24 by afarachi         ###   ########.fr       */
+/*   Updated: 2024/12/29 12:01:10 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ public:
     const std::vector<std::string>& getParams() const;
 
     void execute(Server& server, Client& client) const;
-    static Cmd parseClientCommand(const std::string& input);
+    static Cmd parseClientCommand(std::string input);
 
     //  Commandsssssssssssssssssssssss 🧩
     static void PASS(const Cmd& cmd, Server& server, Client& client);

@@ -24,13 +24,11 @@ int main(int argc, char *argv[])
         signal(SIGQUIT, Server::signalHandler);
         server.serverInit(port);
         server.run();
-        // Cmd cmd = Cmd::parseClientCommand(server.receiveData());
     }
     catch (const std::exception &e) {
         server.closeFds();
         std::cerr << "Error: " << e.what() << std::endl;
     }
-
     std::cout << "The Server Closed!" << std::endl;
     return 0;
 }
