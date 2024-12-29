@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:10:02 by afarachi          #+#    #+#             */
-/*   Updated: 2024/12/29 12:01:10 by moabbas          ###   ########.fr       */
+/*   Updated: 2024/12/29 15:18:24 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,13 @@
 
 #include <string>
 #include <vector>
+#include <list>
 #include <map>
 #include "Client.hpp"
 #include "Channel.hpp"
 #include "Server.hpp"
+
+class Server;
 
 class Cmd {
 public:
@@ -30,7 +33,6 @@ private:
     static std::map<std::string, CommandCallback> _commands; // map 3al cmdsssss
 
 public:
-    Cmd(const std::string& name, const std::vector<std::string>& params);
     Cmd(const Cmd& other);
     Cmd& operator=(const Cmd& other);
     ~Cmd();
@@ -39,9 +41,8 @@ public:
     const std::vector<std::string>& getParams() const;
 
     void execute(Server& server, Client& client) const;
-    static Cmd parseClientCommand(std::string input);
 
-    //  Commandsssssssssssssssssssssss 🧩
+    //  Commands
     static void PASS(const Cmd& cmd, Server& server, Client& client);
     static void NICK(const Cmd& cmd, Server& server, Client& client);
     static void USER(const Cmd& cmd, Server& server, Client& client);
@@ -49,9 +50,19 @@ public:
     static void PRIVMSG(const Cmd& cmd, Server& server, Client& client);
     static void JOIN(const Cmd& cmd, Server& client, Client& server);
     static void PART(const Cmd& cmd, Server& client, Client& server);
+    
+    Cmd(const std::string& name, const std::vector<std::string>& params);
+    static void errorServerClient(std::string s_side, std::string c_side, int c_fd);
+};
 
-    // 🤔
-    // static void registerCommands();
+class Parser {
+    private:
+        static std::list<Cmd> splitCommands(std::string input);
+        static Cmd parseCommand(std::string input);
+        
+    public:
+        static void parse(std::list<Cmd> *commandsList, std::string input);
+        
 };
 
 #endif

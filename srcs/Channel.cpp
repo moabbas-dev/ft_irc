@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Channel.cpp                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/12/29 12:53:48 by moabbas           #+#    #+#             */
+/*   Updated: 2024/12/29 12:53:49 by moabbas          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/Channel.hpp"
 
 Channel::Channel(std::string name, std::string key): name(name), channelKey(key) {

@@ -3,19 +3,23 @@
 /*                                                        :::      ::::::::   */
 /*   NICK.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: afarachi <afarachi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:50:34 by afarachi          #+#    #+#             */
-/*   Updated: 2024/12/28 14:54:35 by afarachi         ###   ########.fr       */
+/*   Updated: 2024/12/29 13:37:20 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Cmd.hpp"
 
 void Cmd::NICK(const Cmd& cmd, Server& server, Client& client) {
-    std::cout << "Executing NICK command\n";
-    (void)cmd;
     (void)server;
-    (void)client;
-    // @mabbas && @jfatfat > here we can  implement NICK
+    if (cmd.getParams().size() != 1) {
+        Cmd::errorServerClient("Error: Cannot resolve NICK command",
+        "server: Error when setting nickname (NICK is invalid)", client.getFd());
+    }
+    else {
+    client.setNickname(cmd.getParams()[0]);
+    std::cout << "NickName for user <" << client.getFd() << "> has been set" << std::endl;
+    }
 }

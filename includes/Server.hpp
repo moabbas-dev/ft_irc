@@ -17,18 +17,22 @@
 #include <cstdio>
 #include <stdexcept>
 #include <iostream>
+#include <list>
+#include "Cmd.hpp"
+
+class Cmd;
 
 class Server {
 private:
     int port;
     int serSocketFd;
     static bool isSignalReceived;
-    // std::vector<Client> clients;
     std::map<int, Client> clients;
     std::vector<struct pollfd> fds;
     std::string password;
     std::map<std::string, Channel> channels;
     std::map<int, std::string> clientBuffers;
+    std::list<Cmd> commands;
 
 public:
     Server();

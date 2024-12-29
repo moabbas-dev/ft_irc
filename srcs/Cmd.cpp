@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:11:08 by afarachi          #+#    #+#             */
-/*   Updated: 2024/12/29 12:43:13 by moabbas          ###   ########.fr       */
+/*   Updated: 2024/12/29 15:22:18 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,8 +30,8 @@ Cmd::Cmd(const std::string& name ,const std::vector<std::string>& params)
     _commands["PRIVMSG"] = &Cmd::PRIVMSG;
 }
 
-Cmd::Cmd(const Cmd& other): _cmdName(other._cmdName) ,_cmdParams(other._cmdParams) {
-
+Cmd::Cmd(const Cmd& other) {
+    *this = other;
 }
 
 Cmd& Cmd::operator=(const Cmd& other)
@@ -56,32 +56,8 @@ const std::vector<std::string>& Cmd::getParams() const
     return _cmdParams;
 }
 
-// Register all commands in the static map
-// void Cmd::registerCommands() {
-//     _commands["PASS"] = &Cmd::PASS;
-//     _commands["NICK"] = &Cmd::NICK;
-//     _commands["USER"] = &Cmd::USER;
-//     _commands["PING"] = &Cmd::PING;
-//     _commands["PRIVMSG"] = &Cmd::PRIVMSG;
-//     _commands["JOIN"] = &Cmd::JOIN;
-//     _commands["PART"] = &Cmd::PART;
-// }
-
-// ⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️ Execute the command by finding the callback in the map ⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️
-// void Cmd::execute(Server& server, Client& client) const {
-//     std::map<std::string, CommandCallback>::const_iterator it = _commands.find(_cmdName);
-//     if (it != _commands.end()) {
-//         it->second(*this, server, client); //⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️ Call the callback function ⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️
-//     } else {
-//         std::cerr << "Error: Unknown command: " << _cmdName << std::endl;
-//     }
-// }
-
-// enso yalli fo2 kenet 3amm jarreb 3layhon
-
 void Cmd::execute(Server& server ,Client& client) const
 {
-    // Log the command and its parameters for tracking
     std::cout << "New command: " << _cmdName << std::endl;
     if(!_cmdParams.empty())
     {
@@ -95,25 +71,12 @@ void Cmd::execute(Server& server ,Client& client) const
         std::cout << std::endl;
     }
 
-    // std::map<std::string, CommandCallback> _commands = {
-    //     {"JOIN", &Cmd::JOIN},
-    //     {"NICK", &Cmd::NICK},
-    //     {"PART", &Cmd::PART},
-    //     {"PASS", &Cmd::PASS},
-    //     {"PING", &Cmd::PING},
-    //     {"USER", &Cmd::USER},
-    //     {"PRIVMSG", &Cmd::PRIVMSG}
-    // };
-    // Search for the command in the map
     std::map<std::string ,CommandCallback>::const_iterator it = _commands.find(_cmdName);
     if(it != _commands.end())
-        // Execute the command using the corresponding callback
         it->second(*this ,server ,client);
     else
     {
-        // Handle unknown commands
         std::cerr << "Error: Unknown command: " << _cmdName << std::endl;
-        // Optionally, you can send an error message back to the client
         std::string errorMessage = "Error: Unknown command: " + _cmdName + "\n";
         send(client.getFd() ,errorMessage.c_str() ,errorMessage.size() ,0);
     }
@@ -157,21 +120,42 @@ std::string trimString(const std::string& str)
     return str.substr(start ,end - start);
 }
 
-Cmd Cmd::parseClientCommand(std::string clientBuffer) {
-    // Process complete commands
+
+void Cmd::errorServerClient(std::string s_side, std::string c_side, int c_fd) {
+    std::cerr << s_side << std::endl;
+    send(c_fd, c_side.c_str(), c_side.size(), 0);
+}
+
+void Parser::parse(std::list<Cmd> *commandsList, std::string input) {
+    std::list<Cmd> commands = Parser::splitCommands(input);
+    commandsList->splice(commandsList->end(), commands);
+}
+
+std::list<Cmd> Parser::splitCommands(std::string input) {
+    size_t start = 0, end;
+    std::list<Cmd> result;
+
+    while ((end = input.find('\n', start)) != std::string::npos) {
+        std::string command = input.substr(start, end - start);
+        command.push_back('\n');
+        result.push_front(parseCommand(command));
+        start = end + 1;
+    }
+    return result;
+}
+
+Cmd Parser::parseCommand(std::string clientBuffer) {
     size_t pos;
     std::string commandName;
     std::vector<std::string> params;
     while((pos = clientBuffer.find('\n')) != std::string::npos) {
         std::string command = clientBuffer.substr(0 ,pos);
-        clientBuffer.erase(0 ,pos + 1); // Remove processed command from buffer
+        clientBuffer.erase(0 ,pos + 1);
         if(!command.empty() && command[command.size() - 1] == '\r')
-            command.erase(command.size() - 1);// Remove \r if present
+            command.erase(command.size() - 1);
         std::string trimmed = trimString(command);
         if(trimmed.empty() || trimmed == "CAP LS")
             continue;
-
-        // Parse command
         size_t firstSpace = trimmed.find(' ');
         commandName = trimmed.substr(0 ,firstSpace);
         if(firstSpace != std::string::npos) {
@@ -180,20 +164,15 @@ Cmd Cmd::parseClientCommand(std::string clientBuffer) {
             while((endIdx = rest.find(' ' ,startIdx)) != std::string::npos) {
                 std::string param = rest.substr(startIdx ,endIdx - startIdx);
                 if(!param.empty() && param[0] == ':') {
-                    // Treat everything after ':' as a single parameter
-                    // example: when we have this command: PRIVMSG #channel :This is a message
-                    // => so there are 2 params in this case: #channel and (This is a message)
                     params.push_back(rest.substr(startIdx + 1));
                     startIdx = rest.size();
-                    break; // Stop splitting but continue processing the function
+                    break;
                 }
                 params.push_back(param);
                 while(endIdx != rest.size() && isspace(rest[endIdx]))
                     endIdx++;
                 startIdx = endIdx;
             }
-
-            // Handle the last parameter (in case no ':' was found earlier)
             if(startIdx < rest.size()) {
                 std::string lastParam = rest.substr(startIdx);
                 if(!lastParam.empty() && lastParam[0] == ':')
@@ -204,6 +183,5 @@ Cmd Cmd::parseClientCommand(std::string clientBuffer) {
         } else
             commandName = trimmed;
     }
-    Cmd cmd(commandName ,params);
-    return cmd;
+    return Cmd(commandName ,params);
 }

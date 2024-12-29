@@ -151,31 +151,6 @@ void Server::acceptNewClient() {
 //     }
 // }
 
-void Server::receiveData(int fd) {
-    char buffer[1024] = {};
-    // memset is forbidden and {} behaves the same as memset since we're into c++98
-
-    ssize_t bytesRead = read(fd ,buffer ,sizeof(buffer) - 1);
-    if(bytesRead > 0) {
-        Cmd cmd = Cmd::parseClientCommand(std::string(buffer));
-        std::map<int, Client>::iterator it = clients.find(fd);
-        if (it != clients.end())
-            cmd.execute(*this, it->second);
-    }
-    else if(bytesRead == 0) {
-        std::cout << "Client <" << fd << "> disconnected." << std::endl;
-        close(fd);
-        clearClients(fd);
-        // clientBuffers.erase(fd); // Clear buffer for disconnected client
-    } else {
-        std::cerr << "Error reading from client\n";
-        close(fd);
-        clearClients(fd);
-        // clientBuffers.erase(fd);
-    }
-}
-
-
 void Server::signalHandler(int signum) {
     (void)signum;
     std::cout << std::endl << "Signal Received!" << std::endl;
@@ -204,6 +179,29 @@ void Server::clearClients(int fd) {
     }
 }
 
+void Server::receiveData(int fd) {
+    char buffer[1024] = {};
+
+    ssize_t bytesRead = read(fd ,buffer ,sizeof(buffer) - 1);
+    if(bytesRead > 0) {
+        Parser::parse(&commands ,std::string(buffer));
+        std::map<int, Client>::iterator client = clients.find(fd);
+        for (std::list<Cmd>::iterator it = commands.begin(); it != commands.end(); ++it) {
+            it->execute(*this, client->second);
+            // commands.erase(it);
+        }
+    }
+    else if(bytesRead == 0) {
+        std::cout << "Client <" << fd << "> disconnected." << std::endl;
+        close(fd);
+        clearClients(fd);
+    } else {
+        std::cerr << "Error reading from client\n";
+        close(fd);
+        clearClients(fd);
+    }
+}
+
 void Server::run() {
     while(!isSignalReceived) {
         int pollCount = poll(&fds[0] ,fds.size() ,-1);
@@ -225,4 +223,3 @@ void Server::run() {
     closeFds();
     // std::cout << "Server shutting down gracefully." << std::endl;
 }
-// /root/irssi-1.4.4
