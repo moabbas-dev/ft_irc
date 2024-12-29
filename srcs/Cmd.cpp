@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:11:08 by afarachi          #+#    #+#             */
-/*   Updated: 2024/12/29 12:04:59 by moabbas          ###   ########.fr       */
+/*   Updated: 2024/12/29 12:43:13 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,8 +175,8 @@ Cmd Cmd::parseClientCommand(std::string clientBuffer) {
         size_t firstSpace = trimmed.find(' ');
         commandName = trimmed.substr(0 ,firstSpace);
         if(firstSpace != std::string::npos) {
-            std::string rest = trimmed.substr(firstSpace + 1);
             size_t startIdx = 0 ,endIdx;
+            std::string rest = trimString(trimmed.substr(firstSpace + 1));
             while((endIdx = rest.find(' ' ,startIdx)) != std::string::npos) {
                 std::string param = rest.substr(startIdx ,endIdx - startIdx);
                 if(!param.empty() && param[0] == ':') {
@@ -188,7 +188,9 @@ Cmd Cmd::parseClientCommand(std::string clientBuffer) {
                     break; // Stop splitting but continue processing the function
                 }
                 params.push_back(param);
-                startIdx = endIdx + 1;
+                while(endIdx != rest.size() && isspace(rest[endIdx]))
+                    endIdx++;
+                startIdx = endIdx;
             }
 
             // Handle the last parameter (in case no ':' was found earlier)
