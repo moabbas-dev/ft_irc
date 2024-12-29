@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:10:02 by afarachi          #+#    #+#             */
-/*   Updated: 2024/12/29 15:18:24 by moabbas          ###   ########.fr       */
+/*   Updated: 2024/12/29 18:02:12 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ class Server;
 
 class Cmd {
 public:
-    typedef void (*CommandCallback)(const Cmd&, Server&, Client&); // sho ra2ykon bhal  fekra : :P ⚠️⚠️⚠️⚠️⚠️ s2alt chat GPT w alli mni7a bass ma t3ida⚠️⚠️⚠️⚠️⚠️⚠️
+    typedef void (*CommandCallback)(const Cmd&, Server&, Client&);
 
 private:
     std::string _cmdName;
@@ -57,11 +57,11 @@ public:
 
 class Parser {
     private:
-        static std::list<Cmd> splitCommands(std::string input);
         static Cmd parseCommand(std::string input);
+        static std::list<Cmd> splitCommands(std::string input, int clientFd);
         
     public:
-        static void parse(std::list<Cmd> *commandsList, std::string input);
+        static void parse(std::list<Cmd> *commandsList, std::string input, int clientFd);
         
 };
 

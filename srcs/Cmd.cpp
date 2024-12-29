@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:11:08 by afarachi          #+#    #+#             */
-/*   Updated: 2024/12/29 16:47:46 by moabbas          ###   ########.fr       */
+/*   Updated: 2024/12/29 18:09:12 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,23 +126,35 @@ void Cmd::errorServerClient(std::string s_side, std::string c_side, int c_fd) {
     send(c_fd, c_side.c_str(), c_side.size(), 0);
 }
 
-void Parser::parse(std::list<Cmd> *commandsList, std::string input) {
-    if (input.empty() || !input.compare("\n"))
-        return ;
-    std::list<Cmd> commands = Parser::splitCommands(input);
+void Parser::parse(std::list<Cmd> *commandsList, std::string input, int clientFd) {
+    std::list<Cmd> commands = Parser::splitCommands(input, clientFd);
     commandsList->splice(commandsList->end(), commands);
 }
 
-std::list<Cmd> Parser::splitCommands(std::string input) {
+bool commandFound(std::string command) {
+    return command == "PASS" || command == "JOIN"
+        || command == "NICK" || command == "PART"
+        || command == "PING" || command == "PRIVMSG"
+        || command == "USER";
+}
+
+std::list<Cmd> Parser::splitCommands(std::string input, int clientFd) {
     size_t start = 0, end;
     std::list<Cmd> result;
 
     while ((end = input.find('\n', start)) != std::string::npos) {
         std::string command = input.substr(start, end - start);
-        if (command.empty())
-            continue;
         command.push_back('\n');
-        result.push_front(parseCommand(command));
+        Cmd parsedCommand = parseCommand(command);
+        if (!commandFound(parsedCommand.getName())) {
+            start = end + 1;
+            if (!parsedCommand.getName().empty() && trimString(command).compare("CAP LS")) {
+                std::string errMsg = "Invalid command: " + command;
+                Cmd::errorServerClient("", errMsg, clientFd);
+            }
+            continue;
+        }
+        result.push_front(parsedCommand);
         start = end + 1;
     }
     return result;

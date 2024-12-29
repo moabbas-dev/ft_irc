@@ -207,8 +207,8 @@ void Server::receiveData(int fd) {
 
     ssize_t bytesRead = read(fd ,buffer ,sizeof(buffer) - 1);
     if(bytesRead > 0) {
-        Parser::parse(&commands ,std::string(buffer));
-        Server::checkInitialClientData(fd);
+        Parser::parse(&commands ,std::string(buffer), fd);
+        // Server::checkInitialClientData(fd);
         std::map<int, Client>::iterator client = clients.find(fd);
         for (std::list<Cmd>::iterator it = commands.begin(); it != commands.end(); ++it) {
             it->execute(*this, client->second);
