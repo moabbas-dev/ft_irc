@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:11:08 by afarachi          #+#    #+#             */
-/*   Updated: 2024/12/29 18:09:12 by moabbas          ###   ########.fr       */
+/*   Updated: 2024/12/29 18:45:36 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,6 +138,27 @@ bool commandFound(std::string command) {
         || command == "USER";
 }
 
+bool invalidParameters(std::string command, const std::vector<std::string> params) {
+    if (params.size() == 0) 
+        return true;
+    else if (command == "PASS") {
+        return params.size() != 1;
+    } else if (command == "JOIN") {
+        return params.size() != 2;
+    } else if (command == "NICK") {
+        return params.size() != 1;
+    } else if (command == "PART") {
+        return params.size() != 1;
+    } else if (command == "PING") {
+        return params.size() != 1;
+    } else if (command == "PRIVMSG") {
+        return params.size() != 1;
+    } else if (command == "USER") {
+        return params.size() != 1;
+    }
+    return false;
+}
+
 std::list<Cmd> Parser::splitCommands(std::string input, int clientFd) {
     size_t start = 0, end;
     std::list<Cmd> result;
@@ -152,6 +173,12 @@ std::list<Cmd> Parser::splitCommands(std::string input, int clientFd) {
                 std::string errMsg = "Invalid command: " + command;
                 Cmd::errorServerClient("", errMsg, clientFd);
             }
+            continue;
+        }
+        if (commandFound(parsedCommand.getName()) && invalidParameters(parsedCommand.getName(), parsedCommand.getParams())) {
+            start = end + 1;
+            std::string errMsg = "Invalid Parameters for: " + parsedCommand.getName();
+            Cmd::errorServerClient("", errMsg, clientFd);
             continue;
         }
         result.push_front(parsedCommand);

@@ -210,10 +210,8 @@ void Server::receiveData(int fd) {
         Parser::parse(&commands ,std::string(buffer), fd);
         // Server::checkInitialClientData(fd);
         std::map<int, Client>::iterator client = clients.find(fd);
-        for (std::list<Cmd>::iterator it = commands.begin(); it != commands.end(); ++it) {
+        for (std::list<Cmd>::iterator it = commands.begin(); it != commands.end(); ++it)
             it->execute(*this, client->second);
-            std::cout << "U";
-        }
     }
     else if(bytesRead == 0) {
         std::cout << "Client <" << fd << "> disconnected." << std::endl;
