@@ -48,6 +48,8 @@ public:
     void handleJoin(int fd, const std::string& channelName);
     void handlePrivmsg(int senderFd, const std::string& target, const std::string& message);
     void handlePart(int fd, const std::string& channelName);
+private:
+    void checkInitialClientData(int fd);
 };
 
 #endif

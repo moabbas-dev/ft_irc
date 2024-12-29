@@ -73,7 +73,7 @@ void Server::acceptNewClient() {
     newPoll.revents = 0;
     fds.push_back(newPoll);
 
-    std::cout << "New client connected: FD = " << clientFd
+    std::cout << "New client has connected: FD = " << clientFd
         << ", IP = " << newClient.getIPadd() << std::endl;
 }
 
@@ -160,7 +160,7 @@ void Server::signalHandler(int signum) {
 void Server::closeFds() {
     for(std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
         std::cout << "Client <" << it->first << "> Disconnected\n";
-        close(it->first);
+        close(it->second.getFd());
     }
 }
 
@@ -179,16 +179,40 @@ void Server::clearClients(int fd) {
     }
 }
 
+void Server::checkInitialClientData(int fd) {
+    if (commands.size() == 0)
+        return ;
+    std::list<Cmd>::iterator it = commands.begin();
+    if (commands.size() == 1 && it->getName().compare("PASS"))
+        Cmd::errorServerClient("", "Command not valid", fd);
+    else if (commands.size() == 2
+        && (it->getName().compare("PASS") || (++it)->getName().compare("NICK")))
+        Cmd::errorServerClient("", "Command not valid", fd);
+    else if (commands.size() == 3
+        && (it->getName().compare("PASS") 
+            || (++it)->getName().compare("NICK")
+            || (++it)->getName().compare("USER")))
+        Cmd::errorServerClient("", "Command not valid", fd);
+    else if (commands.size() == 3)
+    {
+        it = commands.begin();
+        commands.erase(it);
+        commands.erase(++it);
+        commands.erase(++it);
+    }
+}
+
 void Server::receiveData(int fd) {
     char buffer[1024] = {};
 
     ssize_t bytesRead = read(fd ,buffer ,sizeof(buffer) - 1);
     if(bytesRead > 0) {
         Parser::parse(&commands ,std::string(buffer));
+        Server::checkInitialClientData(fd);
         std::map<int, Client>::iterator client = clients.find(fd);
         for (std::list<Cmd>::iterator it = commands.begin(); it != commands.end(); ++it) {
             it->execute(*this, client->second);
-            // commands.erase(it);
+            std::cout << "U";
         }
     }
     else if(bytesRead == 0) {
@@ -221,5 +245,4 @@ void Server::run() {
         }
     }
     closeFds();
-    // std::cout << "Server shutting down gracefully." << std::endl;
 }

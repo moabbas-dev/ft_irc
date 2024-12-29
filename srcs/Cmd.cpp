@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:11:08 by afarachi          #+#    #+#             */
-/*   Updated: 2024/12/29 15:22:18 by moabbas          ###   ########.fr       */
+/*   Updated: 2024/12/29 16:47:46 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,6 +127,8 @@ void Cmd::errorServerClient(std::string s_side, std::string c_side, int c_fd) {
 }
 
 void Parser::parse(std::list<Cmd> *commandsList, std::string input) {
+    if (input.empty() || !input.compare("\n"))
+        return ;
     std::list<Cmd> commands = Parser::splitCommands(input);
     commandsList->splice(commandsList->end(), commands);
 }
@@ -137,6 +139,8 @@ std::list<Cmd> Parser::splitCommands(std::string input) {
 
     while ((end = input.find('\n', start)) != std::string::npos) {
         std::string command = input.substr(start, end - start);
+        if (command.empty())
+            continue;
         command.push_back('\n');
         result.push_front(parseCommand(command));
         start = end + 1;
