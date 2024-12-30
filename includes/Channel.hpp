@@ -8,6 +8,8 @@
 #include <sys/socket.h>
 #include <sstream>
 
+class Client;
+
 enum CommandType {
     KICK,
     INVITE,

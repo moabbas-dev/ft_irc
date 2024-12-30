@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 12:53:55 by moabbas           #+#    #+#             */
-/*   Updated: 2024/12/29 12:53:56 by moabbas          ###   ########.fr       */
+/*   Updated: 2024/12/30 11:55:42 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,14 @@ bool Client::getIsAuthenticated() const {
     return isAuthenticated;
 }
 
+std::string Client::getHostName() const {
+    return hostName;
+}
+
+std::list<Cmd> Client::getCommands() const {
+    return commands;
+}
+
 // Setters
 
 void Client::setFd(int fd) {
@@ -59,6 +67,13 @@ void Client::setIsAuthenticated(bool isAuthenticated) {
     this->isAuthenticated = isAuthenticated;
 }
 
+void Client::setHostName(std::string hostName) {
+    this->hostName = hostName;
+}
+
+void Client::setCommands(std::list<Cmd> commands) {
+    this->commands = commands;
+}
 
 bool Client::isOperator(const std::string& channel) const {
     for (std::vector<std::string>::const_iterator it = channels.begin(); it != channels.end(); ++it)

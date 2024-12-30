@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:10:02 by afarachi          #+#    #+#             */
-/*   Updated: 2024/12/29 18:02:12 by moabbas          ###   ########.fr       */
+/*   Updated: 2024/12/30 11:54:54 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,8 @@
 #include "Client.hpp"
 #include "Channel.hpp"
 #include "Server.hpp"
-
 class Server;
+class Client;
 
 class Cmd {
 public:

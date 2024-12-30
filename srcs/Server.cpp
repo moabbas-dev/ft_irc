@@ -8,6 +8,11 @@ Server::Server(): port(0) ,serSocketFd(-1) {}
 Server::Server(int port ,const std::string& password)
     : port(port) ,serSocketFd(-1) ,password(password) {}
 
+Server::~Server() {
+    for (std::map<int, Client>::iterator it = clients.begin();it != clients.end(); ++it)
+        it->second.getCommands().clear();
+}
+
 void Server::serverInit(int port) {
     this->port = port;
     createServerSocket();
@@ -62,9 +67,16 @@ void Server::acceptNewClient() {
         return;
     }
 
+
+    std::string ipAddress = std::string(inet_ntoa(clientAddr.sin_addr));
+    std::string hostname = "Unknown";
+    struct hostent* host = gethostbyaddr(&clientAddr.sin_addr, sizeof(clientAddr.sin_addr), AF_INET);
+    if (host && host->h_name)
+        hostname = std::string(host->h_name);
     Client newClient;
     newClient.setFd(clientFd);
     newClient.setIPadd(std::string(inet_ntoa(clientAddr.sin_addr)));
+    newClient.setHostName(hostname);
     clients.insert(std::pair<int, Client>(clientFd, newClient));
 
     struct pollfd newPoll;
@@ -73,8 +85,7 @@ void Server::acceptNewClient() {
     newPoll.revents = 0;
     fds.push_back(newPoll);
 
-    std::cout << "New client has connected: FD = " << clientFd
-        << ", IP = " << newClient.getIPadd() << std::endl;
+    std::cout << "[New Client]: " << newClient.getHostName() << ":" << newClient.getIPadd() << " has connected.\n";
 }
 
 // void Server::receiveDataV1(int fd) {
@@ -159,68 +170,63 @@ void Server::signalHandler(int signum) {
 
 void Server::closeFds() {
     for(std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
-        std::cout << "Client <" << it->first << "> Disconnected\n";
+        std::cout << "Client " << it->second.getHostName() << "<" << it->second.getFd() << "> disconnected." << std::endl;
         close(it->second.getFd());
     }
 }
 
-void Server::clearClients(int fd) {
+void Server::clearClient(int fd) {
     for(std::vector<struct pollfd>::iterator it = fds.begin(); it != fds.end(); ++it) {
         if(it->fd == fd) {
             fds.erase(it);
             break;
         }
     }
-    for(std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
-        if(it->first == fd) {
-            clients.erase(it);
-            break;
-        }
-    }
-}
-
-void Server::checkInitialClientData(int fd) {
-    if (commands.size() == 0)
-        return ;
-    std::list<Cmd>::iterator it = commands.begin();
-    if (commands.size() == 1 && it->getName().compare("PASS"))
-        Cmd::errorServerClient("", "Command not valid", fd);
-    else if (commands.size() == 2
-        && (it->getName().compare("PASS") || (++it)->getName().compare("NICK")))
-        Cmd::errorServerClient("", "Command not valid", fd);
-    else if (commands.size() == 3
-        && (it->getName().compare("PASS") 
-            || (++it)->getName().compare("NICK")
-            || (++it)->getName().compare("USER")))
-        Cmd::errorServerClient("", "Command not valid", fd);
-    else if (commands.size() == 3)
-    {
-        it = commands.begin();
-        commands.erase(it);
-        commands.erase(++it);
-        commands.erase(++it);
-    }
+    clients.erase(fd);
 }
 
 void Server::receiveData(int fd) {
     char buffer[1024] = {};
 
     ssize_t bytesRead = read(fd ,buffer ,sizeof(buffer) - 1);
+    std::map<int, Client>::iterator it = clients.find(fd);
     if(bytesRead > 0) {
-        Parser::parse(&commands ,std::string(buffer), fd);
-        // Server::checkInitialClientData(fd);
-        std::map<int, Client>::iterator client = clients.find(fd);
-        for (std::list<Cmd>::iterator it = commands.begin(); it != commands.end(); ++it)
-            it->execute(*this, client->second);
+        if (it != clients.end()) {
+            Client& client = it->second;
+            std::list<Cmd> commands;
+            Parser::parse(&commands, std::string(buffer), fd);
+            client.setCommands(commands);
+        } else {
+            std::cerr << "Error: Client not found for FD " << fd << std::endl;
+        }
     }
     else if(bytesRead == 0) {
-        std::cout << "Client <" << fd << "> disconnected." << std::endl;
+        std::cout << "Client " << it->second.getHostName() << "<" << fd << "> disconnected." << std::endl;
         close(fd);
-        clearClients(fd);
+        clearClient(fd);
     } else {
         std::cerr << "Error reading from client\n";
         close(fd);
-        clearClients(fd);
+        clearClient(fd);
+    }
+}
+
+void Server::processClientCommands(int fd) {
+    std::map<int, Client>::iterator it = clients.find(fd);
+    if (it != clients.end()) {
+        Client& client = it->second;
+        std::list<Cmd> commands = client.getCommands();
+        while (!commands.empty()) {
+            Cmd command = commands.front();
+            commands.pop_front();
+
+            try {
+                command.execute(*this, client);
+            } catch (const std::exception& e) {
+                std::cerr << "Error executing command for client "
+                            << client.getFd() << ": " << e.what() << std::endl;
+            }
+        }
     }
 }
 
@@ -237,8 +243,10 @@ void Server::run() {
             if(fds[i].revents & POLLIN) {
                 if(fds[i].fd == serSocketFd)
                     acceptNewClient();
-                else
+                else {
                     receiveData(fds[i].fd);
+                    processClientCommands(fds[i].fd);
+                }
             }
         }
     }

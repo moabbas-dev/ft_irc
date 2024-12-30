@@ -18,9 +18,8 @@
 #include <stdexcept>
 #include <iostream>
 #include <list>
-#include "Cmd.hpp"
+#include <netdb.h>
 
-class Cmd;
 
 class Server {
 private:
@@ -32,24 +31,25 @@ private:
     std::string password;
     std::map<std::string, Channel> channels;
     std::map<int, std::string> clientBuffers;
-    std::list<Cmd> commands;
 
 public:
     Server();
     Server(int port, const std::string& password);
+    ~Server();
     void serverInit(int port);
     void createServerSocket();
     void acceptNewClient();
     void receiveData(int fd);
     static void signalHandler(int signum);
     void closeFds();
-    void clearClients(int fd);
+    void clearClient(int fd);
     void run();
     void handleJoin(int fd, const std::string& channelName);
     void handlePrivmsg(int senderFd, const std::string& target, const std::string& message);
     void handlePart(int fd, const std::string& channelName);
 private:
     void checkInitialClientData(int fd);
+    void processClientCommands(int fd);
 };
 
 #endif
