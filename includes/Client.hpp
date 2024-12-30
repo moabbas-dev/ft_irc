@@ -15,6 +15,9 @@ private:
     std::string nickname;
     std::string username;
     bool isAuthenticated;
+    bool hasSetPassword;
+    bool hasSetNickName;
+    bool hasSetUser;
     std::vector<std::string> channels;
     std::string messageBuffer;
     std::string hostName;
@@ -30,6 +33,9 @@ public:
     bool getIsAuthenticated() const;
     std::string getHostName() const;
     std::list<Cmd> getCommands() const;
+    bool getHasSetPassword() const;
+    bool getHasSetNickName() const;
+    bool getHasSetUser() const;
 
     // Setters
     void setFd(int fd);
@@ -39,6 +45,9 @@ public:
     void setIsAuthenticated(bool isAuthenticated);
     void setHostName(std::string hostName);
     void setCommands(std::list<Cmd> commands);
+    void setHasSetPassword(bool hasSetPassword);
+    void setHasSetNickName(bool hasSetNickName);
+    void setHasSetUser(bool hasSetUser);
 
     // Other
     bool isOperator(const std::string& channel) const;

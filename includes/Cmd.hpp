@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cmd.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:10:02 by afarachi          #+#    #+#             */
-/*   Updated: 2024/12/30 16:28:01 by moabbas          ###   ########.fr       */
+/*   Updated: 2024/12/30 19:55:54 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,10 +58,10 @@ public:
 class Parser {
     private:
         static Cmd parseCommand(std::string input);
-        static std::list<Cmd> splitCommands(std::string input, Client& client);
+        static std::list<Cmd> splitCommands(std::string input, Client& client, Server &server);
         
     public:
-        static void parse(std::list<Cmd> *commandsList, std::string input, Client& client);
+        static void parse(std::list<Cmd> *commandsList, std::string input, Client& client, Server &server);
         
 };
 

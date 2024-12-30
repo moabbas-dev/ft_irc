@@ -6,7 +6,7 @@
 /*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 16:45:21 by moabbas           #+#    #+#             */
-/*   Updated: 2024/12/30 18:49:40 by jfatfat          ###   ########.fr       */
+/*   Updated: 2024/12/30 21:09:12 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,95 +15,143 @@
 
 std::map<int, std::string> Errors::errors;
 
-bool Errors::checkPASS(const std::string &command, const std::vector<std::string> &params, Client &client)
+static bool checkCorrectNickName(const std::string &nick)
 {
-	(void)command;
-	(void)params;
+    if (nick.empty())
+        return false;
+
+    if (std::isdigit(nick[0]))
+        return false;
+
+    for (size_t i = 0; i < nick.size(); ++i)
+    {
+        char c = nick[i];
+        if (!(std::isalnum(c) || c == '[' || c == ']' || c == '{' || c == '}' || c == '\\' || c == '|'))
+            return false;
+    }
+
+    return true;
+}
+
+bool Errors::checkPASS(Cmd &cmd, Client &client, Server &server)
+{
+	if (client.getIsAuthenticated() || client.getHasSetUser()
+		|| client.getHasSetNickName() || client.getHasSetPassword())
+	{
+		raise(client.getNickname(), "You may not reregister", ERR_ALREADYREGISTERED);
+		return false;
+	}
+	if (cmd.getParams().size() < 1)
+	{
+		raise(client.getNickname(), "Not enough parameters", ERR_NEEDMOREPARAMS);
+		return false;
+	}
+	if (cmd.getParams()[0] != server.getPassword())
+	{
+		raise(client.getNickname(), "Password incorrect", ERR_PASSWDMISMATCH);
+		return false;
+	}
+	client.setHasSetPassword(true);
+	return true;
+}
+
+bool Errors::checkNICK(Cmd &cmd, Client &client, Server &server)
+{
+	if (!client.getHasSetPassword())
+	{
+		raise(client.getNickname(), "You have not registered", ERR_NOTREGISTERED);
+		return false;
+	}
+	if (cmd.getParams().size() < 1)
+	{
+		raise(client.getNickname(), "No nickname given", ERR_NONICKNAMEGIVEN);
+		return false;
+	}
+	if (!checkCorrectNickName(cmd.getParams()[0]))
+	{
+		raise(client.getNickname(), "Erroneus nickname", ERR_ERRONEUSNICKNAME);
+		return false;
+	}
+	const std::map<int, Client> &clients = server.getClients();
+	std::map<int, Client>::const_iterator it = clients.begin();
+	while (it != clients.end())
+	{
+		if (it->first != client.getFd() && it->second.getNickname() == cmd.getParams()[0])
+		{
+			raise(client.getNickname(), "Nickname is already in use", ERR_NICKNAMEINUSE);
+			return false;
+		}
+		++it;
+	}
+	client.setHasSetNickName(true);
+	client.setNickname(cmd.getParams()[0]);
+	return true;
+}
+
+bool Errors::checkJOIN(Cmd &cmd, Client &client)
+{
+	(void)cmd;
 	(void)client;
 	return true;
 }
 
-bool Errors::checkJOIN(const std::string &command, const std::vector<std::string> &params, Client &client)
+bool Errors::checkPART(Cmd &cmd, Client &client)
 {
-	(void)command;
-	(void)params;
+	(void)cmd;
 	(void)client;
 	return true;
 }
 
-bool Errors::checkNICK(const std::string &command, const std::vector<std::string> &params, Client &client)
+bool Errors::checkPING(Cmd &cmd, Client &client)
 {
-	(void)command;
-	(void)params;
+	(void)cmd;
 	(void)client;
 	return true;
 }
 
-bool Errors::checkPART(const std::string &command, const std::vector<std::string> &params, Client &client)
+bool Errors::checkPRIVMSG(Cmd &cmd, Client &client)
 {
-	(void)command;
-	(void)params;
+	(void)cmd;
 	(void)client;
 	return true;
 }
 
-bool Errors::checkPING(const std::string &command, const std::vector<std::string> &params, Client &client)
+bool Errors::checkUSER(Cmd &cmd, Client &client)
 {
-	(void)command;
-	(void)params;
+	(void)cmd;
 	(void)client;
 	return true;
 }
 
-bool Errors::checkPRIVMSG(const std::string &command, const std::vector<std::string> &params, Client &client)
+bool Errors::checkKICK(Cmd &cmd, Client &client)
 {
-	(void)command;
-	(void)params;
+	(void)cmd;
 	(void)client;
 	return true;
 }
 
-bool Errors::checkUSER(const std::string &command, const std::vector<std::string> &params, Client &client)
+bool Errors::checkINVITE(Cmd &cmd, Client &client)
 {
-	(void)command;
-	(void)params;
+	(void)cmd;
 	(void)client;
 	return true;
 }
 
-bool Errors::checkKICK(const std::string &command, const std::vector<std::string> &params, Client &client)
+bool Errors::checkTOPIC(Cmd &cmd, Client &client)
 {
-	(void)command;
-	(void)params;
+	(void)cmd;
 	(void)client;
 	return true;
 }
 
-bool Errors::checkINVITE(const std::string &command, const std::vector<std::string> &params, Client &client)
+bool Errors::checkMODE(Cmd &cmd, Client &client)
 {
-	(void)command;
-	(void)params;
+	(void)cmd;
 	(void)client;
 	return true;
 }
 
-bool Errors::checkTOPIC(const std::string &command, const std::vector<std::string> &params, Client &client)
-{
-	(void)command;
-	(void)params;
-	(void)client;
-	return true;
-}
-
-bool Errors::checkMODE(const std::string &command, const std::vector<std::string> &params, Client &client)
-{
-	(void)command;
-	(void)params;
-	(void)client;
-	return true;
-}
-
-void Errors::raise(std::string clientName, std::string msgName, int errorCode) 
+void Errors::raise(const std::string &clientName, const std::string &msgName, int errorCode) 
 {
 	std::string result = msgName.empty()? clientName + " " : clientName + " " + msgName+ " ";
 	switch(errorCode)
@@ -138,7 +186,7 @@ void Errors::raise(std::string clientName, std::string msgName, int errorCode)
 	}
 }
 
-bool Errors::commandFound(std::string command)
+bool Errors::commandFound(const std::string &command)
 {
     return command == "PASS" || command == "JOIN"
         || command == "NICK" || command == "PART"
@@ -146,29 +194,29 @@ bool Errors::commandFound(std::string command)
         || command == "USER";
 }
 
-bool Errors::validParameters(const std::string &command, const std::vector<std::string> &params, Client& client)
+bool Errors::validParameters(Cmd &cmd, Client& client, Server &server)
 {
-    if (command == "PASS")
-        return checkPASS(command, params, client);
-    else if (command == "JOIN")
-        return checkJOIN(command, params, client);
-    else if (command == "NICK")
-        return checkNICK(command, params, client);
-    else if (command == "PART")
-        return checkPART(command, params, client);
-    else if (command == "PING")
-        return checkPING(command, params, client);
-    else if (command == "PRIVMSG")
-        return checkPRIVMSG(command, params, client);
-    else if (command == "USER")
-        return checkUSER(command, params, client);
-    else if (command == "KICK")
-		return checkKICK(command, params, client);
-	else if (command == "INVITE")
-		return checkINVITE(command, params, client);
-	else if (command == "TOPIC")
-		return checkTOPIC(command, params, client);
-	else if (command == "MODE")
-		return checkMODE(command, params, client);
+    if (cmd.getName() == "PASS")
+        return checkPASS(cmd, client, server);
+    else if (cmd.getName() == "JOIN")
+        return checkJOIN(cmd, client);
+    else if (cmd.getName() == "NICK")
+        return checkNICK(cmd, client, server);
+    else if (cmd.getName() == "PART")
+        return checkPART(cmd, client);
+    else if (cmd.getName() == "PING")
+        return checkPING(cmd, client);
+    else if (cmd.getName() == "PRIVMSG")
+        return checkPRIVMSG(cmd, client);
+    else if (cmd.getName() == "USER")
+        return checkUSER(cmd, client);
+    else if (cmd.getName() == "KICK")
+		return checkKICK(cmd, client);
+	else if (cmd.getName() == "INVITE")
+		return checkINVITE(cmd, client);
+	else if (cmd.getName() == "TOPIC")
+		return checkTOPIC(cmd, client);
+	else if (cmd.getName() == "MODE")
+		return checkMODE(cmd, client);
     return true;
 }

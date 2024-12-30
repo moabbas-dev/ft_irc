@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cmd.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:11:08 by afarachi          #+#    #+#             */
-/*   Updated: 2024/12/30 18:02:14 by moabbas          ###   ########.fr       */
+/*   Updated: 2024/12/30 19:56:00 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,12 +154,12 @@ bool invalidParameters(std::string command, const std::vector<std::string> param
     return false;
 }
 
-void Parser::parse(std::list<Cmd> *commandsList, std::string input, Client& client) {
-    std::list<Cmd> commands = Parser::splitCommands(input, client);
+void Parser::parse(std::list<Cmd> *commandsList, std::string input, Client& client, Server &server) {
+    std::list<Cmd> commands = Parser::splitCommands(input, client, server);
     commandsList->splice(commandsList->end(), commands);
 }
 
-std::list<Cmd> Parser::splitCommands(std::string input, Client& client) {
+std::list<Cmd> Parser::splitCommands(std::string input, Client& client, Server &server) {
     size_t start = 0, end;
     std::list<Cmd> result;
 
@@ -173,7 +173,7 @@ std::list<Cmd> Parser::splitCommands(std::string input, Client& client) {
                 Errors::raise(client.getHostName(), command, ERR_UNKNOWCOMMAND);
             continue;
         }
-        if (Errors::commandFound(parsedCommand.getName()) && !Errors::validParameters(parsedCommand.getName(), parsedCommand.getParams(), client)) {
+        if (Errors::commandFound(parsedCommand.getName()) && !Errors::validParameters(parsedCommand, client, server)) {
             start = end + 1;
             continue;
         }

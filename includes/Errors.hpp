@@ -6,7 +6,7 @@
 /*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 16:38:49 by moabbas           #+#    #+#             */
-/*   Updated: 2024/12/30 18:49:48 by jfatfat          ###   ########.fr       */
+/*   Updated: 2024/12/30 21:16:25 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,24 +17,26 @@
 #include <string>
 #include <vector>
 #include "../includes/Client.hpp"
+#include "../includes/Server.hpp"
+#include "../includes/Cmd.hpp"
 
 enum ErrorCodes {
 	// General
-	ERR_NEEDMOREPARAMS,
-	ERR_UNKNOWCOMMAND,
+	ERR_NEEDMOREPARAMS = 461,
+	ERR_UNKNOWCOMMAND = 421,
 	ERR_TOOMANYPARAMS,
 
 	// Authentication (PASS, USER)
-	ERR_NOTREGISTERED ,
-	ERR_ALREADYREGISTERED ,
+	ERR_NOTREGISTERED = 451,
+	ERR_ALREADYREGISTERED = 462,
 
 	// PASS
-	ERR_PASSWDMISMATCH ,
+	ERR_PASSWDMISMATCH = 464,
 	
 	// NICK
-	ERR_NONICKNAMEGIVEN,
-	ERR_ERRONEUSNICKNAME,
-	ERR_NICKNAMEINUSE,
+	ERR_NONICKNAMEGIVEN = 431,
+	ERR_ERRONEUSNICKNAME = 432,
+	ERR_NICKNAMEINUSE = 433,
 
 	// JOIN
 	ERR_NOSUCHCHANNEL,
@@ -49,23 +51,23 @@ class Errors {
 	private:
 		static std::map<int, std::string> errors;
 
-		static bool checkPASS(const std::string &command, const std::vector<std::string> &params, Client &client);
-		static bool checkUSER(const std::string &command, const std::vector<std::string> &params, Client &client);
-		static bool checkJOIN(const std::string &command, const std::vector<std::string> &params, Client &client);
-		static bool checkNICK(const std::string &command, const std::vector<std::string> &params, Client &client);
-		static bool checkPART(const std::string &command, const std::vector<std::string> &params, Client &client);
-		static bool checkPING(const std::string &command, const std::vector<std::string> &params, Client &client);
-		static bool checkPRIVMSG(const std::string &command, const std::vector<std::string> &params, Client &client);
-		static bool checkKICK(const std::string &command, const std::vector<std::string> &params, Client &client);
-		static bool checkINVITE(const std::string &command, const std::vector<std::string> &params, Client &client);
-		static bool checkTOPIC(const std::string &command, const std::vector<std::string> &params, Client &client);
-		static bool checkMODE(const std::string &command, const std::vector<std::string> &params, Client &client);
+		static bool checkPASS(Cmd &cmd, Client &client, Server &server);
+		static bool checkUSER(Cmd &cmd, Client &client);
+		static bool checkJOIN(Cmd &cmd, Client &client);
+		static bool checkNICK(Cmd &cmd, Client &client, Server &server);
+		static bool checkPART(Cmd &cmd, Client &client);
+		static bool checkPING(Cmd &cmd, Client &client);
+		static bool checkPRIVMSG(Cmd &cmd, Client &client);
+		static bool checkKICK(Cmd &cmd, Client &client);
+		static bool checkINVITE(Cmd &cmd, Client &client);
+		static bool checkTOPIC(Cmd &cmd, Client &client);
+		static bool checkMODE(Cmd &cmd, Client &client);
 		
 
 	public:
-		static void raise(std::string clientName, std::string msgName, int errorCode);
-		static bool commandFound(std::string command);
-		static bool validParameters(const std::string &command, const std::vector<std::string> &params, Client& client);
+		static void raise(const std::string &clientName, const std::string &msgName, int errorCode);
+		static bool commandFound(const std::string &command);
+		static bool validParameters(Cmd &cmd, Client& client, Server &server);
 };
 
 #endif

@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 12:53:55 by moabbas           #+#    #+#             */
-/*   Updated: 2024/12/30 11:55:42 by moabbas          ###   ########.fr       */
+/*   Updated: 2024/12/30 20:31:15 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Client.hpp"
 
-Client::Client() : fd(-1), isAuthenticated(false) {
-}
+Client::Client() : fd(-1), isAuthenticated(false), hasSetPassword(false),
+    hasSetNickName(false), hasSetUser(false) { }
 
 // Getters
 
@@ -45,6 +45,21 @@ std::list<Cmd> Client::getCommands() const {
     return commands;
 }
 
+bool Client::getHasSetPassword() const
+{
+    return hasSetPassword;
+}
+
+bool Client::getHasSetNickName() const
+{
+    return hasSetNickName;
+}
+
+bool Client::getHasSetUser() const
+{
+    return hasSetUser;
+}
+
 // Setters
 
 void Client::setFd(int fd) {
@@ -73,6 +88,21 @@ void Client::setHostName(std::string hostName) {
 
 void Client::setCommands(std::list<Cmd> commands) {
     this->commands = commands;
+}
+
+void Client::setHasSetPassword(bool hasSetPassword)
+{
+    this->hasSetPassword = hasSetPassword;
+}
+
+void Client::setHasSetNickName(bool hasSetNickName)
+{
+    this->hasSetNickName = hasSetNickName;
+}
+
+void Client::setHasSetUser(bool hasSetUser)
+{
+    this->hasSetUser = hasSetUser;
 }
 
 bool Client::isOperator(const std::string& channel) const {

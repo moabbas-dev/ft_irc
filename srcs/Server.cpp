@@ -15,6 +15,11 @@ Server::~Server() {
         it->second.getCommands().clear();
 }
 
+const std::map<int, Client> &Server::getClients() const
+{
+    return this->clients;
+}
+
 std::string Server::getPassword() const {
     return password;
 }
@@ -199,7 +204,7 @@ void Server::receiveData(int fd) {
         if (it != clients.end()) {
             Client& client = it->second;
             std::list<Cmd> commands;
-            Parser::parse(&commands, std::string(buffer), client);
+            Parser::parse(&commands, std::string(buffer), client, *this);
             client.setCommands(commands);
         } else {
             std::cerr << "Error: Client not found for FD " << fd << std::endl;
