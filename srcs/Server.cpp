@@ -1,5 +1,7 @@
 #include "../includes/Server.hpp"
 #include "../includes/Cmd.hpp"
+#include "../includes/Client.hpp"
+#include "../includes/Channel.hpp"
 
 bool Server::isSignalReceived = false;
 
@@ -56,8 +58,7 @@ void Server::acceptNewClient() {
 
     int clientFd = accept(serSocketFd ,(struct sockaddr*)&clientAddr ,&addrLen);
     if(clientFd < 0) {
-        if(errno != EWOULDBLOCK)
-            std::cerr << "Error: accept client connection failed\n";
+        std::cerr << "Error: accept client connection failed\n";
         return;
     }
 
@@ -234,7 +235,8 @@ void Server::run() {
     while(!isSignalReceived) {
         int pollCount = poll(&fds[0] ,fds.size() ,-1);
         if(pollCount == -1) {
-            if(errno == EINTR) continue;
+            if (isSignalReceived)
+                break;
             std::cerr << "Error: poll failed\n";
             break;
         }

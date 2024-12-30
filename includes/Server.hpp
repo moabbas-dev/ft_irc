@@ -21,6 +21,10 @@
 #include <netdb.h>
 
 
+class Client;
+
+class Channel;
+
 class Server {
 private:
     int port;
