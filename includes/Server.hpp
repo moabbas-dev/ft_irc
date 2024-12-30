@@ -40,7 +40,7 @@ public:
     Server();
     Server(int port, const std::string& password);
     ~Server();
-    void serverInit(int port);
+    void serverInit(int port, std::string password);
     void createServerSocket();
     void acceptNewClient();
     void receiveData(int fd);
@@ -48,6 +48,7 @@ public:
     void closeFds();
     void clearClient(int fd);
     void run();
+    std::string getPassword() const;
     void handleJoin(int fd, const std::string& channelName);
     void handlePrivmsg(int senderFd, const std::string& target, const std::string& message);
     void handlePart(int fd, const std::string& channelName);

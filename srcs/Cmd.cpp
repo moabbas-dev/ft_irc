@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:11:08 by afarachi          #+#    #+#             */
-/*   Updated: 2024/12/30 10:45:45 by moabbas          ###   ########.fr       */
+/*   Updated: 2024/12/30 18:02:14 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include <algorithm>
 #include <iostream>
 #include "../includes/Cmd.hpp"
-
+#include "../includes/Errors.hpp"
 
 std::map<std::string ,Cmd::CommandCallback> Cmd::_commands;
 
@@ -122,26 +122,21 @@ std::string trimString(const std::string& str)
 
 
 void Cmd::errorServerClient(std::string s_side, std::string c_side, int c_fd) {
-    std::cerr << s_side << std::endl;
+    if (s_side != "") std::cerr << s_side << std::endl;
     send(c_fd, c_side.c_str(), c_side.size(), 0);
 }
 
-void Parser::parse(std::list<Cmd> *commandsList, std::string input, int clientFd) {
-    std::list<Cmd> commands = Parser::splitCommands(input, clientFd);
-    commandsList->splice(commandsList->end(), commands);
-}
-
-bool commandFound(std::string command) {
-    return command == "PASS" || command == "JOIN"
-        || command == "NICK" || command == "PART"
-        || command == "PING" || command == "PRIVMSG"
-        || command == "USER";
-}
-
-bool invalidParameters(std::string command, const std::vector<std::string> params) {
-    if (params.size() == 0) 
+bool invalidParameters(std::string command, const std::vector<std::string> params, Client& client) {
+    std::string errMsg;
+    if (params.size() == 0)
         return true;
     else if (command == "PASS") {
+        if (params.size() < 1)
+        {
+            errMsg = client.getHostName() + " " + command + " :Not enough parameters\n";
+            Cmd::errorServerClient("", errMsg, client.getFd());
+        } else if (params.size() > 1)
+            errMsg = client.getHostName() + " " + command + " :Not enough parameters\n";
         return params.size() != 1;
     } else if (command == "JOIN") {
         return (params.size() != 1 && params.size() != 2);
@@ -152,15 +147,19 @@ bool invalidParameters(std::string command, const std::vector<std::string> param
     } else if (command == "PING") {
         return params.size() != 1;
     } else if (command == "PRIVMSG") {
-        return (params.size() != 2 && params.size() != 3 && params.size() != 9); // here, first case is the normal one
-        // channel or client, second case is the bot case, the third one is the file transfer case (not sure about it 😅)
+        return (params.size() != 2 && params.size() != 3 && params.size() != 9);
     } else if (command == "USER") {
         return params.size() != 4;
     }
     return false;
 }
 
-std::list<Cmd> Parser::splitCommands(std::string input, int clientFd) {
+void Parser::parse(std::list<Cmd> *commandsList, std::string input, Client& client) {
+    std::list<Cmd> commands = Parser::splitCommands(input, client);
+    commandsList->splice(commandsList->end(), commands);
+}
+
+std::list<Cmd> Parser::splitCommands(std::string input, Client& client) {
     size_t start = 0, end;
     std::list<Cmd> result;
 
@@ -168,18 +167,14 @@ std::list<Cmd> Parser::splitCommands(std::string input, int clientFd) {
         std::string command = input.substr(start, end - start);
         command.push_back('\n');
         Cmd parsedCommand = parseCommand(command);
-        if (!commandFound(parsedCommand.getName())) {
+        if (!Errors::commandFound(parsedCommand.getName())) {
             start = end + 1;
-            if (!parsedCommand.getName().empty() && trimString(command).compare("CAP LS")) {
-                std::string errMsg = "Invalid command: " + command + "\n";
-                Cmd::errorServerClient("", errMsg, clientFd);
-            }
+            if (!parsedCommand.getName().empty() && trimString(command).compare("CAP LS"))
+                Errors::raise(client.getHostName(), command, ERR_UNKNOWCOMMAND);
             continue;
         }
-        if (commandFound(parsedCommand.getName()) && invalidParameters(parsedCommand.getName(), parsedCommand.getParams())) {
+        if (Errors::commandFound(parsedCommand.getName()) && !Errors::validParameters(parsedCommand.getName(), parsedCommand.getParams(), client)) {
             start = end + 1;
-            std::string errMsg = "Invalid Parameters for: " + parsedCommand.getName() + "\n";
-            Cmd::errorServerClient("", errMsg, clientFd);
             continue;
         }
         result.push_back(parsedCommand);

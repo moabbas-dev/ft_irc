@@ -15,8 +15,13 @@ Server::~Server() {
         it->second.getCommands().clear();
 }
 
-void Server::serverInit(int port) {
+std::string Server::getPassword() const {
+    return password;
+}
+
+void Server::serverInit(int port, std::string password) {
     this->port = port;
+    this->password = password;
     createServerSocket();
     std::cout << "Server <" << serSocketFd << "> Connected\n";
     std::cout << "Waiting to accept a connection from a client...\n";
@@ -67,7 +72,6 @@ void Server::acceptNewClient() {
         close(clientFd);
         return;
     }
-
 
     std::string ipAddress = std::string(inet_ntoa(clientAddr.sin_addr));
     std::string hostname = "Unknown";
@@ -195,7 +199,7 @@ void Server::receiveData(int fd) {
         if (it != clients.end()) {
             Client& client = it->second;
             std::list<Cmd> commands;
-            Parser::parse(&commands, std::string(buffer), fd);
+            Parser::parse(&commands, std::string(buffer), client);
             client.setCommands(commands);
         } else {
             std::cerr << "Error: Client not found for FD " << fd << std::endl;
@@ -225,7 +229,8 @@ void Server::processClientCommands(int fd) {
                 command.execute(*this, client);
             } catch (const std::exception& e) {
                 std::cerr << "Error executing command for client "
-                            << client.getFd() << ": " << e.what() << std::endl;
+                          << client.getHostName() << "<" << client.getFd() << "> "
+                          << ": " << e.what() << std::endl;
             }
         }
     }

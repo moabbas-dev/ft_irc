@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:10:02 by afarachi          #+#    #+#             */
-/*   Updated: 2024/12/30 11:54:54 by moabbas          ###   ########.fr       */
+/*   Updated: 2024/12/30 16:28:01 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,10 +58,10 @@ public:
 class Parser {
     private:
         static Cmd parseCommand(std::string input);
-        static std::list<Cmd> splitCommands(std::string input, int clientFd);
+        static std::list<Cmd> splitCommands(std::string input, Client& client);
         
     public:
-        static void parse(std::list<Cmd> *commandsList, std::string input, int clientFd);
+        static void parse(std::list<Cmd> *commandsList, std::string input, Client& client);
         
 };
 

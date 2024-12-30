@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   PASS.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: afarachi <afarachi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:51:14 by afarachi          #+#    #+#             */
-/*   Updated: 2024/12/28 16:42:28 by afarachi         ###   ########.fr       */
+/*   Updated: 2024/12/30 16:21:20 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,5 +17,6 @@ void Cmd::PASS(const Cmd& cmd, Server& server, Client& client) {
     (void)cmd;
     (void)server;
     (void)client;
-    // @mabbas && @jfatfat > here we can  implement PASS
+    std::string password = cmd.getParams()[0];
+    
 }
