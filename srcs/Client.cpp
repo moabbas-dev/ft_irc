@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
+/*   By: afarachi <afarachi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 12:53:55 by moabbas           #+#    #+#             */
-/*   Updated: 2024/12/30 20:31:15 by jfatfat          ###   ########.fr       */
+/*   Updated: 2024/12/30 22:32:15 by afarachi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,10 @@ std::string Client::getNickname() const {
 
 std::string Client::getUsername() const {
     return username;
+}
+
+std::string Client::getRealname() const {
+    return realname;
 }
 
 std::string Client::getIPadd() const {
@@ -72,6 +76,10 @@ void Client::setNickname(const std::string& nickname) {
 
 void Client::setUsername(const std::string& username) {
     this->username = username;
+}
+
+void Client::setRealname(const std::string& realname) {
+    this->realname = realname;
 }
 
 void Client::setIPadd(const std::string& IPadd) {

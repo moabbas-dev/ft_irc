@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cmd.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
+/*   By: afarachi <afarachi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:10:02 by afarachi          #+#    #+#             */
-/*   Updated: 2024/12/30 19:55:54 by jfatfat          ###   ########.fr       */
+/*   Updated: 2024/12/30 22:18:42 by afarachi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,9 @@
 #include "Client.hpp"
 #include "Channel.hpp"
 #include "Server.hpp"
+
+#define _USERLEN 10
+
 class Server;
 class Client;
 

@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Errors.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
+/*   By: afarachi <afarachi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 16:45:21 by moabbas           #+#    #+#             */
-/*   Updated: 2024/12/30 21:09:12 by jfatfat          ###   ########.fr       */
+/*   Updated: 2024/12/30 23:30:56 by afarachi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Errors.hpp"
 #include "../includes/Cmd.hpp"
+#include "../includes/Client.hpp"
 
 std::map<int, std::string> Errors::errors;
 
@@ -117,9 +118,61 @@ bool Errors::checkPRIVMSG(Cmd &cmd, Client &client)
 }
 
 bool Errors::checkUSER(Cmd &cmd, Client &client)
-{
-	(void)cmd;
-	(void)client;
+{	
+	if(!client.getHasSetPassword()|| !client.getNickname().size())
+	{
+		raise("~", cmd.getParams()[0] + " :You have not registered", ERR_NOTREGISTERED);
+		return false;
+	}
+	
+	if (cmd.getParams().size() < 4)
+	{
+		raise(client.getNickname(), cmd.getParams()[0] + " :Not enough parameters", ERR_NEEDMOREPARAMS);
+		return false;
+	}
+
+	if (cmd.getParams().size() > 4)
+	{
+		raise(client.getNickname(), cmd.getParams()[0] + " :Too many parameters", ERR_TOOMANYPARAMS);
+		return false;
+	}
+
+	if (client.getIsAuthenticated()) 
+    {
+        raise(client.getNickname(), " :You may not reregister", ERR_ALREADYREGISTERED);
+        return false;
+    }
+
+    std::string username = cmd.getParams()[0];
+    if (username.empty())
+        username = client.getNickname();
+    else
+    {
+        if (username.length() > _USERLEN)
+            username = username.substr(0, _USERLEN);
+    }
+
+    std::string realname = cmd.getParams()[3];
+
+	for (size_t i = 0; i < realname.size(); ++i)
+    {
+        if (!isalpha(realname[i]) && realname[i] != ' ')
+        {
+            raise(client.getNickname(), "USER :Real name must only contain alphabetic characters or spaces",
+			 ERR_NEEDMOREPARAMS); // ma ba3rf shou l error code l sa7i7 hon , msh mazkour 
+            return false;
+        }
+    }
+
+	if (realname.empty())
+        realname = client.getNickname();
+	
+	client.setIsAuthenticated(true);
+	client.setHasSetUser(true);
+	
+    // client.setUsername(username);
+    // client.setRealname(realname);   //maybe we set the during execution..
+
 	return true;
 }
 

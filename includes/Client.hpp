@@ -14,6 +14,7 @@ private:
     std::string IPadd;
     std::string nickname;
     std::string username;
+    std::string realname;
     bool isAuthenticated;
     bool hasSetPassword;
     bool hasSetNickName;
@@ -29,6 +30,7 @@ public:
     int getFd() const;
     std::string getNickname() const;
     std::string getUsername() const;
+    std::string getRealname() const;
     std::string getIPadd() const;
     bool getIsAuthenticated() const;
     std::string getHostName() const;
@@ -41,6 +43,7 @@ public:
     void setFd(int fd);
     void setNickname(const std::string& nickname);
     void setUsername(const std::string& username);
+    void setRealname(const std::string& realname);
     void setIPadd(const std::string& IPadd);
     void setIsAuthenticated(bool isAuthenticated);
     void setHostName(std::string hostName);
