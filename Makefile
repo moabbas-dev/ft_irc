@@ -11,7 +11,8 @@ SRCS = 	main.cpp		\
 		srcs/PASS.cpp	\
 		srcs/PING.cpp	\
 		srcs/PRIVMSG.cpp\
-		srcs/USER.cpp	
+		srcs/USER.cpp	\
+		srcs/Errors.cpp	
 
 OBJDIR = objs
 OBJCS = $(SRCS:%.cpp=$(OBJDIR)/%.o)
