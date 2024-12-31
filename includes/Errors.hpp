@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 16:38:49 by moabbas           #+#    #+#             */
-/*   Updated: 2024/12/31 12:54:46 by moabbas          ###   ########.fr       */
+/*   Updated: 2024/12/31 19:09:16 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,6 @@ class Errors {
 		static bool checkINVITE(Cmd &cmd, Client &client);
 		static bool checkTOPIC(Cmd &cmd, Client &client);
 		static bool checkMODE(Cmd &cmd, Client &client);
-		
 
 	public:
 		static void raise(Client& client, const std::string &msgName, int errorCode);

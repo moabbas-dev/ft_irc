@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:10:02 by afarachi          #+#    #+#             */
-/*   Updated: 2024/12/31 13:47:17 by moabbas          ###   ########.fr       */
+/*   Updated: 2024/12/31 19:10:29 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,11 @@ public:
     static void PRIVMSG(const Cmd& cmd, Server& server, Client& client);
     static void JOIN(const Cmd& cmd, Server& client, Client& server);
     static void PART(const Cmd& cmd, Server& client, Client& server);
-    
+    static void KICK(const Cmd& cmd, Server& server, Client& client);
+    static void INVITE(const Cmd& cmd, Server& server, Client& client);
+    static void TOPIC(const Cmd& cmd, Server& server, Client& client);
+    static void MODE(const Cmd& cmd, Server& server, Client& client);
+
     Cmd(const std::string& name, const std::vector<std::string>& params);
     static void errorServerClient(std::string s_side, std::string c_side, int c_fd);
 };

@@ -182,8 +182,8 @@ void Server::signalHandler(int signum) {
 }
 
 void Server::closeFds() {
-    std::ostringstream oss;
     for(std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
+        std::ostringstream oss;
         std::string clientName = it->second.getHasSetNickName()? it->second.getNickname() : it->second.getHostName();
         oss << clientName << "<" << it->second.getFd() << "> disconnected.";
         Server::printResponse(oss.str(), RED);
