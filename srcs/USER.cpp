@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   USER.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: afarachi <afarachi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:50:06 by afarachi          #+#    #+#             */
-/*   Updated: 2024/12/28 14:55:09 by afarachi         ###   ########.fr       */
+/*   Updated: 2024/12/31 14:51:39 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,5 +17,21 @@ void Cmd::USER(const Cmd& cmd, Server& server, Client& client) {
     (void)cmd;
     (void)server;
     (void)client;
-    // @mabbas && @jfatfat > here we can  implement USER
+    std::string username = cmd.getParams()[0];
+    if (username.empty())
+        username = client.getNickname();
+    else if (username.length() > _USERLEN)
+        username = username.substr(0, _USERLEN);
+
+    std::string realname = cmd.getParams()[3];
+	if (realname.empty())
+        realname = client.getNickname();
+	client.setIsAuthenticated(true);
+	client.setHasSetUser(true);
+    client.setUsername(username);
+    client.setRealname(realname);
+
+    std::ostringstream oss;
+    oss << client.getNickname() << " has set his username to: " << client.getUsername() << ".";
+    Server::printResponse(oss.str() , BLUE);
 }

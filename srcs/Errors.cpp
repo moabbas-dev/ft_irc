@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Errors.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: afarachi <afarachi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 16:45:21 by moabbas           #+#    #+#             */
-/*   Updated: 2024/12/30 23:30:56 by afarachi         ###   ########.fr       */
+/*   Updated: 2024/12/31 14:48:03 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,6 @@ static bool checkCorrectNickName(const std::string &nick)
         if (!(std::isalnum(c) || c == '[' || c == ']' || c == '{' || c == '}' || c == '\\' || c == '|'))
             return false;
     }
-
     return true;
 }
 
@@ -39,53 +38,41 @@ bool Errors::checkPASS(Cmd &cmd, Client &client, Server &server)
 	if (client.getIsAuthenticated() || client.getHasSetUser()
 		|| client.getHasSetNickName() || client.getHasSetPassword())
 	{
-		raise(client.getNickname(), "You may not reregister", ERR_ALREADYREGISTERED);
+		raise(client, "", ERR_ALREADYREGISTERED);
 		return false;
 	}
 	if (cmd.getParams().size() < 1)
 	{
-		raise(client.getNickname(), "Not enough parameters", ERR_NEEDMOREPARAMS);
+		raise(client, "", ERR_NEEDMOREPARAMS);
 		return false;
 	}
 	if (cmd.getParams()[0] != server.getPassword())
 	{
-		raise(client.getNickname(), "Password incorrect", ERR_PASSWDMISMATCH);
+		raise(client, "", ERR_PASSWDMISMATCH);
 		return false;
 	}
-	client.setHasSetPassword(true);
 	return true;
 }
 
 bool Errors::checkNICK(Cmd &cmd, Client &client, Server &server)
 {
 	if (!client.getHasSetPassword())
-	{
-		raise(client.getNickname(), "You have not registered", ERR_NOTREGISTERED);
-		return false;
-	}
+		return (raise(client, "", ERR_NOTREGISTERED), false);
+
 	if (cmd.getParams().size() < 1)
-	{
-		raise(client.getNickname(), "No nickname given", ERR_NONICKNAMEGIVEN);
-		return false;
-	}
+		return (raise(client, "", ERR_NONICKNAMEGIVEN), false);
+
 	if (!checkCorrectNickName(cmd.getParams()[0]))
-	{
-		raise(client.getNickname(), "Erroneus nickname", ERR_ERRONEUSNICKNAME);
-		return false;
-	}
+		return (raise(client, "", ERR_ERRONEUSNICKNAME), false);
+
 	const std::map<int, Client> &clients = server.getClients();
 	std::map<int, Client>::const_iterator it = clients.begin();
 	while (it != clients.end())
 	{
 		if (it->first != client.getFd() && it->second.getNickname() == cmd.getParams()[0])
-		{
-			raise(client.getNickname(), "Nickname is already in use", ERR_NICKNAMEINUSE);
-			return false;
-		}
+			return (raise(client, cmd.getParams()[0], ERR_NICKNAMEINUSE), false);
 		++it;
 	}
-	client.setHasSetNickName(true);
-	client.setNickname(cmd.getParams()[0]);
 	return true;
 }
 
@@ -119,59 +106,17 @@ bool Errors::checkPRIVMSG(Cmd &cmd, Client &client)
 
 bool Errors::checkUSER(Cmd &cmd, Client &client)
 {	
-	if(!client.getHasSetPassword()|| !client.getNickname().size())
-	{
-		raise("~", cmd.getParams()[0] + " :You have not registered", ERR_NOTREGISTERED);
-		return false;
-	}
-	
+	if(!client.getHasSetPassword() || !client.getHasSetNickName())
+		return (raise(client, cmd.getName(), ERR_NOTREGISTERED), false);
+
 	if (cmd.getParams().size() < 4)
-	{
-		raise(client.getNickname(), cmd.getParams()[0] + " :Not enough parameters", ERR_NEEDMOREPARAMS);
-		return false;
-	}
+		return (raise(client, cmd.getName(), ERR_NEEDMOREPARAMS), false);
 
 	if (cmd.getParams().size() > 4)
-	{
-		raise(client.getNickname(), cmd.getParams()[0] + " :Too many parameters", ERR_TOOMANYPARAMS);
-		return false;
-	}
+		return (raise(client, cmd.getName(), ERR_TOOMANYPARAMS), false);
 
 	if (client.getIsAuthenticated()) 
-    {
-        raise(client.getNickname(), " :You may not reregister", ERR_ALREADYREGISTERED);
-        return false;
-    }
-
-    std::string username = cmd.getParams()[0];
-    if (username.empty())
-        username = client.getNickname();
-    else
-    {
-        if (username.length() > _USERLEN)
-            username = username.substr(0, _USERLEN);
-    }
-
-    std::string realname = cmd.getParams()[3];
-
-	for (size_t i = 0; i < realname.size(); ++i)
-    {
-        if (!isalpha(realname[i]) && realname[i] != ' ')
-        {
-            raise(client.getNickname(), "USER :Real name must only contain alphabetic characters or spaces",
-			 ERR_NEEDMOREPARAMS); // ma ba3rf shou l error code l sa7i7 hon , msh mazkour 
-            return false;
-        }
-    }
-
-	if (realname.empty())
-        realname = client.getNickname();
-	
-	client.setIsAuthenticated(true);
-	client.setHasSetUser(true);
-	
-    // client.setUsername(username);
-    // client.setRealname(realname);   //maybe we set the during execution..
+        return (raise(client, cmd.getName(), ERR_ALREADYREGISTERED), false);
 
 	return true;
 }
@@ -204,8 +149,9 @@ bool Errors::checkMODE(Cmd &cmd, Client &client)
 	return true;
 }
 
-void Errors::raise(const std::string &clientName, const std::string &msgName, int errorCode) 
+void Errors::raise(Client& client, const std::string &msgName, int errorCode)
 {
+	std::string clientName = client.getHasSetNickName()? client.getNickname() : client.getHostName();
 	std::string result = msgName.empty()? clientName + " " : clientName + " " + msgName+ " ";
 	switch(errorCode)
 	{
@@ -234,9 +180,10 @@ void Errors::raise(const std::string &clientName, const std::string &msgName, in
 			result.append(":Erroneus nickname");
 			break;
 		case ERR_NICKNAMEINUSE:
-			result.append("Nickname is already in use");
+			result.append(":Nickname is already in use");
 			break;
 	}
+	send(client.getFd(), result.c_str(), result.size(), 0);
 }
 
 bool Errors::commandFound(const std::string &command)

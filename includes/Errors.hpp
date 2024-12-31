@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Errors.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
+/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 16:38:49 by moabbas           #+#    #+#             */
-/*   Updated: 2024/12/30 21:16:25 by jfatfat          ###   ########.fr       */
+/*   Updated: 2024/12/31 12:54:46 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ class Errors {
 		
 
 	public:
-		static void raise(const std::string &clientName, const std::string &msgName, int errorCode);
+		static void raise(Client& client, const std::string &msgName, int errorCode);
 		static bool commandFound(const std::string &command);
 		static bool validParameters(Cmd &cmd, Client& client, Server &server);
 };

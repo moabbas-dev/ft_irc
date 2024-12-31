@@ -95,7 +95,10 @@ void Server::acceptNewClient() {
     newPoll.revents = 0;
     fds.push_back(newPoll);
 
-    std::cout << "[New Client]: " << newClient.getHostName() << ":" << newClient.getIPadd() << " has connected.\n";
+    std::ostringstream oss;
+    oss << newClient.getHostName() << ":" << newClient.getIPadd()
+        << "<" << newClient.getFd() << ">" << " has connected.";
+    Server::printResponse(oss.str(), GREEN);
 }
 
 // void Server::receiveDataV1(int fd) {
@@ -174,13 +177,15 @@ void Server::acceptNewClient() {
 
 void Server::signalHandler(int signum) {
     (void)signum;
-    std::cout << std::endl << "Signal Received!" << std::endl;
     Server::isSignalReceived = true;
 }
 
 void Server::closeFds() {
+    std::ostringstream oss;
     for(std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
-        std::cout << "Client " << it->second.getHostName() << "<" << it->second.getFd() << "> disconnected." << std::endl;
+        std::string clientName = it->second.getHasSetNickName()? it->second.getNickname() : it->second.getHostName();
+        oss << clientName << "<" << it->second.getFd() << "> disconnected.";
+        Server::printResponse(oss.str(), RED);
         close(it->second.getFd());
     }
 }
@@ -211,7 +216,10 @@ void Server::receiveData(int fd) {
         }
     }
     else if(bytesRead == 0) {
-        std::cout << "Client " << it->second.getHostName() << "<" << fd << "> disconnected." << std::endl;
+        std::ostringstream oss;
+        std::string clientName = it->second.getHasSetNickName()? it->second.getNickname() : it->second.getHostName();
+        oss << clientName << "<" << it->second.getFd() << "> disconnected.";
+        Server::printResponse(oss.str(), RED);
         close(fd);
         clearClient(fd);
     } else {
@@ -263,4 +271,16 @@ void Server::run() {
         }
     }
     closeFds();
+}
+
+void Server::printResponse(const std::string& message, const char *color) {
+    time_t now = time(0);
+    struct tm* timeinfo = localtime(&now);
+
+    char dateBuffer[20];
+    strftime(dateBuffer, sizeof(dateBuffer), "%Y-%m-%d, %H:%M", timeinfo);
+
+    std::cout << color << "[" << dateBuffer << "]: " << RESET << message;
+    if (!message.empty())
+    std::cout << std::endl;
 }

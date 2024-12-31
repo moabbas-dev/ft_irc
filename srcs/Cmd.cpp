@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cmd.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
+/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:11:08 by afarachi          #+#    #+#             */
-/*   Updated: 2024/12/30 19:56:00 by jfatfat          ###   ########.fr       */
+/*   Updated: 2024/12/31 13:53:16 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,28 +58,22 @@ const std::vector<std::string>& Cmd::getParams() const
 
 void Cmd::execute(Server& server ,Client& client) const
 {
-    std::cout << "New command: " << _cmdName << std::endl;
-    if(!_cmdParams.empty())
-    {
-        std::cout << "Parameters: ";
-        for(size_t i = 0; i < _cmdParams.size(); ++i)
-        {
-            std::cout << _cmdParams[i];
-            if(i < _cmdParams.size() - 1)
-                std::cout << ", ";
-        }
-        std::cout << std::endl;
-    }
+    // std::cout << "New command: " << _cmdName << std::endl;
+    // if(!_cmdParams.empty())
+    // {
+    //     std::cout << "Parameters: ";
+    //     for(size_t i = 0; i < _cmdParams.size(); ++i)
+    //     {
+    //         std::cout << _cmdParams[i];
+    //         if(i < _cmdParams.size() - 1)
+    //             std::cout << ", ";
+    //     }
+    //     std::cout << std::endl;
+    // }
 
     std::map<std::string ,CommandCallback>::const_iterator it = _commands.find(_cmdName);
     if(it != _commands.end())
         it->second(*this ,server ,client);
-    else
-    {
-        std::cerr << "Error: Unknown command: " << _cmdName << std::endl;
-        std::string errorMessage = "Error: Unknown command: " + _cmdName + "\n";
-        send(client.getFd() ,errorMessage.c_str() ,errorMessage.size() ,0);
-    }
 }
 
 // 🤔🧩 maybe we will use it later !!
@@ -170,7 +164,7 @@ std::list<Cmd> Parser::splitCommands(std::string input, Client& client, Server &
         if (!Errors::commandFound(parsedCommand.getName())) {
             start = end + 1;
             if (!parsedCommand.getName().empty() && trimString(command).compare("CAP LS"))
-                Errors::raise(client.getHostName(), command, ERR_UNKNOWCOMMAND);
+                Errors::raise(client, command.substr(0, command.length() - 1), ERR_UNKNOWCOMMAND);
             continue;
         }
         if (Errors::commandFound(parsedCommand.getName()) && !Errors::validParameters(parsedCommand, client, server)) {

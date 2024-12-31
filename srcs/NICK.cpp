@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:50:34 by afarachi          #+#    #+#             */
-/*   Updated: 2024/12/29 18:31:39 by moabbas          ###   ########.fr       */
+/*   Updated: 2024/12/31 14:48:34 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,18 @@
 
 void Cmd::NICK(const Cmd& cmd, Server& server, Client& client) {
     (void)server;
-    if (cmd.getParams().size() != 1) {
-        Cmd::errorServerClient("",
-        "server: Error when setting nickname (NICK is invalid)", client.getFd());
+    
+    std::ostringstream oss;
+    if (!client.getHasSetNickName()) {
+        client.setNickname(cmd.getParams()[0]);
+        oss << client.getHostName() << "<" << client.getFd()
+            << "> has set his Nickname to: "<< client.getNickname() << ".";
     }
     else {
-    client.setNickname(cmd.getParams()[0]);
-    std::cout << "NickName for user <" << client.getFd() << "> has been set to:" << cmd.getParams()[0] << std::endl;
+        std::string oldNickname = client.getNickname();
+        client.setNickname(cmd.getParams()[0]);
+        oss << oldNickname << " changed his nickname to: " << client.getNickname() << ".";
     }
+    Server::printResponse(oss.str() , BLUE);
+    client.setHasSetNickName(true);
 }

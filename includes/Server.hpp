@@ -20,6 +20,10 @@
 #include <list>
 #include <netdb.h>
 
+#define RESET "\033[0m"
+#define BLUE "\033[34m"
+#define GREEN "\033[32m"
+#define RED "\033[31m"
 
 class Client;
 
@@ -53,8 +57,9 @@ public:
     void handleJoin(int fd, const std::string& channelName);
     void handlePrivmsg(int senderFd, const std::string& target, const std::string& message);
     void handlePart(int fd, const std::string& channelName);
+    static void printResponse(const std::string& message, const char* color);
+
 private:
-    void checkInitialClientData(int fd);
     void processClientCommands(int fd);
 };
 
