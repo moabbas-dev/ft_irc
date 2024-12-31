@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:49:35 by afarachi          #+#    #+#             */
-/*   Updated: 2024/12/30 11:09:56 by moabbas          ###   ########.fr       */
+/*   Updated: 2024/12/31 18:21:41 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,13 @@
 
 void Cmd::PING(const Cmd &cmd, Server &server, Client &client)
 {
-    std::cout << "Executing PING command\n";
     (void)server;
-    if (cmd.getParams().empty() || !cmd.getParams().size())
-        return (cmd.errorServerClient("409", "empty ....", client.getFd()));
-    std::string	_string_to_send = ":@" + client.getHostName() + " PONG :" + cmd.getParams()[0] + "\n";
-    send(client.getFd(), _string_to_send.c_str(), _string_to_send.length(), 0);
+    std::ostringstream oss;
+    oss << ":" << client.getNickname() << "!" << client.getUsername()
+        << "@" << client.getHostName() << " PONG " << cmd.getParams()[0] << std::endl;
+    
+	std::string message = oss.str();
+	send(client.getFd(), message.c_str(), message.size(), 0);
 }
 
 // a cmd like this PING LOL

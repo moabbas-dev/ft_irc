@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:11:08 by afarachi          #+#    #+#             */
-/*   Updated: 2024/12/31 13:53:16 by moabbas          ###   ########.fr       */
+/*   Updated: 2024/12/31 17:53:05 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,34 +120,6 @@ void Cmd::errorServerClient(std::string s_side, std::string c_side, int c_fd) {
     send(c_fd, c_side.c_str(), c_side.size(), 0);
 }
 
-bool invalidParameters(std::string command, const std::vector<std::string> params, Client& client) {
-    std::string errMsg;
-    if (params.size() == 0)
-        return true;
-    else if (command == "PASS") {
-        if (params.size() < 1)
-        {
-            errMsg = client.getHostName() + " " + command + " :Not enough parameters\n";
-            Cmd::errorServerClient("", errMsg, client.getFd());
-        } else if (params.size() > 1)
-            errMsg = client.getHostName() + " " + command + " :Not enough parameters\n";
-        return params.size() != 1;
-    } else if (command == "JOIN") {
-        return (params.size() != 1 && params.size() != 2);
-    } else if (command == "NICK") {
-        return params.size() != 1;
-    } else if (command == "PART") {
-        return (params.size() != 1 && params.size() != 2);
-    } else if (command == "PING") {
-        return params.size() != 1;
-    } else if (command == "PRIVMSG") {
-        return (params.size() != 2 && params.size() != 3 && params.size() != 9);
-    } else if (command == "USER") {
-        return params.size() != 4;
-    }
-    return false;
-}
-
 void Parser::parse(std::list<Cmd> *commandsList, std::string input, Client& client, Server &server) {
     std::list<Cmd> commands = Parser::splitCommands(input, client, server);
     commandsList->splice(commandsList->end(), commands);
@@ -164,7 +136,7 @@ std::list<Cmd> Parser::splitCommands(std::string input, Client& client, Server &
         if (!Errors::commandFound(parsedCommand.getName())) {
             start = end + 1;
             if (!parsedCommand.getName().empty() && trimString(command).compare("CAP LS"))
-                Errors::raise(client, command.substr(0, command.length() - 1), ERR_UNKNOWCOMMAND);
+                Errors::raise(client, trimString(command), ERR_UNKNOWCOMMAND);
             continue;
         }
         if (Errors::commandFound(parsedCommand.getName()) && !Errors::validParameters(parsedCommand, client, server)) {

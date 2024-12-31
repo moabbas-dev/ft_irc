@@ -178,6 +178,7 @@ void Server::acceptNewClient() {
 void Server::signalHandler(int signum) {
     (void)signum;
     Server::isSignalReceived = true;
+    std::cout << std::endl;
 }
 
 void Server::closeFds() {

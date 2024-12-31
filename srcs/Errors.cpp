@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 16:45:21 by moabbas           #+#    #+#             */
-/*   Updated: 2024/12/31 14:48:03 by moabbas          ###   ########.fr       */
+/*   Updated: 2024/12/31 18:18:50 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,20 +37,14 @@ bool Errors::checkPASS(Cmd &cmd, Client &client, Server &server)
 {
 	if (client.getIsAuthenticated() || client.getHasSetUser()
 		|| client.getHasSetNickName() || client.getHasSetPassword())
-	{
-		raise(client, "", ERR_ALREADYREGISTERED);
-		return false;
-	}
+		return (raise(client, "", ERR_ALREADYREGISTERED), false);
+
 	if (cmd.getParams().size() < 1)
-	{
-		raise(client, "", ERR_NEEDMOREPARAMS);
-		return false;
-	}
+		return (raise(client, "", ERR_NEEDMOREPARAMS), false);
+
 	if (cmd.getParams()[0] != server.getPassword())
-	{
-		raise(client, "", ERR_PASSWDMISMATCH);
-		return false;
-	}
+		return (raise(client, "", ERR_PASSWDMISMATCH), false);
+
 	return true;
 }
 
@@ -92,8 +86,11 @@ bool Errors::checkPART(Cmd &cmd, Client &client)
 
 bool Errors::checkPING(Cmd &cmd, Client &client)
 {
-	(void)cmd;
-	(void)client;
+	if (!client.getIsAuthenticated())
+		return (raise(client, cmd.getName(), ERR_NOTREGISTERED), false);
+
+	if (cmd.getParams().empty())
+		return (raise(client, cmd.getName(), ERR_NEEDMOREPARAMS), false);
 	return true;
 }
 

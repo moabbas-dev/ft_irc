@@ -6,14 +6,13 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:50:06 by afarachi          #+#    #+#             */
-/*   Updated: 2024/12/31 14:51:39 by moabbas          ###   ########.fr       */
+/*   Updated: 2024/12/31 18:24:00 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Cmd.hpp"
 
 void Cmd::USER(const Cmd& cmd, Server& server, Client& client) {
-    std::cout << "Executing USER command\n";
     (void)cmd;
     (void)server;
     (void)client;
@@ -32,6 +31,6 @@ void Cmd::USER(const Cmd& cmd, Server& server, Client& client) {
     client.setRealname(realname);
 
     std::ostringstream oss;
-    oss << client.getNickname() << " has set his username to: " << client.getUsername() << ".";
+    oss << client.getNickname() << " has set his username to: " << client.getUsername() << " and realname to: " << client.getRealname() << ".";
     Server::printResponse(oss.str() , BLUE);
 }
