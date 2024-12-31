@@ -19,7 +19,7 @@ private:
     bool hasSetPassword;
     bool hasSetNickName;
     bool hasSetUser;
-    std::vector<std::string> channels;
+    std::vector<Channel> channels;
     std::string messageBuffer;
     std::string hostName;
     std::list<Cmd> commands;
@@ -38,6 +38,7 @@ public:
     bool getHasSetPassword() const;
     bool getHasSetNickName() const;
     bool getHasSetUser() const;
+    std::vector<Channel> getChannels() const;
 
     // Setters
     void setFd(int fd);
@@ -51,9 +52,10 @@ public:
     void setHasSetPassword(bool hasSetPassword);
     void setHasSetNickName(bool hasSetNickName);
     void setHasSetUser(bool hasSetUser);
+    void setChannels(std::vector<Channel> channels);
 
     // Other
-    bool isOperator(const std::string& channel) const;
+    bool isOperator(Channel& channel) const;
     void joinChannel(const std::string& channel);
     void leaveChannel(const std::string& channel);
 };

@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 16:45:21 by moabbas           #+#    #+#             */
-/*   Updated: 2024/12/31 18:18:50 by moabbas          ###   ########.fr       */
+/*   Updated: 2024/12/31 23:47:46 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,10 +70,74 @@ bool Errors::checkNICK(Cmd &cmd, Client &client, Server &server)
 	return true;
 }
 
+std::vector<std::string> split(const std::string& str, char delimiter) {
+    std::vector<std::string> tokens;
+    size_t start = 0;
+    size_t end = str.find(delimiter);
+
+    while (end != std::string::npos) {
+        tokens.push_back(str.substr(start, end - start));
+        start = end + 1;
+        end = str.find(delimiter, start);
+    }
+    tokens.push_back(str.substr(start));
+    return tokens;
+}
+
+bool checkChannelName(std::string channelName) {
+    for (size_t i = 1; i < channelName.length(); ++i) {
+        char c = channelName[i];
+        if (!std::isalnum(c) && c != '_' && c != '-' && c != '~' && c != '.' && c != ',' && c != '+')
+            return false;
+    }
+
+	return channelName.length() > 1
+		&& channelName.length() <= MAX_CHANNEL_NAME_LENGTH
+		&& (channelName[0]== '&' || channelName[0] == '#');
+}
+
+bool checkChannelKey(std::string channelKey) {
+	for (size_t i = 1; i < channelKey.length(); ++i) {
+        char c = channelKey[i];
+        if (c != ' ')
+            return false;
+    }
+	return true;
+}
+
 bool Errors::checkJOIN(Cmd &cmd, Client &client)
 {
-	(void)cmd;
-	(void)client;
+	if (!client.getIsAuthenticated())
+		return (raise(client, "", ERR_NOTREGISTERED), false);
+
+	if (cmd.getParams().size() < 2)
+		return (raise(client, "", ERR_NEEDMOREPARAMS), false);
+
+	if (cmd.getParams().size() > 2)
+		return (raise(client, "", ERR_BADCHANNELKEY), false);
+
+	std::vector<std::string> channelsNames = split(cmd.getParams()[0], ',');
+	std::vector<std::string> channelsKeys = split(cmd.getParams()[1], ',');
+	std::vector<Channel> channels = client.getChannels();
+	std::vector<std::string>::iterator key_it = channelsKeys.begin();
+	for (std::vector<std::string>::iterator name_it = channelsNames.begin() ; name_it != channelsNames.end(); ++name_it) {
+		if (!checkChannelName(*name_it))
+			raise(client, *name_it, ERR_NOSUCHCHANNEL);
+		else {
+			if (key_it != channelsKeys.end()) {
+				if (!checkChannelKey(*key_it))
+					raise(client, *name_it, ERR_BADCHANNELKEY);
+				else
+					channels.push_back(Channel(*name_it, *key_it));
+				key_it++;
+			}
+			else
+				channels.push_back(Channel(*name_it));
+		}
+	}
+	client.setChannels(channels);
+	if (channels.empty())
+		return (raise(client, "", ERR_NOSUCHCHANNEL), false);
 	return true;
 }
 
@@ -113,7 +177,7 @@ bool Errors::checkUSER(Cmd &cmd, Client &client)
 		return (raise(client, cmd.getName(), ERR_TOOMANYPARAMS), false);
 
 	if (client.getIsAuthenticated()) 
-        return (raise(client, cmd.getName(), ERR_ALREADYREGISTERED), false);
+		return (raise(client, cmd.getName(), ERR_ALREADYREGISTERED), false);
 
 	return true;
 }
@@ -180,6 +244,7 @@ void Errors::raise(Client& client, const std::string &msgName, int errorCode)
 			result.append(":Nickname is already in use");
 			break;
 	}
+	result.append("\n");
 	send(client.getFd(), result.c_str(), result.size(), 0);
 }
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: afarachi <afarachi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 12:53:55 by moabbas           #+#    #+#             */
-/*   Updated: 2024/12/30 22:32:15 by afarachi         ###   ########.fr       */
+/*   Updated: 2024/12/31 20:33:58 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,10 @@ bool Client::getHasSetUser() const
     return hasSetUser;
 }
 
+std::vector<Channel> Client::getChannels() const {
+    return channels;
+}
+
 // Setters
 
 void Client::setFd(int fd) {
@@ -113,26 +117,30 @@ void Client::setHasSetUser(bool hasSetUser)
     this->hasSetUser = hasSetUser;
 }
 
-bool Client::isOperator(const std::string& channel) const {
-    for (std::vector<std::string>::const_iterator it = channels.begin(); it != channels.end(); ++it)
-        if (*it == channel)
+void Client::setChannels(std::vector<Channel> channels) {
+    this->channels = channels;
+}
+
+bool Client::isOperator(Channel& channel) const {
+    for (std::vector<Channel>::const_iterator it = channels.begin(); it != channels.end(); ++it)
+        if ((*it).getName() == channel.getName())
             return true;
     return false;
 }
 
-void Client::joinChannel(const std::string& channel) {
-    for (std::vector<std::string>::iterator it = channels.begin(); it != channels.end(); ++it) {
-        if (*it == channel)
-            return;
-    }
-    channels.push_back(channel);
-}
+// void Client::joinChannel(Channel& channel) {
+//     for (std::vector<std::string>::iterator it = channels.begin(); it != channels.end(); ++it) {
+//         if (*it == channel)
+//             return;
+//     }
+//     channels.push_back(channel);
+// }
 
-void Client::leaveChannel(const std::string& channel) {
-    for (std::vector<std::string>::iterator it = channels.begin(); it != channels.end(); ++it) {
-        if (*it == channel) {
-            channels.erase(it);
-            return;
-        }
-    }
-}
+// void Client::leaveChannel(const std::string& channel) {
+//     for (std::vector<std::string>::iterator it = channels.begin(); it != channels.end(); ++it) {
+//         if (*it == channel) {
+//             channels.erase(it);
+//             return;
+//         }
+//     }
+// }

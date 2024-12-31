@@ -283,5 +283,5 @@ void Server::printResponse(const std::string& message, const char *color) {
 
     std::cout << color << "[" << dateBuffer << "]: " << RESET << message;
     if (!message.empty())
-    std::cout << std::endl;
+        std::cout << std::endl;
 }

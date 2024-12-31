@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 16:38:49 by moabbas           #+#    #+#             */
-/*   Updated: 2024/12/31 19:09:16 by moabbas          ###   ########.fr       */
+/*   Updated: 2024/12/31 23:49:44 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,9 +39,9 @@ enum ErrorCodes {
 	ERR_NICKNAMEINUSE = 433,
 
 	// JOIN
-	ERR_NOSUCHCHANNEL,
-	ERR_TOOMANYCHANNELS,
-	ERR_BADCHANNELKEY,
+	ERR_NOSUCHCHANNEL = 403,
+	ERR_TOOMANYCHANNELS = 405,
+	ERR_BADCHANNELKEY = 475,
 	ERR_CHANNELISFULL,
 	ERR_INVITEONLYCHAN,
 	
@@ -50,7 +50,6 @@ enum ErrorCodes {
 class Errors {
 	private:
 		static std::map<int, std::string> errors;
-
 		static bool checkPASS(Cmd &cmd, Client &client, Server &server);
 		static bool checkUSER(Cmd &cmd, Client &client);
 		static bool checkJOIN(Cmd &cmd, Client &client);

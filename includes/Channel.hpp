@@ -8,6 +8,8 @@
 #include <sys/socket.h>
 #include <sstream>
 
+#define MAX_CHANNEL_NAME_LENGTH 200
+
 class Client;
 
 enum CommandType {
@@ -30,6 +32,7 @@ private:
     int userLimit;
     bool inviteOnly;
     bool topicRestricted;
+    bool _hasKey;
 
 public:
     Channel(std::string name, std::string key);
@@ -49,6 +52,8 @@ public:
     void removeOperator(int fd);
     bool isOperator(int fd) const;
     void broadcastMessage(const std::string& message, int senderFd);
+    bool hasKey();
+    void setHasKey(bool hasKey);
 
     private:
     void handleKick(int operatorFd, int targetFd);

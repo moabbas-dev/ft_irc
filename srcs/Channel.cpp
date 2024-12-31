@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 12:53:48 by moabbas           #+#    #+#             */
-/*   Updated: 2024/12/29 12:53:49 by moabbas          ###   ########.fr       */
+/*   Updated: 2024/12/31 23:02:47 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ Channel::Channel(std::string name, std::string key): name(name), channelKey(key)
     mode['k'] = false;
     mode['o'] = false;
     mode['l'] = false;
+    _hasKey = !key.empty();
 }
 
 Channel::Channel(std::string name): name(name), channelKey("") {
@@ -26,6 +27,7 @@ Channel::Channel(std::string name): name(name), channelKey("") {
     mode['k'] = false;
     mode['o'] = false;
     mode['l'] = false;
+    _hasKey = false;
 }
 
 Channel::~Channel() { }
@@ -253,6 +255,14 @@ void Channel::showTopic(int fd) {
     std::ostringstream os;
     os << "Channel <" << this->name << "> has topic: <" << this->topic << ">" << std::endl;
     send(fd, os.str().c_str(), sizeof(os.str().size()), 0);
+}
+
+bool Channel::hasKey() {
+    return !this->channelKey.empty();
+}
+
+void Channel::setHasKey(bool hasKey) {
+    this->_hasKey = hasKey;
 }
 
 void Channel::handleCommand(CommandType command, int operatorFd, const std::string& param, int targetFd) {

@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:11:08 by afarachi          #+#    #+#             */
-/*   Updated: 2024/12/31 17:53:05 by moabbas          ###   ########.fr       */
+/*   Updated: 2024/12/31 19:35:13 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,11 @@ Cmd::Cmd(const std::string& name ,const std::vector<std::string>& params)
     _commands["PING"] = &Cmd::PING;
     _commands["USER"] = &Cmd::USER;
     _commands["PRIVMSG"] = &Cmd::PRIVMSG;
+    _commands["KICK"] = &Cmd::KICK;
+    _commands["INVITE"] = &Cmd::INVITE;
+    _commands["TOPIC"] = &Cmd::TOPIC;
+    _commands["MODE"] = &Cmd::MODE;
+    
 }
 
 Cmd::Cmd(const Cmd& other) {
