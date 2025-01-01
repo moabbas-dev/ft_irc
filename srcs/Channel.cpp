@@ -6,11 +6,13 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 12:53:48 by moabbas           #+#    #+#             */
-/*   Updated: 2024/12/31 23:02:47 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/01 13:26:41 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Channel.hpp"
+
+Channel::Channel(): name(""), channelKey("") {}
 
 Channel::Channel(std::string name, std::string key): name(name), channelKey(key) {
     mode['i'] = false;
@@ -257,7 +259,7 @@ void Channel::showTopic(int fd) {
     send(fd, os.str().c_str(), sizeof(os.str().size()), 0);
 }
 
-bool Channel::hasKey() {
+bool Channel::hasKey() const {
     return !this->channelKey.empty();
 }
 

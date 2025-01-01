@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:10:02 by afarachi          #+#    #+#             */
-/*   Updated: 2024/12/31 19:10:29 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/01 13:31:21 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ public:
 private:
     std::string _cmdName;
     std::vector<std::string> _cmdParams;
-    static std::map<std::string, CommandCallback> _commands; // map 3al cmdsssss
+    static std::map<std::string, CommandCallback> _commands;
 
 public:
     Cmd(const Cmd& other);

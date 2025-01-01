@@ -1,17 +1,21 @@
 NAME = ircserv
 
-SRCS = 	main.cpp		\
-		srcs/Server.cpp	\
-		srcs/Client.cpp \
-		srcs/Channel.cpp \
-		srcs/Cmd.cpp	\
-		srcs/JOIN.cpp   \
-		srcs/NICK.cpp	\
-		srcs/PART.cpp	\
-		srcs/PASS.cpp	\
-		srcs/PING.cpp	\
-		srcs/PRIVMSG.cpp\
-		srcs/USER.cpp	\
+SRCS = 	main.cpp			\
+		srcs/Server.cpp		\
+		srcs/Client.cpp 	\
+		srcs/Channel.cpp 	\
+		srcs/Cmd.cpp		\
+		srcs/JOIN.cpp   	\
+		srcs/NICK.cpp		\
+		srcs/PART.cpp		\
+		srcs/PASS.cpp		\
+		srcs/PING.cpp		\
+		srcs/PRIVMSG.cpp	\
+		srcs/USER.cpp		\
+		srcs/KICK.cpp		\
+		srcs/INVITE.cpp		\
+		srcs/TOPIC.cpp		\
+		srcs/MODE.cpp		\
 		srcs/Errors.cpp	
 
 OBJDIR = objs

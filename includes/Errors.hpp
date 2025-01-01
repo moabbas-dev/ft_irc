@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 16:38:49 by moabbas           #+#    #+#             */
-/*   Updated: 2024/12/31 23:49:44 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/01 13:23:40 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ enum ErrorCodes {
 	ERR_BADCHANNELKEY = 475,
 	ERR_CHANNELISFULL,
 	ERR_INVITEONLYCHAN,
-	
+	ERR_BADCHANMASK = 476,
 };
 
 class Errors {

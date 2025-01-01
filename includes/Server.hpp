@@ -54,6 +54,9 @@ public:
     void clearClient(int fd);
     void run();
     std::string getPassword() const;
+    std::map<std::string, Channel>& getChannels() ;
+    void setChannels(std::map<std::string, Channel> channels);
+    
     void handleJoin(int fd, const std::string& channelName);
     void handlePrivmsg(int senderFd, const std::string& target, const std::string& message);
     void handlePart(int fd, const std::string& channelName);

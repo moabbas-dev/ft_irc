@@ -285,3 +285,11 @@ void Server::printResponse(const std::string& message, const char *color) {
     if (!message.empty())
         std::cout << std::endl;
 }
+
+std::map<std::string, Channel>& Server::getChannels()  {
+    return channels;
+}
+
+void Server::setChannels(std::map<std::string, Channel> channels) {
+    this->channels = channels;
+}

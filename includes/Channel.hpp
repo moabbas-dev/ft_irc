@@ -37,6 +37,7 @@ private:
 public:
     Channel(std::string name, std::string key);
     Channel(std::string name);
+    Channel();
     ~Channel();
 
     std::string getName() const;
@@ -52,7 +53,7 @@ public:
     void removeOperator(int fd);
     bool isOperator(int fd) const;
     void broadcastMessage(const std::string& message, int senderFd);
-    bool hasKey();
+    bool hasKey() const;
     void setHasKey(bool hasKey);
 
     private:

@@ -7,7 +7,7 @@
 #include <string>
 #include "Cmd.hpp"
 class Cmd;
-
+class Channel;
 class Client {
 private:
     int fd;
@@ -20,6 +20,7 @@ private:
     bool hasSetNickName;
     bool hasSetUser;
     std::vector<Channel> channels;
+    std::vector<Channel> tmp_channels;
     std::string messageBuffer;
     std::string hostName;
     std::list<Cmd> commands;
@@ -38,7 +39,8 @@ public:
     bool getHasSetPassword() const;
     bool getHasSetNickName() const;
     bool getHasSetUser() const;
-    std::vector<Channel> getChannels() const;
+    std::vector<Channel>& getChannels() ;
+    std::vector<Channel> getTempChannels() const;
 
     // Setters
     void setFd(int fd);
@@ -53,6 +55,8 @@ public:
     void setHasSetNickName(bool hasSetNickName);
     void setHasSetUser(bool hasSetUser);
     void setChannels(std::vector<Channel> channels);
+    void setTempChannels(std::vector<Channel> tmp_channels);
+    void clearTempChannels() ;
 
     // Other
     bool isOperator(Channel& channel) const;

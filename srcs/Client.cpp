@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 12:53:55 by moabbas           #+#    #+#             */
-/*   Updated: 2024/12/31 20:33:58 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/01 12:13:26 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,8 +64,12 @@ bool Client::getHasSetUser() const
     return hasSetUser;
 }
 
-std::vector<Channel> Client::getChannels() const {
+std::vector<Channel>& Client::getChannels() {
     return channels;
+}
+
+void Client::clearTempChannels()  {
+    tmp_channels.clear();
 }
 
 // Setters
@@ -144,3 +148,11 @@ bool Client::isOperator(Channel& channel) const {
 //         }
 //     }
 // }
+
+std::vector<Channel> Client::getTempChannels() const {
+    return tmp_channels;
+}
+
+void Client::setTempChannels(std::vector<Channel> tmp_channels) {
+    this->tmp_channels = tmp_channels;
+}
