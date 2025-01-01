@@ -18,6 +18,8 @@ SRCS = 	main.cpp			\
 		srcs/MODE.cpp		\
 		srcs/Errors.cpp	
 
+# SRCS = srcs/main_test.cpp
+
 OBJDIR = objs
 OBJCS = $(SRCS:%.cpp=$(OBJDIR)/%.o)
 CC = c++

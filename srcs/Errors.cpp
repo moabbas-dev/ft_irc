@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Errors.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 16:45:21 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/01 13:28:29 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/01 15:47:29 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,13 +132,6 @@ bool Errors::checkTOPIC(Cmd &cmd, Client &client)
 	return true;
 }
 
-bool Errors::checkMODE(Cmd &cmd, Client &client)
-{
-	(void)cmd;
-	(void)client;
-	return true;
-}
-
 void Errors::raise(Client& client, const std::string &msgName, int errorCode)
 {
 	std::string clientName = client.getHasSetNickName()? client.getNickname() : client.getHostName();
@@ -178,6 +171,11 @@ void Errors::raise(Client& client, const std::string &msgName, int errorCode)
 		case ERR_BADCHANMASK:
 			result.append(":Bad Channel Mask");
 			break;
+		case ERR_CHANOPRIVSNEEDED:
+			result.append(":You're not channel operator");
+			break;
+		case ERR_UNKNOWNMODE:
+			result.append(":is unknown mode char to me");
 	}
 	result.append("\n");
 	send(client.getFd(), result.c_str(), result.size(), 0);
@@ -214,6 +212,6 @@ bool Errors::validParameters(Cmd &cmd, Client& client, Server &server)
 	else if (cmd.getName() == "TOPIC")
 		return checkTOPIC(cmd, client);
 	else if (cmd.getName() == "MODE")
-		return checkMODE(cmd, client);
+		return checkMODE(cmd, client, server);
     return true;
 }

@@ -44,6 +44,7 @@ public:
     std::string getTopic() const;
     void setTopic(const std::string& topic);
     const std::string& getChannelKey() const;
+    const std::map<int, bool> &getOperators() const;
     void setChannelKey(const std::string& key);
 
     bool addClient(Client& client, const std::string& key = "");

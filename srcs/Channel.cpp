@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 12:53:48 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/01 13:26:41 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/01 15:30:14 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,11 @@ void Channel::setTopic(const std::string& topic) {
 
 const std::string& Channel::getChannelKey() const {
     return channelKey;
+}
+
+const std::map<int, bool> &Channel::getOperators() const
+{
+    return operators;
 }
 
 void Channel::setChannelKey(const std::string& key) {
