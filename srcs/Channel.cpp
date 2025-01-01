@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
+/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 12:53:48 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/01 15:30:14 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/01 20:15:47 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Channel.hpp"
+#include "../includes/Errors.hpp"
 
 Channel::Channel(): name(""), channelKey("") {}
 
@@ -73,16 +74,12 @@ bool Channel::isOperator(int fd) const {
 }
 
 bool Channel::addClient(Client& client, const std::string& key) {
+    (void)key;
     for (size_t i = 0;i < clients.size();i++) {
         if (clients[i].getFd() == client.getFd()) {
-            std::cerr << "The client <" << client.getFd()  << "> already exists in the Channel\n";
+            Errors::raise(client, this->name, ERR_ALREADYREGISTERED);
             return false;
         }
-    }
-
-    if (!channelKey.empty() && channelKey != key) {
-        std::cerr << "Error: Invalid Channel key\n";
-        return false;
     }
     clients.push_back(client);
     return true;
@@ -106,12 +103,10 @@ void Channel::removeClient(int fd) {
 
 void Channel::addOperator(int fd) {
     if (operators.find(fd) != operators.end() && operators[fd]) {
-        std::cout << "Client <" << fd << "> is already an operator." << std::endl;
         return;
     }
 
     operators[fd] = true;
-    std::cout << "Client <" << fd << "> has been added as an operator." << std::endl;
 }
 
 void Channel::removeOperator(int fd) {

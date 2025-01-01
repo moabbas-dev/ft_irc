@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Errors.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
+/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 16:45:21 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/01 15:47:29 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/01 19:53:13 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,6 +176,13 @@ void Errors::raise(Client& client, const std::string &msgName, int errorCode)
 			break;
 		case ERR_UNKNOWNMODE:
 			result.append(":is unknown mode char to me");
+			break;
+		case ERR_NOSUCHCHANNEL:
+			result.append(":No such channel");
+			break;
+		case ERR_BADCHANNELKEY:
+			result.append(":Bad channel key");
+			break;
 	}
 	result.append("\n");
 	send(client.getFd(), result.c_str(), result.size(), 0);
