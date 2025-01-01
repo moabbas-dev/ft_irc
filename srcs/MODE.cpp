@@ -6,7 +6,7 @@
 /*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 19:06:07 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/01 18:19:30 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/01 21:53:58 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -204,7 +204,7 @@ bool Errors::checkMODE(Cmd &cmd, Client &client, Server &server)
 		return (raise(client, cmd.getParams()[0], ERR_CHANOPRIVSNEEDED), false);
 	if (!isCorrectModeString(cmd.getParams()[1]))
 		return (raise(client, cmd.getParams()[1], ERR_UNKNOWNMODE), false);
-	if (cmd.getParams().size() >= 2 && cmd.getParams().size() < (2 + getNbOfModeArguments(cmd.getParams()[1])))
+	if (cmd.getParams().size() <= (2 + getNbOfModeArguments(cmd.getParams()[1])))
 		return(raise(client, "", ERR_NEEDMOREPARAMS), false);
 	return true;
 }
