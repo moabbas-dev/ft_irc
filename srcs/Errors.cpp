@@ -104,7 +104,9 @@ bool Errors::checkUSER(Cmd &cmd, Client &client)
 
 	if (cmd.getParams().size() > 4)
 		return (raise(client, cmd.getName(), ERR_TOOMANYPARAMS), false);
-
+// a cmd like this PING LOL
+// should return on the client terminal like this 
+// 
 	if (client.getIsAuthenticated()) 
 		return (raise(client, cmd.getName(), ERR_ALREADYREGISTERED), false);
 
