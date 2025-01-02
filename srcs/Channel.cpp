@@ -15,7 +15,9 @@
 
 Channel::Channel(): name(""), channelKey("") {}
 
-Channel::Channel(std::string name, std::string key): name(name), channelKey(key) {
+Channel::Channel(std::string name, std::string key): name(name), channelKey(key)
+{
+    creationTime = time(NULL);
     mode['i'] = false;
     mode['t'] = false;
     mode['k'] = false;
@@ -24,7 +26,9 @@ Channel::Channel(std::string name, std::string key): name(name), channelKey(key)
     _hasKey = !key.empty();
 }
 
-Channel::Channel(std::string name): name(name), channelKey("") {
+Channel::Channel(std::string name): name(name), channelKey("")
+{
+    creationTime = time(NULL);
     mode['i'] = false;
     mode['t'] = false;
     mode['k'] = false;
@@ -33,7 +37,10 @@ Channel::Channel(std::string name): name(name), channelKey("") {
     _hasKey = false;
 }
 
-Channel::~Channel() { }
+Channel::~Channel()
+{
+    creationTime = time(NULL);
+}
 
 std::string Channel::getName() const {
 	return name;
@@ -41,6 +48,21 @@ std::string Channel::getName() const {
 
 std::string Channel::getTopic() const {
 	return topic;
+}
+
+std::map<char, bool> &Channel::getMode()
+{
+    return mode;
+}
+
+std::time_t Channel::getCreationTime() const
+{
+    return creationTime;
+}
+
+int Channel::getUserLimit() const
+{
+    return userLimit;
 }
 
 void Channel::setTopic(const std::string& topic) {
@@ -125,6 +147,8 @@ void Channel::broadcastMessage(const std::string& message, int senderFd) {
             if (send(clients[i].getFd(), message.c_str(), message.size(), 0) == -1) 
                 std::cerr << "Send failed to client <" << clients[i].getFd() << ">" << std::endl;
 }
+
+// /connect localhost 8000 pass jfatfat
 
 void Channel::handleKick(int operatorFd, int targetFd) {
     if (!isOperator(operatorFd)) {

@@ -7,6 +7,8 @@
 #include "Client.hpp"
 #include <sys/socket.h>
 #include <sstream>
+#include <ctime>
+#include <stdexcept>
 
 #define MAX_CHANNEL_NAME_LENGTH 200
 
@@ -29,6 +31,7 @@ private:
     std::vector<Client> clients;
     std::map<int, bool> operators;
     std::map<char, bool> mode;
+    std::time_t creationTime;
     int userLimit;
     bool inviteOnly;
     bool topicRestricted;
@@ -45,7 +48,10 @@ public:
     void setTopic(const std::string& topic);
     const std::string& getChannelKey() const;
     const std::map<int, bool> &getOperators() const;
+    std::time_t getCreationTime() const;
+    int getUserLimit() const;
     void setChannelKey(const std::string& key);
+    std::map<char, bool> &getMode();
 
     bool addClient(Client& client, const std::string& key = "");
     void removeClient(int fd);

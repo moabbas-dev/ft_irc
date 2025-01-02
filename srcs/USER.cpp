@@ -33,4 +33,6 @@ void Cmd::USER(const Cmd& cmd, Server& server, Client& client) {
     std::ostringstream oss;
     oss << client.getNickname() << " has set his username to: " << client.getUsername() << " and realname to: " << client.getRealname() << ".";
     Server::printResponse(oss.str() , BLUE);
+    std::string msg001 = ": 001 " + client.getNickname() + " : Welcome to the IRC server!\n";
+    send(client.getFd(), msg001.c_str(), msg001.size(), 0);
 }

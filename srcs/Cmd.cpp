@@ -111,7 +111,6 @@ std::string trimString(const std::string& str)
     std::string::size_type start = 0;
     while(start < str.length() && std::isspace(str[start]))
         ++start;
-
     std::string::size_type end = str.length();
     while(end > start && std::isspace(str[end - 1]))
         --end;
@@ -133,7 +132,9 @@ void Parser::parse(std::list<Cmd> *commandsList, std::string input, Client& clie
 std::list<Cmd> Parser::splitCommands(std::string input, Client& client, Server &server) {
     size_t start = 0, end;
     std::list<Cmd> result;
-
+    // for (int i = 0;i < input.length();i++) {
+    //     if ()
+    // }
     while ((end = input.find('\n', start)) != std::string::npos) {
         std::string command = input.substr(start, end - start);
         command.push_back('\n');

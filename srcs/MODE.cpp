@@ -165,7 +165,7 @@ static bool isCorrectModeString(const std::string &modeString)
 
 static size_t getNbOfModeArguments(const std::string &modeString)
 {
-	bool set;
+	bool set = true;
 	size_t i = 0;
 	size_t nbArguments = 0;
 	while (i < modeString.size())
@@ -204,14 +204,96 @@ bool Errors::checkMODE(Cmd &cmd, Client &client, Server &server)
 		return (raise(client, cmd.getParams()[0], ERR_CHANOPRIVSNEEDED), false);
 	if (!isCorrectModeString(cmd.getParams()[1]))
 		return (raise(client, cmd.getParams()[1], ERR_UNKNOWNMODE), false);
-	if (cmd.getParams().size() <= (2 + getNbOfModeArguments(cmd.getParams()[1])))
+	if (cmd.getParams().size() < (2 + getNbOfModeArguments(cmd.getParams()[1])))
 		return(raise(client, "", ERR_NEEDMOREPARAMS), false);
 	return true;
 }
 
+static Channel &getSpecifiedChannel(const Cmd &cmd, Server &server)
+{
+	std::map<std::string, Channel> &channels = server.getChannels();
+	if (channels.empty())
+		throw std::exception();
+	for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); ++it)
+	{
+		if (it->first == cmd.getParams()[0])
+			return it->second;
+	}
+	throw std::exception();
+}
+
+static std::string getNumberAsString(unsigned long long nb)
+{
+	std::ostringstream oss;
+    oss << nb;
+    return oss.str();
+}
+
 void Cmd::MODE(const Cmd& cmd, Server& server, Client& client) {
-	(void)cmd;
-	(void)server;
-	(void)client;
+	// (void)cmd;
+	// (void)server;
+	// (void)client;
+	// MODE channel modeStr modeArgs
+	// bool set = true;
+	// std::string modeStr = cmd.getParams()[1];
+	try
+	{
+		size_t args = cmd.getParams().size();
+		Channel &channel = getSpecifiedChannel(cmd, server);
+		std::map<char, bool> &mode = channel.getMode();
+		if (args == 1)
+		{
+			std::string msg324 = ":localhost 324 " + client.getNickname() + " " +
+				cmd.getParams()[0] + " ";
+			std::string msg329 = ":localhost 329 " + client.getNickname() + " " +
+				cmd.getParams()[0] + " " +
+					getNumberAsString((time_t)channel.getCreationTime()) + "\n";
+			for (std::map<char, bool>::iterator it = mode.begin(); it != mode.end(); ++it)
+			{
+				if (it->second && it->first != 'o')
+				{
+					msg324 += "+";
+					break;
+				}
+			}
+			for (std::map<char, bool>::iterator it = mode.begin(); it != mode.end(); ++it)
+			{
+				if (it->second && it->first != 'o')
+					msg324 += it->first;
+			}
+			if (msg324.find('+') != std::string::npos)
+				msg324 += " ";
+			for (std::map<char, bool>::iterator it = mode.begin(); it != mode.end(); ++it)
+			{
+				if (it->second && it->first != 'o')
+				{
+					switch (it->first)
+					{
+						case 'k':
+							msg324 += channel.getChannelKey();
+							break;
+						case 'l':
+							msg324 += getNumberAsString((int)channel.getUserLimit());
+							break;
+						default:
+							break;
+					}
+				}
+				if (it != mode.end())
+					msg324 += " ";
+			}
+			msg324 += "\n";
+			send(client.getFd(), msg324.c_str(), msg324.size(), 0);
+			send(client.getFd(), msg329.c_str(), msg329.size(), 0);
+		}
+		else
+		{
+			return;
+		}
+	}
+	catch(std::exception &)
+	{
+		Errors::raise(client, "", ERR_NOSUCHCHANNEL);
+	}
 	// TODO: Implement MODE command
 }

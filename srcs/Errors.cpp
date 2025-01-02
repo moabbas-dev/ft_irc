@@ -139,7 +139,7 @@ void Errors::raise(Client& client, const std::string &msgName, int errorCode)
 	switch(errorCode)
 	{
 		case ERR_UNKNOWCOMMAND:
-			result.append(":Unknow Command");
+			result.append(":Unknown Command");
 			break;
 		case ERR_NEEDMOREPARAMS:
 			result.append(":Not enough parameters");
@@ -193,7 +193,7 @@ bool Errors::commandFound(const std::string &command)
     return command == "PASS" || command == "JOIN"
         || command == "NICK" || command == "PART"
         || command == "PING" || command == "PRIVMSG"
-        || command == "USER";
+        || command == "USER" || command == "MODE";
 }
 
 bool Errors::validParameters(Cmd &cmd, Client& client, Server &server)
