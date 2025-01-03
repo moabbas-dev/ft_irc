@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 16:45:21 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/01 19:53:13 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/03 13:38:45 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ bool Errors::checkPASS(Cmd &cmd, Client &client, Server &server)
 
 	if (cmd.getParams()[0] != server.getPassword())
 		return (raise(client, "", ERR_PASSWDMISMATCH), false);
-
+	client.setHasSetPassword(true);
 	return true;
 }
 
@@ -67,6 +67,7 @@ bool Errors::checkNICK(Cmd &cmd, Client &client, Server &server)
 			return (raise(client, cmd.getParams()[0], ERR_NICKNAMEINUSE), false);
 		++it;
 	}
+	client.setHasSetNickName(true);
 	return true;
 }
 
