@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Errors.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
+/*   By: afarachi <afarachi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 16:38:49 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/01 15:46:49 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/03 14:47:31 by afarachi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,9 @@ enum ErrorCodes {
 	ERR_ERRONEUSNICKNAME = 432,
 	ERR_NICKNAMEINUSE = 433,
 
+	// PART 
+	ERR_NOTONCHANNEL = 442,
+
 	// JOIN
 	ERR_NOSUCHCHANNEL = 403,
 	ERR_TOOMANYCHANNELS = 405,
@@ -58,7 +61,7 @@ class Errors {
 		static bool checkUSER(Cmd &cmd, Client &client);
 		static bool checkJOIN(Cmd &cmd, Client &client);
 		static bool checkNICK(Cmd &cmd, Client &client, Server &server);
-		static bool checkPART(Cmd &cmd, Client &client);
+		static bool checkPART(Cmd &cmd, Client &client, Server &server);
 		static bool checkPING(Cmd &cmd, Client &client);
 		static bool checkPRIVMSG(Cmd &cmd, Client &client);
 		static bool checkKICK(Cmd &cmd, Client &client);
@@ -71,5 +74,7 @@ class Errors {
 		static bool commandFound(const std::string &command);
 		static bool validParameters(Cmd &cmd, Client& client, Server &server);
 };
+
+std::vector<std::string> split(const std::string& str, char delimiter);
 
 #endif

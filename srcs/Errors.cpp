@@ -3,12 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   Errors.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: afarachi <afarachi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 16:45:21 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/03 13:38:45 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/03 14:48:13 by afarachi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#include <algorithm>
 
 #include "../includes/Errors.hpp"
 #include "../includes/Cmd.hpp"
@@ -71,10 +73,28 @@ bool Errors::checkNICK(Cmd &cmd, Client &client, Server &server)
 	return true;
 }
 
-bool Errors::checkPART(Cmd &cmd, Client &client)
+
+bool Errors::checkPART(Cmd &cmd, Client &client, Server &server)
 {
-	(void)cmd;
-	(void)client;
+	// (void)cmd;
+	// (void)client;
+	if (cmd.getParams().size() < 1)
+		return (raise(client, "", ERR_NEEDMOREPARAMS), false);
+
+	std::vector<std::string> splitted_params = split(cmd.getParams()[0], ',');
+	std::vector<std::string>::iterator it = splitted_params.begin();
+
+	while (it != splitted_params.end())
+	{
+		if (std::find(client.getChannels().begin(), client.getChannels().end(), *it) == client.getChannels().end())
+			return (raise(client, *it, ERR_NOTONCHANNEL), false);
+
+		if (std::find(server.getChannels().begin(), server.getChannels().end(), *it) == server.getChannels().end())
+			return (raise(client, *it, ERR_NOSUCHCHANNEL), false);
+
+		++it;
+	}
+
 	return true;
 }
 
@@ -208,7 +228,7 @@ bool Errors::validParameters(Cmd &cmd, Client& client, Server &server)
     else if (cmd.getName() == "NICK")
         return checkNICK(cmd, client, server);
     else if (cmd.getName() == "PART")
-        return checkPART(cmd, client);
+        return checkPART(cmd, client, server);
     else if (cmd.getName() == "PING")
         return checkPING(cmd, client);
     else if (cmd.getName() == "PRIVMSG")
