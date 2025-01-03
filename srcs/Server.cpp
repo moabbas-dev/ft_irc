@@ -290,6 +290,19 @@ std::map<std::string, Channel>& Server::getChannels()  {
     return channels;
 }
 
+
+Channel* Server::findChannel(const std::string& channel_name) {
+    std::map<std::string, Channel>::iterator it = channels.find(channel_name);
+    if (it != channels.end()) {
+        return &(it->second);
+    }
+    return NULL;
+}
+
+void Server::deleteChannel(const std::string& channel_name) {
+    channels.erase(channel_name);
+}
+
 void Server::setChannels(std::map<std::string, Channel> channels) {
     this->channels = channels;
 }

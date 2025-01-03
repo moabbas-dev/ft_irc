@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: afarachi <afarachi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 12:53:48 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/01 20:15:47 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/03 15:30:29 by afarachi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,6 +105,10 @@ bool Channel::addClient(Client& client, const std::string& key) {
     }
     clients.push_back(client);
     return true;
+}
+
+bool Channel::isEmpty() const {
+    return clients.empty();
 }
 
 void Channel::removeClient(int fd) {

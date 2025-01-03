@@ -56,6 +56,8 @@ public:
     std::string getPassword() const;
     std::map<std::string, Channel>& getChannels() ;
     void setChannels(std::map<std::string, Channel> channels);
+    Channel *findChannel(const std::string& channel_name);
+    void deleteChannel(const std::string& channel_name);
     
     void handleJoin(int fd, const std::string& channelName);
     void handlePrivmsg(int senderFd, const std::string& target, const std::string& message);

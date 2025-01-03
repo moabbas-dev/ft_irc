@@ -59,6 +59,7 @@ public:
     void addOperator(int fd);
     void removeOperator(int fd);
     bool isOperator(int fd) const;
+    bool isEmpty() const;
     void broadcastMessage(const std::string& message, int senderFd);
     bool hasKey() const;
     void setHasKey(bool hasKey);
