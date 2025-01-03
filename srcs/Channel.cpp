@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: afarachi <afarachi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 12:53:48 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/03 15:30:29 by afarachi         ###   ########.fr       */
+/*   Updated: 2025/01/03 18:58:23 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -315,4 +315,8 @@ void Channel::handleCommand(CommandType command, int operatorFd, const std::stri
         default:
             throw std::invalid_argument("Invalid command type");
     }
+}
+
+bool Channel::operator==(const Channel& other) const {
+    return name == other.name;
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Errors.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: afarachi <afarachi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 16:38:49 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/03 14:47:31 by afarachi         ###   ########.fr       */
+/*   Updated: 2025/01/03 20:02:04 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,8 @@ enum ErrorCodes {
 	ERR_CHANNELISFULL,
 	ERR_INVITEONLYCHAN,
 	ERR_BADCHANMASK = 476,
+	ERR_USERONCHANNEL = 443,
+	RPL_TOPIC = 332,
 
 	// MODE
 	ERR_CHANOPRIVSNEEDED = 482,
@@ -68,6 +70,7 @@ class Errors {
 		static bool checkINVITE(Cmd &cmd, Client &client);
 		static bool checkTOPIC(Cmd &cmd, Client &client);
 		static bool checkMODE(Cmd &cmd, Client &client, Server &server);
+		// static bool checkQUIT(Cmd &cmd, Client &client, Server &server);
 
 	public:
 		static void raise(Client& client, const std::string &msgName, int errorCode);

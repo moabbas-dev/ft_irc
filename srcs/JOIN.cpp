@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:46:43 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/01 20:34:11 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/03 19:33:28 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,6 +104,17 @@ bool Errors::checkJOIN(Cmd &cmd, Client &client)
 	return true;
 }
 
+bool alreadyInchannel (const std::vector<Channel>& client_channels, const Channel& channel) {
+    std::vector<Channel>::const_iterator it = client_channels.begin();
+    while (it != client_channels.end())
+    {
+        if (*it == channel)
+            return true;
+        ++it;
+    }
+    return false;
+}
+
 void Cmd::JOIN(const Cmd& cmd, Server& server, Client& client) {
     (void)cmd;
     std::vector<Channel> tmp_channels = client.getTempChannels();
@@ -121,6 +132,9 @@ void Cmd::JOIN(const Cmd& cmd, Server& server, Client& client) {
             if (server_channel.hasKey() && server_channel.getChannelKey() != channel_key) {
                 Errors::raise(client, channel_name, ERR_BADCHANNELKEY);
                 continue;
+            } else if (alreadyInchannel(client_channels, server_channel)) {
+                Errors::raise(client, channel_name, ERR_USERONCHANNEL);
+                continue;
             }
             client_channels.push_back(server_channel);
             std::string message = (client.getHasSetNickName()?client.getNickname() : client.getHostName())
@@ -135,6 +149,7 @@ void Cmd::JOIN(const Cmd& cmd, Server& server, Client& client) {
             std::string message = (client.getHasSetNickName() ? client.getNickname() : client.getHostName())
                 + " has created channel " + channel_name  + (new_channel.hasKey()? " with key=" + new_channel.getChannelKey() : "") + ".";
             Server::printResponse(message, GREEN);
+            Errors::raise(client, channel_name, RPL_TOPIC);
         }
     }
     client.clearTempChannels();

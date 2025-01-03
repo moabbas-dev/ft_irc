@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:10:02 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/01 13:31:21 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/03 20:01:04 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ public:
     static void INVITE(const Cmd& cmd, Server& server, Client& client);
     static void TOPIC(const Cmd& cmd, Server& server, Client& client);
     static void MODE(const Cmd& cmd, Server& server, Client& client);
-
+    static void QUIT(const Cmd& cmd, Server& server, Client& client);
     Cmd(const std::string& name, const std::vector<std::string>& params);
     static void errorServerClient(std::string s_side, std::string c_side, int c_fd);
 };

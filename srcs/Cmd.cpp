@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:11:08 by afarachi          #+#    #+#             */
-/*   Updated: 2024/12/31 19:35:13 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/03 20:01:52 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ Cmd::Cmd(const std::string& name ,const std::vector<std::string>& params)
     _commands["INVITE"] = &Cmd::INVITE;
     _commands["TOPIC"] = &Cmd::TOPIC;
     _commands["MODE"] = &Cmd::MODE;
-    
+    _commands["QUIT"] = &Cmd::QUIT;
 }
 
 Cmd::Cmd(const Cmd& other) {
@@ -81,31 +81,6 @@ void Cmd::execute(Server& server ,Client& client) const
         it->second(*this ,server ,client);
 }
 
-// 🤔🧩 maybe we will use it later !!
-// Yes maybe, but why do u perfer to put emojies? they are not serious as far as i can tell :)
-// Cmd Cmd::parseClientCommand(const std::string &input)
-// {
-//     std::istringstream iss(input);
-//     std::string name;
-//     std::vector<std::string> params;
-
-//     iss >> name;
-
-//     std::string param;
-//     while (iss >> param)
-//     {
-//         if (param[0] == ':')
-//         {
-//             std::string restOfMessage;
-//             getline(iss, restOfMessage);
-//             params.push_back(param.substr(1) + restOfMessage);
-//             break;
-//         }
-//         params.push_back(param);
-//     }
-//     return Cmd(name, params);
-// }
-
 std::string trimString(const std::string& str)
 {
     std::string::size_type start = 0;
@@ -117,7 +92,6 @@ std::string trimString(const std::string& str)
 
     return str.substr(start ,end - start);
 }
-
 
 void Cmd::errorServerClient(std::string s_side, std::string c_side, int c_fd) {
     if (s_side != "") std::cerr << s_side << std::endl;
@@ -132,16 +106,13 @@ void Parser::parse(std::list<Cmd> *commandsList, std::string input, Client& clie
 std::list<Cmd> Parser::splitCommands(std::string input, Client& client, Server &server) {
     size_t start = 0, end;
     std::list<Cmd> result;
-    // for (int i = 0;i < input.length();i++) {
-    //     if ()
-    // }
     while ((end = input.find('\n', start)) != std::string::npos) {
         std::string command = input.substr(start, end - start);
         command.push_back('\n');
         Cmd parsedCommand = parseCommand(command);
         if (!Errors::commandFound(parsedCommand.getName())) {
             start = end + 1;
-            if (!parsedCommand.getName().empty() && trimString(command).compare("CAP LS"))
+            if (!parsedCommand.getName().empty() && trimString(command).compare("CAP LS 302"))
                 Errors::raise(client, trimString(command), ERR_UNKNOWCOMMAND);
             continue;
         }

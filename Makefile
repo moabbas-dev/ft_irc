@@ -16,14 +16,15 @@ SRCS = 	main.cpp			\
 		srcs/INVITE.cpp		\
 		srcs/TOPIC.cpp		\
 		srcs/MODE.cpp		\
-		srcs/Errors.cpp	
+		srcs/Errors.cpp		\
+		srcs/QUIT.cpp		\
 
 # SRCS = srcs/main_test.cpp
 
 OBJDIR = objs
 OBJCS = $(SRCS:%.cpp=$(OBJDIR)/%.o)
 CC = g++
-CFLAGS = -Wall -Wextra -Werror 
+CFLAGS = -Wall -Wextra -Werror
 
 all: $(NAME)
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Errors.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: afarachi <afarachi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 16:45:21 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/03 16:32:30 by afarachi         ###   ########.fr       */
+/*   Updated: 2025/01/03 20:02:17 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,8 +86,6 @@ bool Errors::checkPART(Cmd &cmd, Client &client, Server &server)
 	std::vector<Channel> clientChannels = client.getChannels();
 	while (it != splitted_params.end())
 	{
-
-
 		std::vector<Channel>::iterator itChannel = std::find_if(
 			clientChannels.begin(), clientChannels.end(),
 			[&it](const Channel &channel)
@@ -108,7 +106,6 @@ bool Errors::checkPART(Cmd &cmd, Client &client, Server &server)
 
 	return true;
 }
-
 
 bool Errors::checkPING(Cmd &cmd, Client &client)
 {
@@ -170,62 +167,68 @@ bool Errors::checkTOPIC(Cmd &cmd, Client &client)
 void Errors::raise(Client &client, const std::string &msgName, int errorCode)
 {
 	std::string clientName = client.getHasSetNickName() ? client.getNickname() : client.getHostName();
-	std::string result = msgName.empty() ? clientName + " " : clientName + " " + msgName + " ";
+	std::ostringstream result;
+	result << ": " << errorCode << " ";
+	result << msgName.empty()? clientName + " " : clientName + " " + msgName + " ";
+
 	switch (errorCode)
 	{
 	case ERR_UNKNOWCOMMAND:
-		result.append(":Unknown Command");
+		result << ":Unknown Command";
 		break;
 	case ERR_NEEDMOREPARAMS:
-		result.append(":Not enough parameters");
+		result << ":Not enough parameters";
 		break;
 	case ERR_TOOMANYPARAMS:
-		result.append(":Too many parameters");
+		result << ":Too many parameters";
 		break;
 	case ERR_PASSWDMISMATCH:
-		result.append(":Password incorrect");
+		result << ":Password incorrect";
 		break;
 	case ERR_ALREADYREGISTERED:
-		result.append(":You may not reregister");
+		result << ":You may not reregister";
 		break;
 	case ERR_NOTREGISTERED:
-		result.append(":You have not registered");
+		result << ":You have not registered";
 		break;
 	case ERR_NONICKNAMEGIVEN:
-		result.append(":No nickname given");
+		result << ":No nickname given";
 		break;
 	case ERR_ERRONEUSNICKNAME:
-		result.append(":Erroneus nickname");
+		result << ":Erroneus nickname";
 		break;
 	case ERR_NICKNAMEINUSE:
-		result.append(":Nickname is already in use");
+		result << ":Nickname is already in use";
 		break;
 	case ERR_TOOMANYCHANNELS:
-		result.append(":You have joined too many channels");
+		result << ":You have joined too many channels";
 		break;
 	case ERR_BADCHANMASK:
-		result.append(":Bad Channel Mask");
+		result << ":Bad Channel Mask";
 		break;
 	case ERR_CHANOPRIVSNEEDED:
-		result.append(":You're not channel operator");
+		result << ":You're not channel operator";
 		break;
 	case ERR_UNKNOWNMODE:
-		result.append(":is unknown mode char to me");
+		result << ":is unknown mode char to me";
 		break;
 	case ERR_NOSUCHCHANNEL:
-		result.append(":No such channel");
+		result << ":No such channel";
 		break;
 	case ERR_BADCHANNELKEY:
-		result.append(":Bad channel key");
+		result << ":Bad channel key";
+		break;
+	case ERR_USERONCHANNEL:
+		result << ":is already on channel";
 		break;
 	}
-	result.append("\n");
-	send(client.getFd(), result.c_str(), result.size(), 0);
+	result << "\n";
+	send(client.getFd(), result.str().c_str(), result.str().size(), 0);
 }
 
 bool Errors::commandFound(const std::string &command)
 {
-	return command == "PASS" || command == "JOIN" || command == "NICK" || command == "PART" || command == "PING" || command == "PRIVMSG" || command == "USER" || command == "MODE";
+	return command == "PASS" || command == "JOIN" || command == "NICK" || command == "PART" || command == "PING" || command == "PRIVMSG" || command == "USER" || command == "MODE" || command == "QUIT";
 }
 
 bool Errors::validParameters(Cmd &cmd, Client &client, Server &server)

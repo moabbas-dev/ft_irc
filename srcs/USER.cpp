@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:50:06 by afarachi          #+#    #+#             */
-/*   Updated: 2024/12/31 18:24:00 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/03 19:47:51 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,6 @@ void Cmd::USER(const Cmd& cmd, Server& server, Client& client) {
     std::ostringstream oss;
     oss << client.getNickname() << " has set his username to: " << client.getUsername() << " and realname to: " << client.getRealname() << ".";
     Server::printResponse(oss.str() , BLUE);
-    std::string msg001 = ": 001 " + client.getNickname() + " : Welcome to the IRC server!\n";
+    std::string msg001 = ": 001 " + client.getNickname() + " :Welcome to the IRC server!\n";
     send(client.getFd(), msg001.c_str(), msg001.size(), 0);
 }

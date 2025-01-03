@@ -63,7 +63,7 @@ public:
     void broadcastMessage(const std::string& message, int senderFd);
     bool hasKey() const;
     void setHasKey(bool hasKey);
-
+    bool operator==(const Channel& other) const;
     private:
     void handleKick(int operatorFd, int targetFd);
     void handleInvite(int operatorFd, int targetFd);

@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:49:35 by afarachi          #+#    #+#             */
-/*   Updated: 2024/12/31 18:21:41 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/03 18:33:06 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,8 @@ void Cmd::PING(const Cmd &cmd, Server &server, Client &client)
 {
     (void)server;
     std::ostringstream oss;
-    oss << ":" << client.getNickname() << "!" << client.getUsername()
-        << "@" << client.getHostName() << " PONG " << cmd.getParams()[0] << std::endl;
-    
+    oss <<" PONG " << cmd.getParams()[0] << std::endl;
+
 	std::string message = oss.str();
 	send(client.getFd(), message.c_str(), message.size(), 0);
 }
