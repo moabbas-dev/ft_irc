@@ -232,3 +232,9 @@ void Server::deleteChannel(const std::string& channel_name) {
 void Server::setChannels(std::map<std::string, Channel> channels) {
     this->channels = channels;
 }
+
+void Server::sendReply(std::string message, int fd) {
+    std::cout << message;
+    if (send(fd, message.c_str(), message.size(), 0) == -1)
+        std::cerr << "Cannot Send reply to fd=" << fd << std::endl;
+}

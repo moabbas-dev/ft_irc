@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 12:53:48 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/04 13:53:23 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/04 15:17:41 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,10 +152,11 @@ void Channel::removeOperator(int fd) {
     Server::printResponse(oss.str(), RED);
 }
 
-void Channel::broadcastMessage(const std::string& message) const {
+void Channel::broadcastMessage(const std::string& message, int senderFd) const {
     for (size_t i = 0;i < clients.size(); i++)
-        if (send(clients[i].getFd(), message.c_str(), message.size(), 0) == -1) 
-            std::cerr << "Send failed to client <" << clients[i].getFd() << ">" << std::endl;
+        if (clients[i].getFd() != senderFd)
+            if (send(clients[i].getFd(), message.c_str(), message.size(), 0) == -1) 
+                std::cerr << "Send failed to client <" << clients[i].getFd() << ">" << std::endl;
 }
 
 bool Channel::hasKey() const {
@@ -170,18 +171,12 @@ bool Channel::operator==(const Channel& other) const {
     return name == other.name;
 }
 
-void Channel::reply(Client client, commandName commandName, bool broadcast, std::string reason) const {
-    std::string nickname = client.getNickname();
-    std::string username = client.getUsername();
-    std::string ipaddress = client.getIPadd();
-    std::ostringstream oss;
-    if (commandName == JOIN && broadcast) {
-        oss << ":" << nickname << "!" << username  << "@" << ipaddress << " JOIN " << name  << " ; " << nickname << " is joining the channel " << name << "\n";
-        this->broadcastMessage(oss.str()); 
-    }
-    else if (commandName == PART && broadcast) {
-        oss << ":" + nickname << "!" << username << "@" << ipaddress << " PART " << name;
-        !reason.empty()? oss << " :" << reason << "\n" : oss << "\n";
-        this->broadcastMessage(oss.str());
-    }
+std::string Channel::clientslist() {
+    std::string list;
+	for(size_t i = 0; i < clients.size(); i++){
+		list += clients[i].getNickname();
+		if((i + 1) < clients.size())
+			list += " ";
+	}
+	return list;
 }

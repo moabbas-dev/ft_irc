@@ -19,6 +19,7 @@
 #include <iostream>
 #include <list>
 #include <netdb.h>
+#include "Replies.hpp"
 
 #define RESET "\033[0m"
 #define BLUE "\033[34m"
@@ -59,10 +60,8 @@ public:
     Channel *findChannel(const std::string& channel_name);
     void deleteChannel(const std::string& channel_name);
 
-    void handleJoin(int fd, const std::string& channelName);
-    void handlePrivmsg(int senderFd, const std::string& target, const std::string& message);
-    void handlePart(int fd, const std::string& channelName);
     static void printResponse(const std::string& message, const char* color);
+    static void sendReply(std::string message, int fd);
 
 private:
     void processClientCommands(int fd);

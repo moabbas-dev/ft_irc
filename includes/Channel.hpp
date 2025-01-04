@@ -14,14 +14,6 @@
 
 class Client;
 
-enum commandName {
-    JOIN,
-    PART,
-    INVITE,
-    TOPIC,
-    MODE,
-};
-
 class Channel {
 private:
     std::string name;
@@ -72,10 +64,10 @@ public:
 
     // channel methods
     bool isEmpty() const;
-    void broadcastMessage(const std::string& message) const;
+    void broadcastMessage(const std::string& message, int senderFd) const;
     bool hasKey() const;
     void setHasKey(bool hasKey);
-    void reply(Client client, commandName commandName, bool broadcast, std::string reason) const;
+    std::string clientslist();
 };
 
 #endif

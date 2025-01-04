@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:48:10 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/04 13:20:44 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/04 15:18:17 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,12 @@ void Cmd::PART(const Cmd& cmd, Server& server, Client& client) {
         channel->removeClient(client.getFd());
 
         std::string reason = (cmd.getParams().size() > 1) ? cmd.getParams()[1] : "";
-        channel->reply(client, (commandName)1, true, reason);
+        std::string part_message = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getHostName()
+            + " PART " + channel_name;
+        if (!reason.empty())
+            part_message += " :" + reason;
+
+        channel->broadcastMessage(part_message, client.getFd());
 
         if (channel->isEmpty())
             server.deleteChannel(channel_name);

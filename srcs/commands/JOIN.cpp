@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:46:43 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/04 13:37:09 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/04 15:16:37 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,13 +135,14 @@ void Cmd::JOIN(const Cmd& cmd, Server& server, Client& client) {
                 Errors::raise(client, channel_name, ERR_USERONCHANNEL);
                 continue;
             }
-            Channel new_channel = Channel(server_channel);
-            new_channel.addClient(client);
-            client_channels.push_back(new_channel);
-            std::string message = (client.getHasSetNickName()?client.getNickname() : client.getHostName())
-                + " has joined channel " + channel_name + ".";
+            server_channel.addClient(client);
+            client_channels.push_back(server_channel);
+            std::string message = (client.getHasSetNickName()?client.getNickname() : client.getHostName()) + " has joined channel " + channel_name + ".";
             Server::printResponse(message, BLUE);
-            new_channel.reply(client, (commandName)0, true, "");
+            Server::sendReply(RPL_JOINMSG(client.getNickname(), client.getUsername(),client.getIPadd(),server_channel.getName()) + \
+			RPL_NAMREPLY(client.getNickname(),server_channel.getName(),server_channel.clientslist()) + \
+			RPL_ENDOFNAMES(client.getNickname(),server_channel.getName()), client.getFd());
+            server_channel.broadcastMessage(RPL_JOINMSG(client.getNickname(), client.getUsername(),client.getIPadd(),server_channel.getName()), client.getFd());
         } else {
             Channel new_channel(channel_name, channel_key);
             new_channel.addClient(client);
@@ -151,7 +152,9 @@ void Cmd::JOIN(const Cmd& cmd, Server& server, Client& client) {
             std::string message = (client.getHasSetNickName() ? client.getNickname() : client.getHostName())
                 + " has created channel " + channel_name  + (new_channel.hasKey()? " with key=" + new_channel.getChannelKey() : "") + ".";
             Server::printResponse(message, GREEN);
-            new_channel.reply(client, (commandName)0, true, "");
+            Server::sendReply(RPL_JOINMSG(client.getNickname(), client.getUsername(),client.getIPadd(),new_channel.getName()) + \
+            RPL_NAMREPLY(client.getNickname(),new_channel.getName(),new_channel.clientslist()) + \
+            RPL_ENDOFNAMES(client.getNickname(),new_channel.getName()), client.getFd());
         }
     }
     client.clearTempChannels();
