@@ -6,13 +6,14 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 14:33:45 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/04 15:20:36 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/04 15:25:06 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #define once
 
 #define BREAK "\r\n"
+
 #define RPL_CONNECTED(nickname) (": 001 " + nickname + " : Welcome to the IRC server!" + BREAK)
 #define RPL_UMODEIS(hostname, channelname, mode, user)  ":" + hostname + " MODE " + channelname + " " + mode + " " + user + BREAK
 #define RPL_CREATIONTIME(nickname, channelname, creationtime) ": 329 " + nickname + " " + channelname + " " + creationtime + BREAK
