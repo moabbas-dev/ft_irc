@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:10:02 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/03 20:01:04 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/04 12:01:25 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,13 +37,13 @@ private:
 
 public:
     Cmd(const Cmd& other);
+    Cmd(const std::string& name, const std::vector<std::string>& params);
     Cmd& operator=(const Cmd& other);
     ~Cmd();
 
     std::string getName() const;
     const std::vector<std::string>& getParams() const;
 
-    void execute(Server& server, Client& client) const;
 
     //  Commands
     static void PASS(const Cmd& cmd, Server& server, Client& client);
@@ -58,18 +58,25 @@ public:
     static void TOPIC(const Cmd& cmd, Server& server, Client& client);
     static void MODE(const Cmd& cmd, Server& server, Client& client);
     static void QUIT(const Cmd& cmd, Server& server, Client& client);
-    Cmd(const std::string& name, const std::vector<std::string>& params);
+    
+    // execute command
+    void execute(Server& server, Client& client) const;
+    
+    // send the first message to the server and the second to the client
     static void errorServerClient(std::string s_side, std::string c_side, int c_fd);
 };
 
 class Parser {
-    private:
-        static Cmd parseCommand(std::string input);
-        static std::list<Cmd> splitCommands(std::string input, Client& client, Server &server);
-        
     public:
+        // parse the raw command in the server
         static void parse(std::list<Cmd> *commandsList, std::string input, Client& client, Server &server);
-        
+
+    private:
+        // split the commands if the message contains more than one separated with "\r\n" or "\n"
+        static std::list<Cmd> splitCommands(std::string input, Client& client, Server &server);
+
+        // parse commands one by one
+        static Cmd parseCommand(std::string input);
 };
 
 #endif

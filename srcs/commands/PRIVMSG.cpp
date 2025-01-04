@@ -1,20 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   KICK.cpp                                           :+:      :+:    :+:   */
+/*   PRIVMSG.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/12/31 19:05:51 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/01 13:31:54 by moabbas          ###   ########.fr       */
+/*   Created: 2024/12/27 23:48:58 by afarachi          #+#    #+#             */
+/*   Updated: 2025/01/04 12:36:13 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/Cmd.hpp"
+#include "../../includes/Cmd.hpp"
+#include "../../includes/Errors.hpp"
 
-void Cmd::KICK(const Cmd& cmd, Server& server, Client& client) {
+bool Errors::checkPRIVMSG(Cmd &cmd, Client &client)
+{
 	(void)cmd;
-	(void)server;
 	(void)client;
-	// TODO: Implement KICK command
+	return true;
+}
+
+void Cmd::PRIVMSG(const Cmd& cmd, Server& server, Client& client) {
+    std::cout << "Executing PRIVMSG command\n";
+    (void)cmd;
+    (void)server;
+    (void)client;
+    // @mabbas && @jfatfat > here we can  implement PRIVMSG
 }

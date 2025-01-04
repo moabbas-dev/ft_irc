@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 12:53:55 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/01 12:13:26 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/04 12:31:09 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,10 @@
 
 Client::Client() : fd(-1), isAuthenticated(false), hasSetPassword(false),
     hasSetNickName(false), hasSetUser(false) { }
+
+Client::~Client() {
+    
+}
 
 // Getters
 
@@ -68,12 +72,7 @@ std::vector<Channel>& Client::getChannels() {
     return channels;
 }
 
-void Client::clearTempChannels()  {
-    tmp_channels.clear();
-}
-
 // Setters
-
 void Client::setFd(int fd) {
     this->fd = fd;
 }
@@ -125,6 +124,14 @@ void Client::setChannels(std::vector<Channel> channels) {
     this->channels = channels;
 }
 
+std::vector<Channel> Client::getTempChannels() const {
+    return tmp_channels;
+}
+
+void Client::setTempChannels(std::vector<Channel> tmp_channels) {
+    this->tmp_channels = tmp_channels;
+}
+
 bool Client::isOperator(Channel& channel) const {
     for (std::vector<Channel>::const_iterator it = channels.begin(); it != channels.end(); ++it)
         if ((*it).getName() == channel.getName())
@@ -132,27 +139,6 @@ bool Client::isOperator(Channel& channel) const {
     return false;
 }
 
-// void Client::joinChannel(Channel& channel) {
-//     for (std::vector<std::string>::iterator it = channels.begin(); it != channels.end(); ++it) {
-//         if (*it == channel)
-//             return;
-//     }
-//     channels.push_back(channel);
-// }
-
-// void Client::leaveChannel(const std::string& channel) {
-//     for (std::vector<std::string>::iterator it = channels.begin(); it != channels.end(); ++it) {
-//         if (*it == channel) {
-//             channels.erase(it);
-//             return;
-//         }
-//     }
-// }
-
-std::vector<Channel> Client::getTempChannels() const {
-    return tmp_channels;
-}
-
-void Client::setTempChannels(std::vector<Channel> tmp_channels) {
-    this->tmp_channels = tmp_channels;
+void Client::clearTempChannels()  {
+    tmp_channels.clear();
 }

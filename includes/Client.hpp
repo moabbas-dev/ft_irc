@@ -19,26 +19,33 @@ private:
     bool hasSetPassword;
     bool hasSetNickName;
     bool hasSetUser;
-    std::vector<Channel> channels;
-    std::vector<Channel> tmp_channels;
     std::string messageBuffer;
     std::string hostName;
-    std::list<Cmd> commands;
+    // these channes are copies from the server channels
+    std::vector<Channel> channels;
+
+    // temporary channels that are syntaxly true but we dont know if are exists or not
+    std::vector<Channel> tmp_channels;
+
+    //store the commands for each client here (valid commands only) to execute them
+    std::list<Cmd> commands; 
 
 public:
     Client();
+    ~Client();
+
     // Getters
     int getFd() const;
     std::string getNickname() const;
     std::string getUsername() const;
     std::string getRealname() const;
     std::string getIPadd() const;
-    bool getIsAuthenticated() const;
     std::string getHostName() const;
-    std::list<Cmd> getCommands() const;
+    bool getIsAuthenticated() const;
     bool getHasSetPassword() const;
     bool getHasSetNickName() const;
     bool getHasSetUser() const;
+    std::list<Cmd> getCommands() const;
     std::vector<Channel>& getChannels() ;
     std::vector<Channel> getTempChannels() const;
 
@@ -56,12 +63,10 @@ public:
     void setHasSetUser(bool hasSetUser);
     void setChannels(std::vector<Channel> channels);
     void setTempChannels(std::vector<Channel> tmp_channels);
-    void clearTempChannels() ;
 
     // Other
     bool isOperator(Channel& channel) const;
-    void joinChannel(const std::string& channel);
-    void leaveChannel(const std::string& channel);
+    void clearTempChannels() ;
 };
 
 #endif

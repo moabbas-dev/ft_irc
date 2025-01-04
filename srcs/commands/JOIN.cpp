@@ -6,12 +6,13 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:46:43 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/03 19:33:28 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/04 13:37:09 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/Cmd.hpp"
-#include "../includes/Errors.hpp"
+#include "../../includes/Cmd.hpp"
+#include "../../includes/Errors.hpp"
+#include "../../includes/Channel.hpp"
 
 std::vector<std::string> split(const std::string& str, char delimiter) {
     std::vector<std::string> tokens;
@@ -34,7 +35,7 @@ bool checkChannelName(std::string channelName) {
             return false;
     }
 
-	return channelName.length() > 2
+	return channelName.length() > 3
 		&& channelName.length() <= MAX_CHANNEL_NAME_LENGTH
 		&& (channelName[0]== '&' || channelName[0] == '#');
 }
@@ -99,8 +100,6 @@ bool Errors::checkJOIN(Cmd &cmd, Client &client)
 	client.setTempChannels(channels);
     channelsNames.clear();
     channelsKeys.clear();
-	// if (channels.empty())
-	// 	return (raise(client, "", ERR_NOSUCHCHANNEL), false);
 	return true;
 }
 
@@ -125,9 +124,9 @@ void Cmd::JOIN(const Cmd& cmd, Server& server, Client& client) {
         const std::string& channel_name = it->getName();
         const std::string& channel_key = it->getChannelKey();
 
-        std::map<std::string, Channel>::const_iterator channel_it = server_channels.find(channel_name);
+        std::map<std::string, Channel>::iterator channel_it = server_channels.find(channel_name);
         if (channel_it != server_channels.end()) {
-            const Channel& server_channel = channel_it->second;
+            Channel& server_channel = channel_it->second;
 
             if (server_channel.hasKey() && server_channel.getChannelKey() != channel_key) {
                 Errors::raise(client, channel_name, ERR_BADCHANNELKEY);
@@ -136,10 +135,13 @@ void Cmd::JOIN(const Cmd& cmd, Server& server, Client& client) {
                 Errors::raise(client, channel_name, ERR_USERONCHANNEL);
                 continue;
             }
-            client_channels.push_back(server_channel);
+            Channel new_channel = Channel(server_channel);
+            new_channel.addClient(client);
+            client_channels.push_back(new_channel);
             std::string message = (client.getHasSetNickName()?client.getNickname() : client.getHostName())
                 + " has joined channel " + channel_name + ".";
             Server::printResponse(message, BLUE);
+            new_channel.reply(client, (commandName)0, true, "");
         } else {
             Channel new_channel(channel_name, channel_key);
             new_channel.addClient(client);
@@ -149,7 +151,7 @@ void Cmd::JOIN(const Cmd& cmd, Server& server, Client& client) {
             std::string message = (client.getHasSetNickName() ? client.getNickname() : client.getHostName())
                 + " has created channel " + channel_name  + (new_channel.hasKey()? " with key=" + new_channel.getChannelKey() : "") + ".";
             Server::printResponse(message, GREEN);
-            Errors::raise(client, channel_name, RPL_TOPIC);
+            new_channel.reply(client, (commandName)0, true, "");
         }
     }
     client.clearTempChannels();

@@ -6,11 +6,29 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:50:06 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/03 19:47:51 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/04 12:36:01 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/Cmd.hpp"
+#include "../../includes/Cmd.hpp"
+#include "../../includes/Errors.hpp"
+
+bool Errors::checkUSER(Cmd &cmd, Client &client)
+{
+	if (!client.getHasSetPassword() || !client.getHasSetNickName())
+		return (raise(client, cmd.getName(), ERR_NOTREGISTERED), false);
+
+	if (cmd.getParams().size() < 4)
+		return (raise(client, cmd.getName(), ERR_NEEDMOREPARAMS), false);
+
+	if (cmd.getParams().size() > 4)
+		return (raise(client, cmd.getName(), ERR_TOOMANYPARAMS), false);
+
+	if (client.getIsAuthenticated())
+		return (raise(client, cmd.getName(), ERR_ALREADYREGISTERED), false);
+
+	return true;
+}
 
 void Cmd::USER(const Cmd& cmd, Server& server, Client& client) {
     (void)cmd;

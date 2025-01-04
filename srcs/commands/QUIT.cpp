@@ -6,18 +6,12 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 19:39:19 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/03 20:02:37 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/04 12:36:09 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/Errors.hpp"
-#include "../includes/Cmd.hpp"
-
-// bool Errors::checkQUIT(Cmd &cmd, Client &client, Server &server) {
-// 	(void)cmd;
-
-// 	return true;
-// }
+#include "../../includes/Errors.hpp"
+#include "../../includes/Cmd.hpp"
 
 void Cmd::QUIT(const Cmd& cmd, Server& server, Client& client) {
 	(void)cmd;
@@ -26,4 +20,5 @@ void Cmd::QUIT(const Cmd& cmd, Server& server, Client& client) {
 	oss << clientName << "<" << client.getFd() << "> disconnected.";
 	Server::printResponse(oss.str(), RED);
 	server.clearClient(client.getFd());
+	close(client.getFd());
 }

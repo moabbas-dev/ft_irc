@@ -101,80 +101,6 @@ void Server::acceptNewClient() {
     Server::printResponse(oss.str(), GREEN);
 }
 
-// void Server::receiveDataV1(int fd) {
-//     char buffer[1024];
-//     memset(buffer, 0, sizeof(buffer));
-
-//     ssize_t bytesRead = read(fd, buffer, sizeof(buffer) - 1);
-//     if (bytesRead > 0) {
-//         std::cout << "Received from client <" << fd << ">: " << buffer << std::endl;
-//         std::string response = "Server received: " + std::string(buffer);
-//         if (write(fd, response.c_str(), response.size()) == -1)
-//             std::cerr << "Error sending response to client\n";
-//     } else if (bytesRead == 0) {
-//         std::cout << "Client <" << fd << "> disconnected." << std::endl;
-//         close(fd);
-//         clearClients(fd);
-//     } else {
-//         std::cerr<< "Error reading from client\n";
-//         close(fd);
-//         clearClients(fd);
-//     }
-// }
-
-
-
-// void Server::receiveDataV2(int fd) {
-//     char buffer[1024];
-//     memset(buffer, 0, sizeof(buffer));
-
-//     ssize_t bytesRead = read(fd, buffer, sizeof(buffer) - 1);
-//     if (bytesRead > 0) {
-//         std::string input(buffer);
-//         std::string trimmed;
-//         std::string commandName;
-//         std::vector<std::string> params;
-
-//         // Parse the command
-//         trimmed = trimString(input);
-//         if (trimmed == "" || trimmed == "CAP LS")
-//             return;
-//         size_t pos = trimmed.find(' ');
-//         if (pos != std::string::npos) {
-//             commandName = trimmed.substr(0, pos);
-//             std::string paramString = trimmed.substr(pos + 1);
-
-//             size_t start = 0;
-//             size_t end;
-//             while ((end = paramString.find(' ', start)) != std::string::npos) {
-//                 params.push_back(paramString.substr(start, end - start));
-//                 start = end + 1;
-//             }
-//             if (start < paramString.length())
-//                 params.push_back(paramString.substr(start));
-//         } else {
-//             commandName = trimmed;
-//         }
-
-//         // Create and execute the command
-//         Cmd cmd(commandName, params);
-//         for (size_t i = 0; i < clients.size(); ++i) {
-//             if (clients[i].getFd() == fd) {
-//                 cmd.execute(*this, clients[i]);
-//                 break;
-//             }
-//         }
-//     } else if (bytesRead == 0) {
-//         std::cout << "Client <" << fd << "> disconnected." << std::endl;
-//         close(fd);
-//         clearClients(fd);
-//     } else {
-//         std::cerr << "Error reading from client\n";
-//         close(fd);
-//         clearClients(fd);
-//     }
-// }
-
 void Server::signalHandler(int signum) {
     (void)signum;
     Server::isSignalReceived = true;
@@ -205,7 +131,6 @@ void Server::receiveData(int fd) {
     char buffer[1024] = {};
 
     ssize_t bytesRead = read(fd ,buffer ,sizeof(buffer) - 1);
-    std::cout << buffer ;
     std::map<int, Client>::iterator it = clients.find(fd);
     if(bytesRead > 0) {
         if (it != clients.end()) {

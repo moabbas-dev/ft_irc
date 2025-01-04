@@ -1,30 +1,29 @@
 NAME = ircserv
 
-SRCS = 	main.cpp			\
-		srcs/Server.cpp		\
+SRCS = 	srcs/Server.cpp		\
 		srcs/Client.cpp 	\
 		srcs/Channel.cpp 	\
 		srcs/Cmd.cpp		\
-		srcs/JOIN.cpp   	\
-		srcs/NICK.cpp		\
-		srcs/PART.cpp		\
-		srcs/PASS.cpp		\
-		srcs/PING.cpp		\
-		srcs/PRIVMSG.cpp	\
-		srcs/USER.cpp		\
-		srcs/KICK.cpp		\
-		srcs/INVITE.cpp		\
-		srcs/TOPIC.cpp		\
+		srcs/commands/JOIN.cpp   	\
+		srcs/commands/NICK.cpp		\
+		srcs/commands/PART.cpp		\
+		srcs/commands/PASS.cpp		\
+		srcs/commands/PING.cpp		\
+		srcs/commands/PRIVMSG.cpp	\
+		srcs/commands/USER.cpp		\
+		srcs/commands/KICK.cpp		\
+		srcs/commands/INVITE.cpp		\
+		srcs/commands/TOPIC.cpp		\
+		srcs/commands/QUIT.cpp		\
 		srcs/MODE.cpp		\
 		srcs/Errors.cpp		\
-		srcs/QUIT.cpp		\
-
+		main.cpp			\
 # SRCS = srcs/main_test.cpp
 
 OBJDIR = objs
 OBJCS = $(SRCS:%.cpp=$(OBJDIR)/%.o)
 CC = g++
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -std=c++98
 
 all: $(NAME)
 

@@ -14,12 +14,12 @@
 
 class Client;
 
-enum CommandType {
-    KICK,
+enum commandName {
+    JOIN,
+    PART,
     INVITE,
+    TOPIC,
     MODE,
-    SET_TOPIC,
-    SHOW_TOPIC
 };
 
 class Channel {
@@ -40,39 +40,42 @@ private:
 public:
     Channel(std::string name, std::string key);
     Channel(std::string name);
+    Channel(const Channel &other);
     Channel();
     ~Channel();
+    bool operator==(const Channel& other) const;
+    // const Channel& operator=(Channel& other) const;
 
+    // getters
     std::string getName() const;
     std::string getTopic() const;
-    void setTopic(const std::string& topic);
     const std::string& getChannelKey() const;
+    int getUserLimit() const;
     const std::map<int, bool> &getOperators() const;
     std::time_t getCreationTime() const;
-    int getUserLimit() const;
-    void setChannelKey(const std::string& key);
     std::map<char, bool> &getMode();
 
+    // setters
+    void setTopic(const std::string& topic);
+    void setChannelKey(const std::string& key);
+
+
+    // client's methods
     bool addClient(Client& client, const std::string& key = "");
     void removeClient(int fd);
     bool isClientInChannel(int fd) const;
+
+    // operator's methods
     void addOperator(int fd);
     void removeOperator(int fd);
     bool isOperator(int fd) const;
+
+    // channel methods
     bool isEmpty() const;
-    void broadcastMessage(const std::string& message, int senderFd);
+    void broadcastMessage(const std::string& message) const;
     bool hasKey() const;
     void setHasKey(bool hasKey);
-    bool operator==(const Channel& other) const;
-    private:
-    void handleKick(int operatorFd, int targetFd);
-    void handleInvite(int operatorFd, int targetFd);
-    void handleTopic(int operatorFd, const std::string topic);
-    void showTopic(int fd);
-    void handleMode(int operatorFd, const std::string& mode);
-
-    public:
-    void handleCommand(CommandType command, int operatorFd, const std::string& param = "", int targetFd = -1);
+    void reply(Client client, commandName commandName, bool broadcast, std::string reason) const;
 };
 
 #endif
