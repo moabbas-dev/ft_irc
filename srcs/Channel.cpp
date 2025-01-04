@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 12:53:48 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/04 15:17:41 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/04 20:33:50 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,9 @@ Channel::Channel(std::string name, std::string key): name(name), channelKey(key)
     mode['i'] = false;
     mode['t'] = false;
     mode['k'] = false;
-    mode['o'] = false;
     mode['l'] = false;
+    userLimit = -1;
+    hasUserLimit = false;
     _hasKey = !key.empty();
 }
 
@@ -32,8 +33,9 @@ Channel::Channel(std::string name): name(name), channelKey("")
     mode['i'] = false;
     mode['t'] = false;
     mode['k'] = false;
-    mode['o'] = false;
     mode['l'] = false;
+    userLimit = -1;
+    hasUserLimit = false;
     _hasKey = false;
 }
 
@@ -74,6 +76,16 @@ int Channel::getUserLimit() const
     return userLimit;
 }
 
+bool Channel::getHasUserLimit() const
+{
+    return hasUserLimit;
+}
+
+std::map<int, bool> &Channel::getOperators()
+{
+    return operators;
+}
+
 void Channel::setTopic(const std::string& topic) {
     this->topic = topic;	
 }
@@ -87,8 +99,33 @@ const std::map<int, bool> &Channel::getOperators() const
     return operators;
 }
 
+std::vector<Client> &Channel::getClients()
+{
+    return clients;
+}
+
 void Channel::setChannelKey(const std::string& key) {
     channelKey = key;
+}
+
+void Channel::setInviteOnly(bool inviteOnly)
+{
+    this->inviteOnly = inviteOnly;
+}
+
+void Channel::setTopicRestricted(bool topicRestricted)
+{
+    this->topicRestricted = topicRestricted;
+}
+
+void Channel::setUserLimit(int userLimit)
+{
+    this->userLimit = userLimit;
+}
+
+void Channel::setHasUserLimit(bool hasUserLimit)
+{
+    this->hasUserLimit = hasUserLimit;
 }
 
 bool Channel::isClientInChannel(int fd) const {

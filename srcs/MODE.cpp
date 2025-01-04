@@ -6,7 +6,7 @@
 /*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 19:06:07 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/01 21:53:58 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/04 20:50:49 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,17 @@ static bool channelExistInServer(const std::string &channelName, Server &server)
 	for (std::map<std::string, Channel>::iterator it = serverChannels.begin(); it != serverChannels.end(); ++it)
 	{
 		if (it->first == channelName)
+			return true;
+	}
+	return false;
+}
+
+static bool isInsideTheChannel(Channel &channel, Client &client)
+{
+	std::vector<Channel> &channels = client.getChannels();
+	for (size_t i = 0; i < channels.size(); ++i)
+	{
+		if (channel.getName() == channels[i].getName())
 			return true;
 	}
 	return false;
@@ -140,7 +151,7 @@ static bool checkDuplications(const std::vector<std::string> &modeSubStrs, const
 
 static bool isCorrectModeString(const std::string &modeString)
 {
-	if (modeString.empty())
+	if (modeString.empty() || modeString.size() == 1)
 		return false;
 	if (modeString[0] != '-' && modeString[0] != '+')
 		return false;
@@ -150,11 +161,9 @@ static bool isCorrectModeString(const std::string &modeString)
 			&& modeString[i] != 't' && modeString[i] != 'k' &&
 				modeString[i] != 'o' && modeString[i] != 'l')
 			return false;
-	}
-	for (size_t i = 0; i < modeString.size() - 1; ++i)
-	{
-		if (modeString[i] == modeString[i + 1])
-			return false;
+		if ((modeString[i] == '+' || modeString[i] == '-') &&
+            (i == modeString.size() - 1 || modeString[i + 1] == '+' || modeString[i + 1] == '-'))
+            return false;
 	}
 	std::vector<std::string> modeSubStrs = split(modeString, "+-");
 	std::vector<char> symbols = getStringsSymbols(modeString);
@@ -229,71 +238,258 @@ static std::string getNumberAsString(unsigned long long nb)
     return oss.str();
 }
 
+static bool isValidLimitString(const std::string &str, Channel &channel)
+{
+	std::istringstream ss(str);
+	int value;
+
+	if (str.empty())
+		return false;
+	if (!(ss >> value))
+		return false;
+	if (!ss.eof())
+		return false;
+	if (value <= 0 || value < static_cast<int>(channel.getClients().size()))
+		return false;
+	return true;
+}
+
+static bool isValidPass(const std::string &pass)
+{
+	if(pass.empty())
+		return false;
+	for (size_t i = 0; i < pass.size(); ++i)
+	{
+		if (!std::isalnum(pass[i]))
+			return false;
+	}
+	return true;
+}
+
+static void sendInvalidParameterMessage(Client &client, const Cmd &cmd, const std::string &modeStr)
+{
+	std::string msg = ": 472 " + client.getNickname() + " " + modeStr;
+	for (size_t i = 2; i < cmd.getParams().size(); ++i)
+	{
+		msg += cmd.getParams()[i];
+		msg += " ";
+	}
+	msg += ":Invalid parameter\n";
+	send(client.getFd(), msg.c_str(), msg.size(), 0);
+}
+
+static bool clientIsInServer(const std::string &clientNick, Server &server)
+{
+	const std::map<int, Client> &clients = server.getClients();
+	for (std::map<int, Client>::const_iterator it = clients.begin(); it != clients.end(); ++it)
+	{
+		if (it->second.getNickname() == clientNick)
+			return true;
+	}
+	return false;
+}
+
+static void handleSingleArgument(const Cmd &cmd, Client &client, Channel &channel)
+{
+	std::map<char, bool> &mode = channel.getMode();
+	std::string msg324 = ":localhost 324 " + client.getNickname() + " " +
+		cmd.getParams()[0] + " ";
+	std::string msg329 = ":localhost 329 " + client.getNickname() + " " +
+		cmd.getParams()[0] + " " +
+			getNumberAsString((time_t)channel.getCreationTime()) + "\n";
+	for (std::map<char, bool>::iterator it = mode.begin(); it != mode.end(); ++it)
+	{
+		if (it->second && it->first != 'o')
+		{
+			msg324 += "+";
+			break;
+		}
+	}
+	for (std::map<char, bool>::iterator it = mode.begin(); it != mode.end(); ++it)
+	{
+		if (it->second && it->first != 'o')
+			msg324 += it->first;
+	}
+	if (msg324.find('+') != std::string::npos)
+		msg324 += " ";
+	for (std::map<char, bool>::iterator it = mode.begin(); it != mode.end(); ++it)
+	{
+		if (it->second && it->first != 'o')
+		{
+			switch (it->first)
+			{
+				case 'k':
+					msg324 += channel.getChannelKey();
+					break;
+				case 'l':
+					msg324 += getNumberAsString((int)channel.getUserLimit());
+					break;
+				default:
+					break;
+			}
+		}
+		if (it != mode.end())
+			msg324 += " ";
+	}
+	msg324 += "\n";
+	send(client.getFd(), msg324.c_str(), msg324.size(), 0);
+	send(client.getFd(), msg329.c_str(), msg329.size(), 0);
+}
+
+static void handleMultipleArguments(const Cmd &cmd, Client &client, Channel &channel, Server &server)
+{
+	std::map<char, bool> &mode = channel.getMode();
+	bool set = true;
+	std::string modeStr = cmd.getParams()[1];
+	std::string msgToSend = ":" + client.getNickname() + " MODE " + cmd.getParams()[0] + " ";
+	std::string modeNewStr = "";
+	size_t argsIndex = 2;
+	std::vector<std::string> validArgs;
+	
+	for (size_t i = 0; i < modeStr.size(); ++i)
+	{
+		if (modeStr[i] == '+' || modeStr[i] == '-')
+		{
+			set = modeStr[i] == '+' ? true : false;
+			modeNewStr += modeStr[i];
+		}
+		else
+		{
+			switch(modeStr[i])
+			{
+				case 'i':
+					mode['i'] = set ? true : false;
+					channel.setInviteOnly(set ? true : false);
+					modeNewStr += "i";
+					break;
+				case 't':
+					mode['t'] = set ? true : false;
+					channel.setTopicRestricted(set ? false : true);
+					modeNewStr += "t";
+					break;
+				case 'l':
+					if (!isValidLimitString(cmd.getParams()[argsIndex], channel))
+					{
+						sendInvalidParameterMessage(client, cmd, modeStr);
+						continue;
+					}
+					mode['l'] = set ? true : false;
+					if (set)
+					{
+						std::istringstream ss(cmd.getParams()[argsIndex]);
+						int value;
+						ss >> value;
+						validArgs.push_back(cmd.getParams()[argsIndex]);
+						++argsIndex;
+						channel.setUserLimit(value);
+						channel.setHasUserLimit(true);
+					}
+					else
+					{
+						channel.setUserLimit(-1);
+						channel.setHasUserLimit(false);
+					}
+					modeNewStr += "l";
+					break;
+				case 'k':
+					if (!isValidPass(cmd.getParams()[argsIndex]))
+					{
+						sendInvalidParameterMessage(client, cmd, modeStr);
+						continue;
+					}
+					mode['k'] = set ? true : false;
+					if (set)
+					{
+						std::string key = cmd.getParams()[argsIndex];
+						validArgs.push_back(key);
+						++argsIndex;
+						channel.setHasKey(true);
+						channel.setChannelKey(key);
+					}
+					else
+					{
+						channel.setHasKey(false);
+						channel.setChannelKey("");
+					}
+					modeNewStr += "k";
+					break;
+				case 'o':
+					if (!clientIsInServer(cmd.getParams()[argsIndex], server))
+					{
+						std::string msg = ": 401 " + client.getNickname() + " " +
+							cmd.getParams()[argsIndex] + " :No such nick\n";
+						send(client.getFd(), msg.c_str(), msg.size(), 0);
+						continue;
+					}
+					if (!isInsideTheChannel(channel, client))
+					{
+						std::string msg = ": 441 " + client.getNickname() + " "
+							+ channel.getName() + " :They aren't on that channel\n";
+						send(client.getFd(), msg.c_str(), msg.size(), 0);
+						continue;
+					}
+					std::map<int, bool> &operators = channel.getOperators();
+					const std::map<int, Client> &clients = server.getClients();
+					if (set)
+					{
+						std::string nick = cmd.getParams()[argsIndex];
+						validArgs.push_back(nick);
+						++argsIndex;
+						for (std::map<int, Client>::const_iterator it = clients.begin(); it != clients.end(); ++it)
+						{
+							if (it->second.getNickname() == nick)
+							{
+								operators[it->first] = true;
+								break;
+							}
+						}
+					}
+					else
+					{
+						std::string nick = cmd.getParams()[argsIndex];
+						validArgs.push_back(nick);
+						++argsIndex;
+						for (std::map<int, Client>::const_iterator it = clients.begin(); it != clients.end(); ++it)
+						{
+							if (it->second.getNickname() == nick)
+							{
+								operators[it->first] = false;
+								break;
+							}
+						}
+					}
+					modeNewStr += "o";
+					break;
+			}
+		}
+	}
+	std::string msg = ": MODE " + modeNewStr + " ";
+	for (size_t i = 0; i < validArgs.size(); ++i)
+	{
+		msg += validArgs[i];
+		if (i != validArgs.size() - 1)
+			msg += " ";
+	}
+	msg += "\n";
+	std::vector<Client> &clients = channel.getClients();
+	for (size_t i = 0; i < clients.size(); ++i)
+	{
+		send(clients[i].getFd(), msg.c_str(), msg.size(), 0);
+	}
+}
+
 void Cmd::MODE(const Cmd& cmd, Server& server, Client& client) {
-	// (void)cmd;
-	// (void)server;
-	// (void)client;
-	// MODE channel modeStr modeArgs
-	// bool set = true;
-	// std::string modeStr = cmd.getParams()[1];
 	try
 	{
 		size_t args = cmd.getParams().size();
 		Channel &channel = getSpecifiedChannel(cmd, server);
-		std::map<char, bool> &mode = channel.getMode();
 		if (args == 1)
-		{
-			std::string msg324 = ":localhost 324 " + client.getNickname() + " " +
-				cmd.getParams()[0] + " ";
-			std::string msg329 = ":localhost 329 " + client.getNickname() + " " +
-				cmd.getParams()[0] + " " +
-					getNumberAsString((time_t)channel.getCreationTime()) + "\n";
-			for (std::map<char, bool>::iterator it = mode.begin(); it != mode.end(); ++it)
-			{
-				if (it->second && it->first != 'o')
-				{
-					msg324 += "+";
-					break;
-				}
-			}
-			for (std::map<char, bool>::iterator it = mode.begin(); it != mode.end(); ++it)
-			{
-				if (it->second && it->first != 'o')
-					msg324 += it->first;
-			}
-			if (msg324.find('+') != std::string::npos)
-				msg324 += " ";
-			for (std::map<char, bool>::iterator it = mode.begin(); it != mode.end(); ++it)
-			{
-				if (it->second && it->first != 'o')
-				{
-					switch (it->first)
-					{
-						case 'k':
-							msg324 += channel.getChannelKey();
-							break;
-						case 'l':
-							msg324 += getNumberAsString((int)channel.getUserLimit());
-							break;
-						default:
-							break;
-					}
-				}
-				if (it != mode.end())
-					msg324 += " ";
-			}
-			msg324 += "\n";
-			send(client.getFd(), msg324.c_str(), msg324.size(), 0);
-			send(client.getFd(), msg329.c_str(), msg329.size(), 0);
-		}
+			handleSingleArgument(cmd, client, channel);
 		else
-		{
-			return;
-		}
+			handleMultipleArguments(cmd, client, channel, server);
 	}
 	catch(std::exception &)
 	{
 		Errors::raise(client, "", ERR_NOSUCHCHANNEL);
 	}
-	// TODO: Implement MODE command
 }
