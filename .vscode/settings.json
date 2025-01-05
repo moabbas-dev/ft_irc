@@ -53,7 +53,8 @@
     "sstream": "cpp",
     "list": "cpp",
     "ctime": "cpp",
-    "ranges": "cpp"
+    "ranges": "cpp",
+    "fstream": "cpp"
   },
   "C_Cpp_Runner.cCompilerPath": "gcc",
   "C_Cpp_Runner.cppCompilerPath": "g++",

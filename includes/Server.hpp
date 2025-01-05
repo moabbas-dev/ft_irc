@@ -65,7 +65,8 @@ public:
     Channel &getSpecifiedChannel(const std::string &channelName);
 
     static void printResponse(const std::string& message, const char* color);
-    static void sendReply(std::string message, int fd);
+    static void sendReply(std::string mesgArgs[], int fd, messageCode messageCode);
+    static void sendError(std::string mesgArgs[], int fd, messageCode messageCode);
 
 private:
     void processClientCommands(int fd);

@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:51:14 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/04 12:36:21 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/05 18:36:00 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,14 +15,15 @@
 
 bool Errors::checkPASS(Cmd &cmd, Client &client, Server &server)
 {
+	std::string messageArgs[] = {client.getNickname()};
 	if (client.getIsAuthenticated() || client.getHasSetUser() || client.getHasSetNickName() || client.getHasSetPassword())
-		return (raise(client, "", ERR_ALREADYREGISTERED), false);
+		return (Server::sendError(messageArgs, client.getFd(), ERR_NOTREGISTERED), false);
 
 	if (cmd.getParams().size() < 1)
-		return (raise(client, "", ERR_NEEDMOREPARAMS), false);
+		return (Server::sendError(messageArgs, client.getFd(), ERR_NOTENOUGHPARAM), false);
 
 	if (cmd.getParams()[0] != server.getPassword())
-		return (raise(client, "", ERR_PASSWDMISMATCH), false);
+		return (Server::sendError(messageArgs, client.getFd(), ERR_PASSWDMISMATCH), false);
 	client.setHasSetPassword(true);
 	return true;
 }

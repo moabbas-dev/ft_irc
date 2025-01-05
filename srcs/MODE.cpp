@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   MODE.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
+/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 19:06:07 by moabbas           #+#    #+#             */
 /*   Updated: 2025/01/05 20:12:15 by jfatfat          ###   ########.fr       */
@@ -121,22 +121,28 @@ static size_t getNbOfModeArguments(const std::string &modeString)
 
 bool Errors::checkMODE(Cmd &cmd, Client &client, Server &server)
 {
+	std::string messageArgs[] = {client.getNickname(), "", ""};
 	if (!client.getIsAuthenticated())
-		return (raise(client, "", ERR_NOTREGISTERED), false);
+		return (Server::sendError(messageArgs, client.getFd(), ERR_NOTREGISTERED), false);
 	if (cmd.getParams().size() < 1)
-		return (raise(client, "", ERR_NEEDMOREPARAMS), false);
+		return (Server::sendError(messageArgs, client.getFd(), ERR_NOTENOUGHPARAM), false);
 	if (cmd.getParams().size() == 1)
 	{
-		if (!server.channelExistInServer(cmd.getParams()[0]))
-			return (raise(client, "", ERR_NOSUCHCHANNEL), false);
+		messageArgs[1] = cmd.getParams()[0];
+		if (!channelExistInServer(cmd.getParams()[0], server))
+			return (Server::sendError(messageArgs, client.getFd(), ERR_NOSUCHCHANNEL), false);
 		return true;
 	}
+
+	messageArgs[0] = cmd.getParams()[0];
 	if (!isOperatorInChannel(cmd.getParams()[0], client, server))
-		return (raise(client, cmd.getParams()[0], ERR_CHANOPRIVSNEEDED), false);
+		return (Server::sendError(messageArgs, client.getFd(), ERR_CHANOPRIVSNEEDED), false);
+
+	messageArgs[0] = client.getNickname(); messageArgs[1] = cmd.getParams()[0]; messageArgs[2] = cmd.getParams()[1];
 	if (!isCorrectModeString(cmd.getParams()[1]))
-		return (raise(client, cmd.getParams()[1], ERR_UNKNOWNMODE), false);
+		return (Server::sendError(messageArgs, client.getFd(), ERR_UNKNOWNMODE), false);
 	if (cmd.getParams().size() < (2 + getNbOfModeArguments(cmd.getParams()[1])))
-		return(raise(client, "", ERR_NEEDMOREPARAMS), false);
+		return(Server::sendError(messageArgs, client.getFd(), ERR_NOTENOUGHPARAM), false);
 	return true;
 }
 
@@ -387,7 +393,8 @@ void Cmd::MODE(const Cmd& cmd, Server& server, Client& client) {
 	}
 	catch(std::exception &)
 	{
-		std::cout << "No such channel found!" << std::endl;
-		Errors::raise(client, "", ERR_NOSUCHCHANNEL);
+		// aya shi
+		std::string messageArgs[] = {client.getNickname(), cmd.getName()};
+		Server::sendError(messageArgs, client.getFd(), ERR_NOSUCHCHANNEL);
 	}
 }
