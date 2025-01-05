@@ -307,16 +307,16 @@ bool Server::clientIsInServer(const std::string &nickname)
 	return false;
 }
 
-Channel &Server::getSpecifiedChannel(const std::string &channelName)
+Channel *Server::getSpecifiedChannel(const std::string &channelName)
 {
     if (channels.empty())
-        throw std::exception();
+        return NULL;
     for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); ++it)
     {
         if (it->first == channelName)
-            return it->second;
+            return &(it->second);
     }
-    throw std::exception();
+    return NULL;
 }
 
 void Server::sendError(std::string mesgArgs[], int fd, messageCode messageCode) {
