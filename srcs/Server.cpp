@@ -310,12 +310,16 @@ bool Server::clientIsInServer(const std::string &nickname)
 Channel *Server::getSpecifiedChannel(const std::string &channelName)
 {
     if (channels.empty())
+    {
+        std::cout << "No channels!" << std::endl;
         return NULL;
+    }
     for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); ++it)
     {
         if (it->first == channelName)
-            return &(it->second);
+            return (std::cout << "Channel Found!" << std::endl, &(it->second));
     }
+    std::cout << "Channel not found!" << std::endl;
     return NULL;
 }
 
