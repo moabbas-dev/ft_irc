@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:46:43 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/05 20:15:15 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/05 21:44:47 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,20 +132,22 @@ void Cmd::JOIN(const Cmd& cmd, Server& server, Client& client) {
             client_channels.push_back(server_channel);
             std::string message = (client.getHasSetNickName()?client.getNickname() : client.getHostName()) + " has joined channel " + channel_name + ".";
             Server::printResponse(message, BLUE);
-            std::string messageArgs[] = {client.getNickname(), client.getUsername(),client.getIPadd(),server_channel.getName(), server_channel.clientslist()};
+            std::string messageArgs[] = {client.getHostName(),client.getIPadd(),server_channel.getName(), client.getNickname(), server_channel.clientslist()};
             Server::sendReply(messageArgs, client.getFd(), RPL_CREATECHANNELMSG);
-            server_channel.broadcastMessage(RPL_JOINMSG(client.getNickname(), client.getUsername(),client.getIPadd(),server_channel.getName()), client.getFd());
+            if (!server_channel.getTopic().empty()) {
+                messageArgs[0] = client.getNickname(); messageArgs[1] = server_channel.getName(); messageArgs[2] = server_channel.getTopic();
+                Server::sendReply(messageArgs, client.getFd(), RPL_TOPICIS);
+            }
+            server_channel.broadcastMessage(RPL_JOINMSG(client.getHostName(), client.getIPadd(),server_channel.getName()), client.getFd());
         } else {
             Channel new_channel(channel_name, channel_key);
             new_channel.addClient(client);
-            std::string messageArgs1[] = {client.getHostName(), channel_name, "+o", client.getNickname()};
-            Server::sendReply(messageArgs1, client.getFd(), RPL_CHANGEMODE);
             new_channel.addOperator(client.getFd());
             server_channels[channel_name] = new_channel;
             client_channels.push_back(new_channel);
             std::string message = client.getNickname() + " has created channel " + channel_name  + (new_channel.hasKey()? " with key=" + new_channel.getChannelKey() : "") + ".";
             Server::printResponse(message, GREEN);
-            std::string messageArgs[] = {client.getNickname(), client.getUsername(),client.getIPadd(),new_channel.getName(), new_channel.clientslist()};
+            std::string messageArgs[] = {client.getHostName(),client.getIPadd(),channel_name, client.getNickname(), new_channel.clientslist()};
             Server::sendReply(messageArgs, client.getFd(), RPL_CREATECHANNELMSG);
         }
     }

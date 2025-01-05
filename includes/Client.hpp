@@ -41,6 +41,7 @@ public:
     std::string getRealname() const;
     std::string getIPadd() const;
     std::string getHostName() const;
+    std::string getoriginalhostname() const;
     bool getIsAuthenticated() const;
     bool getHasSetPassword() const;
     bool getHasSetNickName() const;

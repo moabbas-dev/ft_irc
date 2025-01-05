@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
+/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 12:53:55 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/05 20:05:02 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/05 22:00:22 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,10 @@ bool Client::getIsAuthenticated() const {
 }
 
 std::string Client::getHostName() const {
+    return this->getNickname() + "!" + this->getUsername();
+}
+
+std::string Client::getoriginalhostname() const {
     return hostName;
 }
 
