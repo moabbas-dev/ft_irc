@@ -6,13 +6,14 @@
 /*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 19:06:07 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/04 20:50:49 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/05 15:41:03 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Cmd.hpp"
 #include "../includes/Errors.hpp"
 
+// inside Server.hpp (to be implemented inside the class Server)
 static bool channelExistInServer(const std::string &channelName, Server &server)
 {
 	std::map<std::string, Channel> &serverChannels = server.getChannels();
@@ -24,6 +25,7 @@ static bool channelExistInServer(const std::string &channelName, Server &server)
 	return false;
 }
 
+// inside Client.hpp (to be implemented inside the class Client)
 static bool isInsideTheChannel(Channel &channel, Client &client)
 {
 	std::vector<Channel> &channels = client.getChannels();
@@ -35,6 +37,7 @@ static bool isInsideTheChannel(Channel &channel, Client &client)
 	return false;
 }
 
+// found insde Client.hpp but we need to check it before
 static bool isOperatorInChannel(const std::string &channelName, Client &client, Server &server)
 {
 	std::map<std::string, Channel> &serverChannels = server.getChannels();
@@ -58,7 +61,7 @@ static bool isOperatorInChannel(const std::string &channelName, Client &client, 
 	return false;
 }
 
-
+// to be implemented later inside utils.hpp (or stringUtils.hpp)
 static std::vector<std::string> split(const std::string& str, const std::string& delimiters)
 {
     std::vector<std::string> tokens;
@@ -80,6 +83,7 @@ static std::vector<std::string> split(const std::string& str, const std::string&
     return tokens;
 }
 
+// to be implemented inside stringUtils.hpp
 static bool hasDuplicates(const std::string& str)
 {
     for (size_t i = 0; i < str.length(); ++i)
@@ -93,6 +97,11 @@ static bool hasDuplicates(const std::string& str)
     return false;
 }
 
+// MODE #channel modeStr modeArguments
+// modeStr = -kl+i
+// vector : kl, i
+// symbolsVector : -, +
+// MODE util, We can let it here! But we can create ModeUtils.hpp and set it inside the file
 static std::vector<char> getStringsSymbols(const std::string &modeStr)
 {
 	std::vector<char> symbols;
@@ -104,6 +113,7 @@ static std::vector<char> getStringsSymbols(const std::string &modeStr)
 	return symbols;
 }
 
+// MODE util, We can let it here! But we can create ModeUtils.hpp and set it inside the file
 static bool hasUniqueCharsInEachString(const std::vector<std::string> &vec)
 {
     for (size_t i = 0; i < vec.size(); ++i)
@@ -127,6 +137,7 @@ static bool hasUniqueCharsInEachString(const std::vector<std::string> &vec)
     }
     return true;
 }
+
 
 static bool checkDuplications(const std::vector<std::string> &modeSubStrs, const std::vector<char> &symbols)
 {
@@ -172,6 +183,7 @@ static bool isCorrectModeString(const std::string &modeString)
 	return true;
 }
 
+// MODE #channel modeStr modeArgs (0, 1, 2, 3, ...)
 static size_t getNbOfModeArguments(const std::string &modeString)
 {
 	bool set = true;
@@ -231,6 +243,7 @@ static Channel &getSpecifiedChannel(const Cmd &cmd, Server &server)
 	throw std::exception();
 }
 
+// stringUtils.hpp 
 static std::string getNumberAsString(unsigned long long nb)
 {
 	std::ostringstream oss;
@@ -238,6 +251,7 @@ static std::string getNumberAsString(unsigned long long nb)
     return oss.str();
 }
 
+// ModeUtils.hpp
 static bool isValidLimitString(const std::string &str, Channel &channel)
 {
 	std::istringstream ss(str);
@@ -254,6 +268,7 @@ static bool isValidLimitString(const std::string &str, Channel &channel)
 	return true;
 }
 
+// stringUtils.hpp
 static bool isValidPass(const std::string &pass)
 {
 	if(pass.empty())
@@ -266,6 +281,7 @@ static bool isValidPass(const std::string &pass)
 	return true;
 }
 
+// 
 static void sendInvalidParameterMessage(Client &client, const Cmd &cmd, const std::string &modeStr)
 {
 	std::string msg = ": 472 " + client.getNickname() + " " + modeStr;
@@ -292,14 +308,14 @@ static bool clientIsInServer(const std::string &clientNick, Server &server)
 static void handleSingleArgument(const Cmd &cmd, Client &client, Channel &channel)
 {
 	std::map<char, bool> &mode = channel.getMode();
-	std::string msg324 = ":localhost 324 " + client.getNickname() + " " +
+	std::string msg324 = ": 324 " + client.getNickname() + " " +
 		cmd.getParams()[0] + " ";
-	std::string msg329 = ":localhost 329 " + client.getNickname() + " " +
+	std::string msg329 = ": 329 " + client.getNickname() + " " +
 		cmd.getParams()[0] + " " +
 			getNumberAsString((time_t)channel.getCreationTime()) + "\n";
 	for (std::map<char, bool>::iterator it = mode.begin(); it != mode.end(); ++it)
 	{
-		if (it->second && it->first != 'o')
+		if (it->second)
 		{
 			msg324 += "+";
 			break;
@@ -307,14 +323,14 @@ static void handleSingleArgument(const Cmd &cmd, Client &client, Channel &channe
 	}
 	for (std::map<char, bool>::iterator it = mode.begin(); it != mode.end(); ++it)
 	{
-		if (it->second && it->first != 'o')
+		if (it->second)
 			msg324 += it->first;
 	}
 	if (msg324.find('+') != std::string::npos)
 		msg324 += " ";
 	for (std::map<char, bool>::iterator it = mode.begin(); it != mode.end(); ++it)
 	{
-		if (it->second && it->first != 'o')
+		if (it->second)
 		{
 			switch (it->first)
 			{
@@ -342,7 +358,7 @@ static void handleMultipleArguments(const Cmd &cmd, Client &client, Channel &cha
 	bool set = true;
 	std::string modeStr = cmd.getParams()[1];
 	std::string msgToSend = ":" + client.getNickname() + " MODE " + cmd.getParams()[0] + " ";
-	std::string modeNewStr = "";
+	std::string modeNewStr = ""; // MODE #channel modeStr modeArgs
 	size_t argsIndex = 2;
 	std::vector<std::string> validArgs;
 	
@@ -358,13 +374,13 @@ static void handleMultipleArguments(const Cmd &cmd, Client &client, Channel &cha
 			switch(modeStr[i])
 			{
 				case 'i':
-					mode['i'] = set ? true : false;
-					channel.setInviteOnly(set ? true : false);
+					mode['i'] = set;
+					channel.setInviteOnly(set);
 					modeNewStr += "i";
 					break;
 				case 't':
-					mode['t'] = set ? true : false;
-					channel.setTopicRestricted(set ? false : true);
+					mode['t'] = set;
+					channel.setTopicRestricted(!set);
 					modeNewStr += "t";
 					break;
 				case 'l':
@@ -373,7 +389,7 @@ static void handleMultipleArguments(const Cmd &cmd, Client &client, Channel &cha
 						sendInvalidParameterMessage(client, cmd, modeStr);
 						continue;
 					}
-					mode['l'] = set ? true : false;
+					mode['l'] = set;
 					if (set)
 					{
 						std::istringstream ss(cmd.getParams()[argsIndex]);
@@ -397,7 +413,7 @@ static void handleMultipleArguments(const Cmd &cmd, Client &client, Channel &cha
 						sendInvalidParameterMessage(client, cmd, modeStr);
 						continue;
 					}
-					mode['k'] = set ? true : false;
+					mode['k'] = set;
 					if (set)
 					{
 						std::string key = cmd.getParams()[argsIndex];
@@ -463,14 +479,16 @@ static void handleMultipleArguments(const Cmd &cmd, Client &client, Channel &cha
 			}
 		}
 	}
-	std::string msg = ": MODE " + modeNewStr + " ";
+	std::string msg = ":" + client.getHostName() + " MODE " + channel.getName()
+		+ " " + modeNewStr + " ";
 	for (size_t i = 0; i < validArgs.size(); ++i)
 	{
 		msg += validArgs[i];
 		if (i != validArgs.size() - 1)
 			msg += " ";
 	}
-	msg += "\n";
+	msg += "\r\n";
+	std::cout << msg << std::endl;
 	std::vector<Client> &clients = channel.getClients();
 	for (size_t i = 0; i < clients.size(); ++i)
 	{
