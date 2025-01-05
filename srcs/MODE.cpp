@@ -6,7 +6,7 @@
 /*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 19:06:07 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/05 21:33:02 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/05 21:55:01 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -390,18 +390,17 @@ static void handleMultipleArguments(const Cmd &cmd, Client &client, Channel *cha
 void Cmd::MODE(const Cmd& cmd, Server& server, Client& client)
 {
 	size_t args = cmd.getParams().size();
-	Channel *channel = server.getSpecifiedChannel(cmd.getParams()[0]);
-	if (channel)
-	{
-		if (args == 1)
-			handleSingleArgument(cmd, client, channel);
-		else
-			handleMultipleArguments(cmd, client, channel, server);
-	}
-	else
+	std::string channelName = cmd.getParams()[0];
+	Channel *channel = server.getSpecifiedChannel(channelName);
+	if (!channel)
 	{
 		// aya shi
 		std::string messageArgs[] = {client.getNickname(), cmd.getName()};
 		Server::sendError(messageArgs, client.getFd(), ERR_NOSUCHCHANNEL);
+		return ;
 	}
+	if (args == 1)
+		handleSingleArgument(cmd, client, channel);
+	else
+		handleMultipleArguments(cmd, client, channel, server);
 }
