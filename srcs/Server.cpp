@@ -238,3 +238,35 @@ void Server::sendReply(std::string message, int fd) {
     if (send(fd, message.c_str(), message.size(), 0) == -1)
         std::cerr << "Cannot Send reply to fd=" << fd << std::endl;
 }
+
+bool Server::channelExistInServer(const std::string &channelName)
+{
+    for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); ++it)
+    {
+        if (it->first == channelName)
+            return true;
+    }
+    return false;
+}
+
+bool Server::clientIsInServer(const std::string &nickname)
+{
+    for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it)
+	{
+		if (it->second.getNickname() == nickname)
+			return true;
+	}
+	return false;
+}
+
+Channel &Server::getSpecifiedChannel(const std::string &channelName)
+{
+    if (channels.empty())
+        throw std::exception();
+    for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); ++it)
+    {
+        if (it->first == channelName)
+            return it->second;
+    }
+    throw std::exception();
+}

@@ -21,7 +21,7 @@ private:
     bool hasSetUser;
     std::string messageBuffer;
     std::string hostName;
-    // these channes are copies from the server channels
+    // these channels are copies from the server channels
     std::vector<Channel> channels;
 
     // temporary channels that are syntaxly true but we dont know if are exists or not
@@ -67,6 +67,7 @@ public:
     // Other
     bool isOperator(Channel& channel) const;
     void clearTempChannels() ;
+    bool isInsideTheChannel(const std::string &channelName);
 };
 
 #endif

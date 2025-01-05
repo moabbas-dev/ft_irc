@@ -6,36 +6,13 @@
 /*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 19:06:07 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/05 15:41:03 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/05 20:12:15 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Cmd.hpp"
 #include "../includes/Errors.hpp"
-
-// inside Server.hpp (to be implemented inside the class Server)
-static bool channelExistInServer(const std::string &channelName, Server &server)
-{
-	std::map<std::string, Channel> &serverChannels = server.getChannels();
-	for (std::map<std::string, Channel>::iterator it = serverChannels.begin(); it != serverChannels.end(); ++it)
-	{
-		if (it->first == channelName)
-			return true;
-	}
-	return false;
-}
-
-// inside Client.hpp (to be implemented inside the class Client)
-static bool isInsideTheChannel(Channel &channel, Client &client)
-{
-	std::vector<Channel> &channels = client.getChannels();
-	for (size_t i = 0; i < channels.size(); ++i)
-	{
-		if (channel.getName() == channels[i].getName())
-			return true;
-	}
-	return false;
-}
+#include "../includes/StringUtils.hpp"
 
 // found insde Client.hpp but we need to check it before
 static bool isOperatorInChannel(const std::string &channelName, Client &client, Server &server)
@@ -61,46 +38,6 @@ static bool isOperatorInChannel(const std::string &channelName, Client &client, 
 	return false;
 }
 
-// to be implemented later inside utils.hpp (or stringUtils.hpp)
-static std::vector<std::string> split(const std::string& str, const std::string& delimiters)
-{
-    std::vector<std::string> tokens;
-    size_t start = 0;
-    size_t end = str.find_first_of(delimiters);
-
-    while (end != std::string::npos)
-	{
-        if (end != start)
-            tokens.push_back(str.substr(start, end - start));
-        start = end + 1;
-        end = str.find_first_of(delimiters, start);
-    }
-	
-    if (start < str.length()) {
-        tokens.push_back(str.substr(start));
-    }
-
-    return tokens;
-}
-
-// to be implemented inside stringUtils.hpp
-static bool hasDuplicates(const std::string& str)
-{
-    for (size_t i = 0; i < str.length(); ++i)
-	{
-        for (size_t j = i + 1; j < str.length(); ++j)
-		{
-            if (str[i] == str[j])
-                return true;
-        }
-    }
-    return false;
-}
-
-// MODE #channel modeStr modeArguments
-// modeStr = -kl+i
-// vector : kl, i
-// symbolsVector : -, +
 // MODE util, We can let it here! But we can create ModeUtils.hpp and set it inside the file
 static std::vector<char> getStringsSymbols(const std::string &modeStr)
 {
@@ -112,32 +49,6 @@ static std::vector<char> getStringsSymbols(const std::string &modeStr)
 	}
 	return symbols;
 }
-
-// MODE util, We can let it here! But we can create ModeUtils.hpp and set it inside the file
-static bool hasUniqueCharsInEachString(const std::vector<std::string> &vec)
-{
-    for (size_t i = 0; i < vec.size(); ++i)
-	{
-        const std::string& str1 = vec[i];
-        for (size_t j = 0; j < vec.size(); ++j)
-		{
-            if (i != j)
-			{
-                const std::string& str2 = vec[j];
-                for (size_t k = 0; k < str1.length(); ++k)
-				{
-                    for (size_t l = 0; l < str2.length(); ++l)
-					{
-                        if (str1[k] == str2[l])
-                            return false;
-                    }
-                }
-            }
-        }
-    }
-    return true;
-}
-
 
 static bool checkDuplications(const std::vector<std::string> &modeSubStrs, const std::vector<char> &symbols)
 {
@@ -183,7 +94,6 @@ static bool isCorrectModeString(const std::string &modeString)
 	return true;
 }
 
-// MODE #channel modeStr modeArgs (0, 1, 2, 3, ...)
 static size_t getNbOfModeArguments(const std::string &modeString)
 {
 	bool set = true;
@@ -217,7 +127,7 @@ bool Errors::checkMODE(Cmd &cmd, Client &client, Server &server)
 		return (raise(client, "", ERR_NEEDMOREPARAMS), false);
 	if (cmd.getParams().size() == 1)
 	{
-		if (!channelExistInServer(cmd.getParams()[0], server))
+		if (!server.channelExistInServer(cmd.getParams()[0]))
 			return (raise(client, "", ERR_NOSUCHCHANNEL), false);
 		return true;
 	}
@@ -230,26 +140,18 @@ bool Errors::checkMODE(Cmd &cmd, Client &client, Server &server)
 	return true;
 }
 
-static Channel &getSpecifiedChannel(const Cmd &cmd, Server &server)
-{
-	std::map<std::string, Channel> &channels = server.getChannels();
-	if (channels.empty())
-		throw std::exception();
-	for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); ++it)
-	{
-		if (it->first == cmd.getParams()[0])
-			return it->second;
-	}
-	throw std::exception();
-}
-
-// stringUtils.hpp 
-static std::string getNumberAsString(unsigned long long nb)
-{
-	std::ostringstream oss;
-    oss << nb;
-    return oss.str();
-}
+// static Channel &getSpecifiedChannel(const Cmd &cmd, Server &server)
+// {
+// 	std::map<std::string, Channel> &channels = server.getChannels();
+// 	if (channels.empty())
+// 		throw std::exception();
+// 	for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); ++it)
+// 	{
+// 		if (it->first == cmd.getParams()[0])
+// 			return it->second;
+// 	}
+// 	throw std::exception();
+// }
 
 // ModeUtils.hpp
 static bool isValidLimitString(const std::string &str, Channel &channel)
@@ -268,20 +170,6 @@ static bool isValidLimitString(const std::string &str, Channel &channel)
 	return true;
 }
 
-// stringUtils.hpp
-static bool isValidPass(const std::string &pass)
-{
-	if(pass.empty())
-		return false;
-	for (size_t i = 0; i < pass.size(); ++i)
-	{
-		if (!std::isalnum(pass[i]))
-			return false;
-	}
-	return true;
-}
-
-// 
 static void sendInvalidParameterMessage(Client &client, const Cmd &cmd, const std::string &modeStr)
 {
 	std::string msg = ": 472 " + client.getNickname() + " " + modeStr;
@@ -292,17 +180,6 @@ static void sendInvalidParameterMessage(Client &client, const Cmd &cmd, const st
 	}
 	msg += ":Invalid parameter\n";
 	send(client.getFd(), msg.c_str(), msg.size(), 0);
-}
-
-static bool clientIsInServer(const std::string &clientNick, Server &server)
-{
-	const std::map<int, Client> &clients = server.getClients();
-	for (std::map<int, Client>::const_iterator it = clients.begin(); it != clients.end(); ++it)
-	{
-		if (it->second.getNickname() == clientNick)
-			return true;
-	}
-	return false;
 }
 
 static void handleSingleArgument(const Cmd &cmd, Client &client, Channel &channel)
@@ -430,17 +307,19 @@ static void handleMultipleArguments(const Cmd &cmd, Client &client, Channel &cha
 					modeNewStr += "k";
 					break;
 				case 'o':
-					if (!clientIsInServer(cmd.getParams()[argsIndex], server))
+					if (!server.clientIsInServer(cmd.getParams()[argsIndex]))
 					{
-						std::string msg = ": 401 " + client.getNickname() + " " +
-							cmd.getParams()[argsIndex] + " :No such nick\n";
+						std::string msg = ": 401 " + client.getNickname() + " "
+							+ channel.getName() + " :No such nick\n";
+						std::cout << msg << std::endl;
 						send(client.getFd(), msg.c_str(), msg.size(), 0);
 						continue;
 					}
-					if (!isInsideTheChannel(channel, client))
+					if (!channel.isClientInChannel(client.getFd()))
 					{
 						std::string msg = ": 441 " + client.getNickname() + " "
 							+ channel.getName() + " :They aren't on that channel\n";
+						std::cout << msg << std::endl;
 						send(client.getFd(), msg.c_str(), msg.size(), 0);
 						continue;
 					}
@@ -500,7 +379,7 @@ void Cmd::MODE(const Cmd& cmd, Server& server, Client& client) {
 	try
 	{
 		size_t args = cmd.getParams().size();
-		Channel &channel = getSpecifiedChannel(cmd, server);
+		Channel &channel = server.getSpecifiedChannel(cmd.getParams()[0]);
 		if (args == 1)
 			handleSingleArgument(cmd, client, channel);
 		else
@@ -508,6 +387,7 @@ void Cmd::MODE(const Cmd& cmd, Server& server, Client& client) {
 	}
 	catch(std::exception &)
 	{
+		std::cout << "No such channel found!" << std::endl;
 		Errors::raise(client, "", ERR_NOSUCHCHANNEL);
 	}
 }

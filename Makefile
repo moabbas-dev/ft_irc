@@ -17,6 +17,7 @@ SRCS = 	srcs/Server.cpp		\
 		srcs/commands/QUIT.cpp		\
 		srcs/MODE.cpp		\
 		srcs/Errors.cpp		\
+		srcs/StringUtils.cpp	\
 		main.cpp			\
 # SRCS = srcs/main_test.cpp
 
