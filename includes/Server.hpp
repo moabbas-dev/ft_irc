@@ -61,7 +61,8 @@ public:
     void deleteChannel(const std::string& channel_name);
 
     static void printResponse(const std::string& message, const char* color);
-    static void sendReply(std::string message, int fd);
+    static void sendReply(std::string mesgArgs[], int fd, messageCode messageCode);
+    static void sendError(std::string mesgArgs[], int fd, messageCode messageCode);
 
 private:
     void processClientCommands(int fd);

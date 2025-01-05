@@ -233,8 +233,119 @@ void Server::setChannels(std::map<std::string, Channel> channels) {
     this->channels = channels;
 }
 
-void Server::sendReply(std::string message, int fd) {
-    std::cout << message;
-    if (send(fd, message.c_str(), message.size(), 0) == -1)
+void Server::sendReply(std::string mesgArgs[], int fd, messageCode messageCode) {
+    std::ostringstream result;
+
+    switch (messageCode)
+    {
+    case RPL_WELCOME:
+        result << RPL_CONNECTED(mesgArgs[0]);
+        break;
+    case RPL_CHANNELMODEIS:
+        result << RPL_CHANNELMODEIS(mesgArgs[0], mesgArgs[1], mesgArgs[2]);
+        break;
+    case RPL_CREATIONTIME:
+        result << RPL_CREATIONTIME(mesgArgs[0], mesgArgs[1], mesgArgs[2]);
+        break;
+    case RPL_TOPIC:
+        result << RPL_TOPICIS(mesgArgs[0], mesgArgs[1], mesgArgs[2]);
+        break;
+    case RPL_NAMREPLY:
+        result << RPL_NAMREPLY(mesgArgs[0], mesgArgs[1], mesgArgs[2]);
+        break;
+    case RPL_ENDOFNAMES:
+        result << RPL_ENDOFNAMES(mesgArgs[0], mesgArgs[1]);
+        break;
+    case RPL_CREATECHANNELMSG:
+        result << RPL_JOINMSG(mesgArgs[0], mesgArgs[1], mesgArgs[2], mesgArgs[3])
+               << RPL_NAMREPLY(mesgArgs[0], mesgArgs[3], mesgArgs[4])
+               << RPL_ENDOFNAMES(mesgArgs[0], mesgArgs[3]);
+        break;
+    case RPL_NICKCHANGE:
+        result << RPL_NICKCHANGE(mesgArgs[0], mesgArgs[1]);
+        break;
+    case RPL_JOINMSG:
+        result << RPL_JOINMSG(mesgArgs[0], mesgArgs[0], mesgArgs[2], mesgArgs[3]);
+        break;
+    case RPL_UMODEIS:
+        result << RPL_UMODEIS(mesgArgs[0], mesgArgs[1], mesgArgs[2], mesgArgs[3]);
+        break;
+    case RPL_CHANGEMODE:
+        result << RPL_CHANGEMODE(mesgArgs[0], mesgArgs[1], mesgArgs[2], mesgArgs[3]);
+        break;
+    case ERR_BADCHANNELKEY:
+        result << ERR_BADCHANNELKEY(mesgArgs[0], mesgArgs[1]);
+        break;
+    case ERR_BADCHANNELMASK:
+        result << ERR_BADCHANNELMASK(mesgArgs[0], mesgArgs[1]);;
+        break;
+    default:
+        break;
+    }
+    
+    if (send(fd, result.str().c_str(), result.str().size(), 0) == -1)
         std::cerr << "Cannot Send reply to fd=" << fd << std::endl;
+}
+
+void Server::sendError(std::string mesgArgs[], int fd, messageCode messageCode) {
+    std::ostringstream result;
+
+    switch (messageCode)
+    {
+    case ERR_NOSUCHNICK:
+        result << ERR_NOSUCHNICK(mesgArgs[0], mesgArgs[1]);
+        break;
+    case ERR_NOSUCHCHANNEL:
+        result << ERR_NOSUCHCHANNEL(mesgArgs[0], mesgArgs[1]);
+        break;
+    case ERR_UNKNOWCOMMAND:
+        result << ERR_CMDNOTFOUND(mesgArgs[0], mesgArgs[1]);
+        break;
+    case ERR_NONICKNAMEGIVEN:
+        result << ERR_NONICKNAMEGIVEN(mesgArgs[0]);
+        break;
+    case ERR_ERRONEUSNICK:
+        result << ERR_ERRONEUSNICK(mesgArgs[0]);
+        break;
+    case ERR_NICKINUSE:
+        result << ERR_NICKINUSE(mesgArgs[0]);
+        break;
+    case ERR_NOTREGISTERED:
+        result << ERR_NOTREGISTERED(mesgArgs[0]);
+        break;
+    case ERR_NOTENOUGHPARAM:
+        result << ERR_NOTENOUGHPARAM(mesgArgs[0]);
+        break;
+    case ERR_ALREADYREGISTERED:
+        result << ERR_ALREADYREGISTERED(mesgArgs[0]);
+        break;
+    case ERR_PASSWDMISMATCH:
+        result << ERR_PASSWDMISMATCH(mesgArgs[0]);
+        break;
+    case ERR_KEYSET:
+        result << ERR_KEYSET(mesgArgs[0]);
+        break;
+    case ERR_UNKNOWNMODE:
+        result << ERR_UNKNOWNMODE(mesgArgs[0], mesgArgs[1], mesgArgs[2]);
+        break;
+    case ERR_CHANOPRIVSNEEDED:
+        result << ERR_NOTOPERATOR(mesgArgs[0]);
+        break;
+    case ERR_NEEDMODEPARM:
+        result << ERR_NEEDMODEPARM(mesgArgs[0], mesgArgs[1]);
+        break;
+    case ERR_INVALIDMODEPARM:
+        result << ERR_INVALIDMODEPARM(mesgArgs[0], mesgArgs[1]);
+        break;
+    case ERR_USERONCHANNEL:
+        result << ERR_USERONCHANNEL(mesgArgs[0], mesgArgs[1]);
+        break;
+    case ERR_NOTONCHANNEL:
+        result << ERR_NOTONCHANNEL(mesgArgs[0], mesgArgs[2]);
+    default:
+        break;
+    }
+
+    if (send(fd, result.str().c_str(), result.str().size(), 0) == -1)
+        std::cerr << "Cannot Send error to fd=" << fd << std::endl;
 }

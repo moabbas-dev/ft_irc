@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:49:35 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/04 12:36:17 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/05 18:35:12 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,12 @@
 
 bool Errors::checkPING(Cmd &cmd, Client &client)
 {
+	std::string messageArgs[] = {client.getNickname()};
 	if (!client.getIsAuthenticated())
-		return (raise(client, cmd.getName(), ERR_NOTREGISTERED), false);
+		return (Server::sendError(messageArgs, client.getFd(), ERR_NOTREGISTERED), false);
 
 	if (cmd.getParams().empty())
-		return (raise(client, cmd.getName(), ERR_NEEDMOREPARAMS), false);
+		return (Server::sendError(messageArgs, client.getFd(), ERR_NOTENOUGHPARAM), false);
 	return true;
 }
 

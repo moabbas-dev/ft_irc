@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:11:08 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/03 20:01:52 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/05 19:03:54 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,8 +112,10 @@ std::list<Cmd> Parser::splitCommands(std::string input, Client& client, Server &
         Cmd parsedCommand = parseCommand(command);
         if (!Errors::commandFound(parsedCommand.getName())) {
             start = end + 1;
-            if (!parsedCommand.getName().empty() && trimString(command).compare("CAP LS 302"))
-                Errors::raise(client, trimString(command), ERR_UNKNOWCOMMAND);
+            if (!parsedCommand.getName().empty() && trimString(command).compare("CAP LS 302")) {
+                std::string messageArgs[] = {client.getNickname(), trimString(command)};
+                Server::sendError(messageArgs, client.getFd(), ERR_UNKNOWCOMMAND);
+            }
             continue;
         }
         if (Errors::commandFound(parsedCommand.getName()) && !Errors::validParameters(parsedCommand, client, server)) {

@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:50:06 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/04 15:09:25 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/05 18:30:32 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,17 +15,16 @@
 
 bool Errors::checkUSER(Cmd &cmd, Client &client)
 {
+    std::string messageArgs[] = { cmd.getParams()[0] };
 	if (!client.getHasSetPassword() || !client.getHasSetNickName())
-		return (raise(client, cmd.getName(), ERR_NOTREGISTERED), false);
+		return (Server::sendError(messageArgs, client.getFd(), ERR_NOTREGISTERED), false);
 
 	if (cmd.getParams().size() < 4)
-		return (raise(client, cmd.getName(), ERR_NEEDMOREPARAMS), false);
+		return (Server::sendError(messageArgs, client.getFd(), ERR_NOTENOUGHPARAM), false);
 
-	if (cmd.getParams().size() > 4)
-		return (raise(client, cmd.getName(), ERR_TOOMANYPARAMS), false);
 
 	if (client.getIsAuthenticated())
-		return (raise(client, cmd.getName(), ERR_ALREADYREGISTERED), false);
+		return (Server::sendError(messageArgs, client.getFd(), ERR_ALREADYREGISTERED), false);
 
 	return true;
 }
@@ -51,5 +50,6 @@ void Cmd::USER(const Cmd& cmd, Server& server, Client& client) {
     std::ostringstream oss;
     oss << client.getNickname() << " has set his username to: " << client.getUsername() << " and realname to: " << client.getRealname() << ".";
     Server::printResponse(oss.str() , BLUE);
-    Server::sendReply(RPL_CONNECTED(client.getNickname()), client.getFd());
+    std::string message[] = {client.getNickname()};
+    Server::sendReply(message, client.getFd(), RPL_WELCOME);
 }

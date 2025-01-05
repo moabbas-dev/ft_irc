@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:46:43 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/04 15:16:37 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/05 18:16:26 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,33 +51,39 @@ bool checkChannelKey(std::string channelKey) {
 
 bool Errors::checkJOIN(Cmd &cmd, Client &client)
 {
+    std::string messageArgs[] = {client.getNickname(), ""};
 	if (!client.getIsAuthenticated())
-		return (raise(client, "", ERR_NOTREGISTERED), false);
+		return (Server::sendError(messageArgs, client.getFd(), ERR_NOTREGISTERED), false);
 
 	if (cmd.getParams().size() < 1)
-		return (raise(client, "", ERR_NEEDMOREPARAMS), false);
+		return (Server::sendError(messageArgs, client.getFd(), ERR_NOTENOUGHPARAM), false);
 
     if (cmd.getParams().size() == 1) {
+        messageArgs[1] = cmd.getParams()[0];
         if (!cmd.getParams()[0].empty() && cmd.getParams()[0].at(0) == '&')
-            return (raise(client, cmd.getParams()[0], ERR_BADCHANNELKEY), false);
+            return (Server::sendError(messageArgs, client.getFd(), ERR_BADCHANNELKEY), false);
         if (!checkChannelName(cmd.getParams()[0]))
-			return (raise(client, cmd.getParams()[0], ERR_NOSUCHCHANNEL), false);
+			return (Server::sendError(messageArgs, client.getFd(), ERR_NOSUCHCHANNEL), false);
     }
 
 	if (cmd.getParams().size() > 2)
-		return (raise(client, "", ERR_BADCHANNELKEY), false);
+		return (Server::sendError(messageArgs, client.getFd(), ERR_BADCHANNELKEY), false);
 
 	std::vector<std::string> channelsNames = split(cmd.getParams()[0], ',');
 	std::vector<std::string> channelsKeys = cmd.getParams().size() == 2? split(cmd.getParams()[1], ',') : std::vector<std::string>();
 	std::vector<Channel> channels = client.getTempChannels();
 	std::vector<std::string>::iterator key_it = channelsKeys.begin();
 	for (std::vector<std::string>::iterator name_it = channelsNames.begin() ; name_it != channelsNames.end(); ++name_it) {
-		if (!checkChannelName(*name_it))
-			raise(client, *name_it, ERR_BADCHANMASK);
+		if (!checkChannelName(*name_it)) {
+            std::string messageArgs[] = {client.getNickname(), *name_it};
+            Server::sendError(messageArgs, client.getFd(), ERR_BADCHANNELMASK);
+        }
 		else {
 			if (key_it != channelsKeys.end()) {
-				if (!checkChannelKey(*key_it))
-					raise(client, *name_it, ERR_BADCHANNELKEY);
+				if (!checkChannelKey(*key_it)) {
+                    std::string messageArgs[] = {client.getNickname(), *name_it};
+					Server::sendError(messageArgs, client.getFd(), ERR_BADCHANNELKEY);
+                }
 				else
 					channels.push_back(Channel(*name_it, *key_it));
 				++key_it;
@@ -87,12 +93,13 @@ bool Errors::checkJOIN(Cmd &cmd, Client &client)
 		}
 	}
 	for (std::vector<Channel>::iterator channel = channels.begin() ; channel != channels.end();) {
+            std::string messageArgs2[] = {client.getNickname(), (*channel).getName()};
         if ((*channel).getName().at(0) == '#' && (*channel).hasKey()) {
-            raise(client, (*channel).getName(), ERR_NOSUCHCHANNEL);
+            Server::sendError(messageArgs2, client.getFd(), ERR_NOSUCHCHANNEL);
             channel = channels.erase(channel);
         }
         else if ((*channel).getName().at(0) == '&' && !(*channel).hasKey()) {
-            raise(client, (*channel).getName(), ERR_BADCHANNELKEY);
+            Server::sendError(messageArgs2, client.getFd(), ERR_BADCHANNELKEY);
             channel = channels.erase(channel);
         } else
             channel++;
@@ -129,19 +136,20 @@ void Cmd::JOIN(const Cmd& cmd, Server& server, Client& client) {
             Channel& server_channel = channel_it->second;
 
             if (server_channel.hasKey() && server_channel.getChannelKey() != channel_key) {
-                Errors::raise(client, channel_name, ERR_BADCHANNELKEY);
+                std::string messageArgs[] = {client.getNickname(), channel_name};
+                Server::sendError(messageArgs, client.getFd(), ERR_BADCHANNELKEY);
                 continue;
             } else if (alreadyInchannel(client_channels, server_channel)) {
-                Errors::raise(client, channel_name, ERR_USERONCHANNEL);
+                std::string messageArgs[] = {client.getNickname(), channel_name};
+                Server::sendError(messageArgs, client.getFd(), ERR_USERONCHANNEL);
                 continue;
             }
             server_channel.addClient(client);
             client_channels.push_back(server_channel);
             std::string message = (client.getHasSetNickName()?client.getNickname() : client.getHostName()) + " has joined channel " + channel_name + ".";
             Server::printResponse(message, BLUE);
-            Server::sendReply(RPL_JOINMSG(client.getNickname(), client.getUsername(),client.getIPadd(),server_channel.getName()) + \
-			RPL_NAMREPLY(client.getNickname(),server_channel.getName(),server_channel.clientslist()) + \
-			RPL_ENDOFNAMES(client.getNickname(),server_channel.getName()), client.getFd());
+            std::string messageArgs[] = {client.getNickname(), client.getUsername(),client.getIPadd(),server_channel.getName(), server_channel.clientslist()};
+            Server::sendReply(messageArgs, client.getFd(), RPL_CREATECHANNELMSG);
             server_channel.broadcastMessage(RPL_JOINMSG(client.getNickname(), client.getUsername(),client.getIPadd(),server_channel.getName()), client.getFd());
         } else {
             Channel new_channel(channel_name, channel_key);
@@ -152,9 +160,8 @@ void Cmd::JOIN(const Cmd& cmd, Server& server, Client& client) {
             std::string message = (client.getHasSetNickName() ? client.getNickname() : client.getHostName())
                 + " has created channel " + channel_name  + (new_channel.hasKey()? " with key=" + new_channel.getChannelKey() : "") + ".";
             Server::printResponse(message, GREEN);
-            Server::sendReply(RPL_JOINMSG(client.getNickname(), client.getUsername(),client.getIPadd(),new_channel.getName()) + \
-            RPL_NAMREPLY(client.getNickname(),new_channel.getName(),new_channel.clientslist()) + \
-            RPL_ENDOFNAMES(client.getNickname(),new_channel.getName()), client.getFd());
+            std::string messageArgs[] = {client.getNickname(), client.getUsername(),client.getIPadd(),new_channel.getName(), new_channel.clientslist()};
+            Server::sendReply(messageArgs, client.getFd(), RPL_CREATECHANNELMSG);
         }
     }
     client.clearTempChannels();

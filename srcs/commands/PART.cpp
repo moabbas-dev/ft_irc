@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:48:10 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/04 15:18:17 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/05 19:02:12 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,12 @@
 
 bool Errors::checkPART(Cmd &cmd, Client &client, Server &server)
 {
+	std::string messageArgs[] = {client.getNickname(), ""};
+	if (!client.getIsAuthenticated())
+		return (Server::sendError(messageArgs, client.getFd(), ERR_NOTREGISTERED), false);
+
 	if (cmd.getParams().size() < 1)
-		return (raise(client, "", ERR_NEEDMOREPARAMS), false);
+		return (Server::sendError(messageArgs, client.getFd(), ERR_NOTENOUGHPARAM), false);
 
 	std::vector<std::string> splitted_params = split(cmd.getParams()[0], ',');
 	std::vector<std::string>::iterator it = splitted_params.begin();
@@ -35,12 +39,12 @@ bool Errors::checkPART(Cmd &cmd, Client &client, Server &server)
                 break;
             }
         }
-
+        std::string messageArgs[] = {client.getNickname(), *it};
         if (!foundInClientChannels)
-            raise(client, *it, ERR_NOTONCHANNEL);
+            Server::sendError(messageArgs, client.getFd(), ERR_NOTONCHANNEL);
 
         if (servChannels.find(*it) == servChannels.end())
-            raise(client, *it, ERR_NOTONCHANNEL);
+            Server::sendError(messageArgs, client.getFd(), ERR_NOTONCHANNEL);
 
         ++it;
     }

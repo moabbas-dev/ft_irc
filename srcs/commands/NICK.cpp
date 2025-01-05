@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:50:34 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/04 12:36:33 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/05 18:49:24 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,21 +32,23 @@ static bool checkCorrectNickName(const std::string &nick)
 
 bool Errors::checkNICK(Cmd &cmd, Client &client, Server &server)
 {
+	std::string messageArgs[] = {client.getNickname()};
+
 	if (!client.getHasSetPassword())
-		return (raise(client, "", ERR_NOTREGISTERED), false);
+		return (Server::sendError(messageArgs, client.getFd(), ERR_NOTREGISTERED), false);
 
 	if (cmd.getParams().size() < 1)
-		return (raise(client, "", ERR_NONICKNAMEGIVEN), false);
+		return (Server::sendError(messageArgs, client.getFd(), ERR_NONICKNAMEGIVEN), false);
 
 	if (!checkCorrectNickName(cmd.getParams()[0]))
-		return (raise(client, "", ERR_ERRONEUSNICKNAME), false);
+		return (Server::sendError(messageArgs, client.getFd(), ERR_ERRONEUSNICK), false);
 
 	const std::map<int, Client> &clients = server.getClients();
 	std::map<int, Client>::const_iterator it = clients.begin();
 	while (it != clients.end())
 	{
 		if (it->first != client.getFd() && it->second.getNickname() == cmd.getParams()[0])
-			return (raise(client, cmd.getParams()[0], ERR_NICKNAMEINUSE), false);
+			return (Server::sendError(messageArgs, client.getFd(), ERR_NICKINUSE), false);
 		++it;
 	}
 	client.setHasSetNickName(true);
