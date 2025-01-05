@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 12:53:55 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/04 12:31:09 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/05 20:05:02 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,4 +141,14 @@ bool Client::isOperator(Channel& channel) const {
 
 void Client::clearTempChannels()  {
     tmp_channels.clear();
+}
+
+bool Client::isInsideTheChannel(const std::string &channelName)
+{
+    for (size_t i = 0; i < channels.size(); ++i)
+	{
+		if (channelName == channels[i].getName())
+			return true;
+	}
+	return false;
 }
