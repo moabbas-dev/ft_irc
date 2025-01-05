@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 14:33:45 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/05 18:59:46 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/05 21:29:54 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 #define RPL_CHANNELMODEIS(nickname, channelname, modes) ": 324 " + nickname + " " + channelname + " " + modes + BREAK
 #define RPL_CHANGEMODE(hostname, channelname, mode, arguments) (":" + hostname + " MODE " + channelname + " " + mode + " " + arguments + BREAK)
 #define RPL_NICKCHANGE(oldnickname, nickname) (":" + oldnickname + " NICK " + nickname + BREAK)
-#define RPL_JOINMSG(nickname, username, ipaddress, channelname) (":" + nickname + "!" + username + "@" + ipaddress + " JOIN " + channelname + BREAK)
+#define RPL_JOINMSG(hostname, ipaddress, channelname) (":" + hostname + "@" + ipaddress + " JOIN " + channelname + BREAK)
 #define RPL_NAMREPLY(nickname, channelname, clientslist) (": 353 " + nickname + " @ " + channelname + " :" + clientslist + BREAK)
 #define RPL_ENDOFNAMES(nickname, channelname) (": 366 " + nickname + " " + channelname + " :END of /NAMES list" + BREAK)
 #define RPL_TOPICIS(nickname, channelname, topic) (": 332 " + nickname  +channelname + " :" + topic + BREAK)
@@ -50,6 +50,7 @@ enum messageCode {
 	RPL_CHANNELMODEIS = 324,
 	RPL_CREATIONTIME = 329,
 	RPL_TOPIC = 332,
+	RPL_TOPICIS,
 	RPL_NAMREPLY = 353,
 	RPL_ENDOFNAMES = 366,
 	RPL_NICKCHANGE,

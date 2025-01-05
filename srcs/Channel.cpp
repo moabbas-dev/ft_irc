@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
+/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 12:53:48 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/05 20:01:42 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/05 21:53:09 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -211,7 +211,10 @@ bool Channel::operator==(const Channel& other) const {
 std::string Channel::clientslist() {
     std::string list;
 	for(size_t i = 0; i < clients.size(); i++){
-		list += clients[i].getNickname();
+        if (isOperator(clients[i].getFd()))
+		    list += "@" + clients[i].getNickname();
+        else
+		    list += clients[i].getNickname();
 		if((i + 1) < clients.size())
 			list += " ";
 	}

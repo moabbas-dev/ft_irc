@@ -6,13 +6,14 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 19:06:07 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/05 20:12:15 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/05 20:49:35 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Cmd.hpp"
 #include "../includes/Errors.hpp"
 #include "../includes/StringUtils.hpp"
+#include "../includes/Server.hpp"
 
 // found insde Client.hpp but we need to check it before
 static bool isOperatorInChannel(const std::string &channelName, Client &client, Server &server)
@@ -129,7 +130,7 @@ bool Errors::checkMODE(Cmd &cmd, Client &client, Server &server)
 	if (cmd.getParams().size() == 1)
 	{
 		messageArgs[1] = cmd.getParams()[0];
-		if (!channelExistInServer(cmd.getParams()[0], server))
+		if (!server.channelExistInServer(cmd.getParams()[0]))
 			return (Server::sendError(messageArgs, client.getFd(), ERR_NOSUCHCHANNEL), false);
 		return true;
 	}

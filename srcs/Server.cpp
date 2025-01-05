@@ -131,6 +131,7 @@ void Server::receiveData(int fd) {
     char buffer[1024] = {};
 
     ssize_t bytesRead = read(fd ,buffer ,sizeof(buffer) - 1);
+    std::cout << buffer;
     std::map<int, Client>::iterator it = clients.find(fd);
     if(bytesRead > 0) {
         if (it != clients.end()) {
@@ -247,7 +248,7 @@ void Server::sendReply(std::string mesgArgs[], int fd, messageCode messageCode) 
     case RPL_CREATIONTIME:
         result << RPL_CREATIONTIME(mesgArgs[0], mesgArgs[1], mesgArgs[2]);
         break;
-    case RPL_TOPIC:
+    case RPL_TOPICIS:
         result << RPL_TOPICIS(mesgArgs[0], mesgArgs[1], mesgArgs[2]);
         break;
     case RPL_NAMREPLY:
@@ -257,15 +258,15 @@ void Server::sendReply(std::string mesgArgs[], int fd, messageCode messageCode) 
         result << RPL_ENDOFNAMES(mesgArgs[0], mesgArgs[1]);
         break;
     case RPL_CREATECHANNELMSG:
-        result << RPL_JOINMSG(mesgArgs[0], mesgArgs[1], mesgArgs[2], mesgArgs[3])
-               << RPL_NAMREPLY(mesgArgs[0], mesgArgs[3], mesgArgs[4])
-               << RPL_ENDOFNAMES(mesgArgs[0], mesgArgs[3]);
+        result << RPL_JOINMSG(mesgArgs[0], mesgArgs[1], mesgArgs[2])
+               << RPL_NAMREPLY(mesgArgs[3], mesgArgs[2], mesgArgs[4])
+               << RPL_ENDOFNAMES(mesgArgs[3], mesgArgs[2]);
         break;
     case RPL_NICKCHANGE:
         result << RPL_NICKCHANGE(mesgArgs[0], mesgArgs[1]);
         break;
     case RPL_JOINMSG:
-        result << RPL_JOINMSG(mesgArgs[0], mesgArgs[0], mesgArgs[2], mesgArgs[3]);
+        result << RPL_JOINMSG(mesgArgs[0], mesgArgs[1], mesgArgs[2]);
         break;
     case RPL_UMODEIS:
         result << RPL_UMODEIS(mesgArgs[0], mesgArgs[1], mesgArgs[2], mesgArgs[3]);
@@ -282,7 +283,7 @@ void Server::sendReply(std::string mesgArgs[], int fd, messageCode messageCode) 
     default:
         break;
     }
-    
+    std::cout << result.str();
     if (send(fd, result.str().c_str(), result.str().size(), 0) == -1)
         std::cerr << "Cannot Send reply to fd=" << fd << std::endl;
 }
