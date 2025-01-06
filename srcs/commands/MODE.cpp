@@ -6,7 +6,7 @@
 /*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 19:06:07 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/06 17:27:46 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/06 20:33:48 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,7 +112,7 @@ static void handleMultipleArguments(const Cmd &cmd, Client &client, Channel *cha
 	if (!channel)
 		return ;
 	std::map<char, bool> &mode = channel->getMode();
-	bool set = true;
+	bool set;
 	std::string modeStr = cmd.getParams()[1];
 	std::string msgToSend = ":" + client.getNickname() + " MODE " + cmd.getParams()[0] + " ";
 	std::string modeNewStr = "";
@@ -141,7 +141,7 @@ static void handleMultipleArguments(const Cmd &cmd, Client &client, Channel *cha
 					modeNewStr += "t";
 					break;
 				case 'l':
-					if (!isValidLimitString(cmd.getParams()[argsIndex], channel))
+					if (set && !isValidLimitString(cmd.getParams()[argsIndex], channel))
 					{
 						sendInvalidParameterMessage(client, cmd, modeStr);
 						++argsIndex;
@@ -166,7 +166,7 @@ static void handleMultipleArguments(const Cmd &cmd, Client &client, Channel *cha
 					modeNewStr += "l";
 					break;
 				case 'k':
-					if (!isValidPass(cmd.getParams()[argsIndex]))
+					if (set && !isValidPass(cmd.getParams()[argsIndex]))
 					{
 						sendInvalidParameterMessage(client, cmd, modeStr);
 						++argsIndex;
@@ -192,17 +192,15 @@ static void handleMultipleArguments(const Cmd &cmd, Client &client, Channel *cha
 					if (!server.clientIsInServer(cmd.getParams()[argsIndex]))
 					{
 						std::string msg = ": 401 " + client.getNickname() + " "
-							+ channel->getName() + " :No such nick\n";
-						std::cout << msg << std::endl;
+							+ cmd.getParams()[argsIndex] + " :No such nick\n";
 						send(client.getFd(), msg.c_str(), msg.size(), 0);
 						++argsIndex;
 						continue;
 					}
-					if (!channel->isClientInChannel(client.getFd()))
+					if (!channel->clientIsInChannel(cmd.getParams()[argsIndex]))
 					{
 						std::string msg = ": 441 " + client.getNickname() + " "
 							+ channel->getName() + " :They aren't on that channel\n";
-						std::cout << msg << std::endl;
 						send(client.getFd(), msg.c_str(), msg.size(), 0);
 						++argsIndex;
 						continue;
@@ -251,7 +249,6 @@ static void handleMultipleArguments(const Cmd &cmd, Client &client, Channel *cha
 			msg += " ";
 	}
 	msg += "\r\n";
-	std::cout << msg << std::endl;
 	std::vector<Client> &clients = channel->getClients();
 	for (size_t i = 0; i < clients.size(); ++i)
 	{
