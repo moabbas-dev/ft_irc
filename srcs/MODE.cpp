@@ -6,7 +6,7 @@
 /*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 19:06:07 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/05 20:49:35 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/06 14:29:53 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,6 +129,7 @@ bool Errors::checkMODE(Cmd &cmd, Client &client, Server &server)
 		return (Server::sendError(messageArgs, client.getFd(), ERR_NOTENOUGHPARAM), false);
 	if (cmd.getParams().size() == 1)
 	{
+		messageArgs[0] = client.getUsername();
 		messageArgs[1] = cmd.getParams()[0];
 		if (!server.channelExistInServer(cmd.getParams()[0]))
 			return (Server::sendError(messageArgs, client.getFd(), ERR_NOSUCHCHANNEL), false);
@@ -147,20 +148,6 @@ bool Errors::checkMODE(Cmd &cmd, Client &client, Server &server)
 	return true;
 }
 
-// static Channel &getSpecifiedChannel(const Cmd &cmd, Server &server)
-// {
-// 	std::map<std::string, Channel> &channels = server.getChannels();
-// 	if (channels.empty())
-// 		throw std::exception();
-// 	for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); ++it)
-// 	{
-// 		if (it->first == cmd.getParams()[0])
-// 			return it->second;
-// 	}
-// 	throw std::exception();
-// }
-
-// ModeUtils.hpp
 static bool isValidLimitString(const std::string &str, Channel *channel)
 {
 	std::istringstream ss(str);
