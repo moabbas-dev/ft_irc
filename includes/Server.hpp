@@ -54,6 +54,7 @@ public:
     static void signalHandler(int signum);
     void closeFds();
     void clearClient(int fd);
+    void removeClientFromChannels(int fd);
     void run();
     std::string getPassword() const;
     std::map<std::string, Channel>& getChannels() ;
