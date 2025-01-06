@@ -23,7 +23,7 @@ SRCS = 	srcs/Server.cpp		\
 
 OBJDIR = objs
 OBJCS = $(SRCS:%.cpp=$(OBJDIR)/%.o)
-CC = g++
+CC = c++
 CFLAGS = -Wall -Wextra -Werror -std=c++98
 
 all: $(NAME)

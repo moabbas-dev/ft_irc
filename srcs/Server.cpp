@@ -127,11 +127,41 @@ void Server::clearClient(int fd) {
     clients.erase(fd);
 }
 
+void Server::removeClientFromChannels(int fd) {
+    for (std::map<std::string, Channel>::iterator channel = channels.begin(); channel != channels.end();){
+        Channel& currentChannel = channel->second;
+		int clientDeleted = 0;
+		if (currentChannel.isClientInChannel(fd)) {
+            currentChannel.removeClient(fd);
+            clientDeleted = 1;
+        }
+		else if (currentChannel.isOperator(fd)) {
+            currentChannel.removeOperator(fd);
+            clientDeleted = 1;
+        }
+		if (currentChannel.getClients().size() == 0) {
+            std::map<std::string, Channel>::iterator next = channel;
+            next++;
+            channels.erase(channel);
+            channel = next;
+	        continue;
+        }
+		if (clientDeleted){
+            std::map<int, Client>::const_iterator client = getClients().find(fd);
+            if (client != getClients().end()) {
+                std::string rpl = ":" + client->second.getNickname() + "!~" + client->second.getUsername() + "@localhost QUIT Quit\r\n";
+                currentChannel.broadcastMessage(rpl, -1);
+            }
+		}
+        ++channel;
+	}
+}
+
 void Server::receiveData(int fd) {
     char buffer[1024] = {};
 
     ssize_t bytesRead = read(fd ,buffer ,sizeof(buffer) - 1);
-    std::cout << buffer;
+    // std::cout << buffer;
     std::map<int, Client>::iterator it = clients.find(fd);
     if(bytesRead > 0) {
         if (it != clients.end()) {
@@ -144,16 +174,16 @@ void Server::receiveData(int fd) {
         }
     }
     else if(bytesRead == 0) {
-        std::ostringstream oss;
-        std::string clientName = it->second.getHasSetNickName()? it->second.getNickname() : it->second.getHostName();
-        oss << clientName << "<" << it->second.getFd() << "> disconnected.";
-        Server::printResponse(oss.str(), RED);
-        close(fd);
-        clearClient(fd);
+        if (it != clients.end()) {
+            std::ostringstream oss;
+            std::string clientName = it->second.getHasSetNickName() ? it->second.getNickname() : it->second.getHostName();
+            oss << clientName << "<" << it->second.getFd() << "> disconnected.";
+            Server::printResponse(oss.str(), RED);
+        }
+        (removeClientFromChannels(fd), clearClient(fd), close(fd));
     } else {
         std::cerr << "Error reading from client\n";
-        close(fd);
-        clearClient(fd);
+        (removeClientFromChannels(fd), clearClient(fd), close(fd));
     }
 }
 
@@ -283,7 +313,7 @@ void Server::sendReply(std::string mesgArgs[], int fd, messageCode messageCode) 
     default:
         break;
     }
-    std::cout << result.str();
+    // std::cout << result.str();
     if (send(fd, result.str().c_str(), result.str().size(), 0) == -1)
         std::cerr << "Cannot Send reply to fd=" << fd << std::endl;
 }
