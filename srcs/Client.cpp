@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 12:53:55 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/05 22:00:22 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/06 16:28:42 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,4 +155,27 @@ bool Client::isInsideTheChannel(const std::string &channelName)
 			return true;
 	}
 	return false;
+}
+
+bool Client::isOperatorInChannel(const std::string &channelName, Server &server)
+{
+    std::map<std::string, Channel> &serverChannels = server.getChannels();
+    for (std::map<std::string, Channel>::iterator it = serverChannels.begin(); it != serverChannels.end(); ++it)
+    {
+        if (it->first == channelName)
+        {
+            const std::map<int, bool> &operators = it->second.getOperators();
+            std::map<int, bool>::const_iterator op_it = operators.begin();
+            while (op_it != operators.end())
+            {
+                if (op_it->first == this->getFd())
+                {
+                    if (op_it->second)
+                        return true;
+                }
+                ++op_it;
+            }
+        }
+    }
+    return false;
 }
