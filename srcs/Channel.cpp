@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 12:53:48 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/06 12:00:37 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/06 20:18:13 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,4 +219,14 @@ std::string Channel::clientslist() {
 			list += " ";
 	}
 	return list;
+}
+
+bool Channel::clientIsInChannel(const std::string &nickname)
+{
+    for (size_t i = 0; i < clients.size(); ++i)
+    {
+        if (clients[i].getNickname() == nickname)
+            return true;
+    }
+    return false;
 }

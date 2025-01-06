@@ -102,6 +102,8 @@ std::string formatModeString(const std::string &modeStr)
 {
 	if (modeStr.empty())
 		return std::string("");
+	if (modeStr.size() == 1 && (modeStr[0] == '+' || modeStr[0] == '-'))
+		return std::string("");
 	std::string newModeStr = "";
 	bool set = modeStr[0] == '+' ? true : false;
 	newModeStr += modeStr[0];
