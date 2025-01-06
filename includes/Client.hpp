@@ -6,8 +6,10 @@
 #include <list>
 #include <string>
 #include "Cmd.hpp"
+#include "Server.hpp"
 class Cmd;
 class Channel;
+class Server;
 class Client {
 private:
     int fd;
@@ -69,6 +71,7 @@ public:
     bool isOperator(Channel& channel) const;
     void clearTempChannels() ;
     bool isInsideTheChannel(const std::string &channelName);
+    bool isOperatorInChannel(const std::string &channelName, Server &server);
 };
 
 #endif

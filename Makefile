@@ -15,9 +15,10 @@ SRCS = 	srcs/Server.cpp		\
 		srcs/commands/INVITE.cpp		\
 		srcs/commands/TOPIC.cpp		\
 		srcs/commands/QUIT.cpp		\
-		srcs/MODE.cpp		\
+		srcs/commands/MODE.cpp		\
 		srcs/Errors.cpp		\
 		srcs/StringUtils.cpp	\
+		srcs/commands/ModeUtils.cpp		\
 		main.cpp			\
 # SRCS = srcs/main_test.cpp
 
