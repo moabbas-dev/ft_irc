@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   Replies.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 14:33:45 by moabbas           #+#    #+#             */
 /*   Updated: 2025/01/07 18:12:13 by moabbas          ###   ########.fr       */
@@ -28,6 +28,9 @@
 #define RPL_JOINMSG(hostname, ipaddress, channelname) (":" + hostname + "@" + ipaddress + " JOIN " + channelname + BREAK)
 #define RPL_TOPICADMIN(nickname, username, channelname, topic) (":" + nickname + "!" + username + "@localhost TOPIC " + channelname + " :" + topic + BREAK)
 #define RPL_NICKNAMECHANGED(nickname, username, newnickname) (":" + nickname + "!" + username + "@localhost NICK " + newnickname + BREAK)
+#define RPL_NAMREPLY(nickname, channelname, clientslist) (": 353 " + nickname + " @ " + channelname + " :" + clientslist + BREAK)
+#define RPL_ENDOFNAMES(nickname, channelname) (": 366 " + nickname + " " + channelname + " :END of /NAMES list" + BREAK)
+#define RPL_INVITING(nickname, nickname2, channelname) (": 341 " + nickname + " " + nickname2 + " " + channelname + BREAK)
 
 #define ERR_NOSUCHNICK(channelname, name) (": 401 " + channelname + " " + name + " :No such nick/channel" + BREAK )
 #define ERR_NOSUCHCHANNEL(nickname, channelname) (": 403 " + nickname + " " + channelname + " :No such channel" + BREAK)
@@ -67,7 +70,8 @@ enum messageCode {
 	RPL_UMODEIS,
 	RPL_CHANGEMODE,
 	RPL_NICKNAMECHANGED,
-
+	RPL_INVITING = 341,
+ 
 	ERR_NOSUCHNICK = 401,
 	ERR_NOSUCHCHANNEL = 403,
 	ERR_UNKNOWCOMMAND = 421,

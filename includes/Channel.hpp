@@ -83,6 +83,8 @@ public:
     bool hasTopicRestricions();
     std::string clientslist();
     bool IsInviteOnly();
+    bool clientIsInChannel(const std::string &nickname);
+    int getClientsNumber();
 };
 
 #endif

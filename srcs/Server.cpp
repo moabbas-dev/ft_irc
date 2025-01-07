@@ -161,7 +161,7 @@ void Server::receiveData(int fd) {
     char buffer[1024] = {};
 
     ssize_t bytesRead = read(fd ,buffer ,sizeof(buffer) - 1);
-    std::cout << buffer;
+    // std::cout << buffer;
     std::map<int, Client>::iterator it = clients.find(fd);
     if(bytesRead > 0) {
         if (it != clients.end()) {
@@ -316,10 +316,15 @@ void Server::sendReply(std::string mesgArgs[], int fd, messageCode messageCode) 
     case RPL_NICKNAMECHANGED:
         result << RPL_NICKCHANGE(mesgArgs[0], mesgArgs[1]);
         break;
+    case ERR_BADCHANNELMASK:
+        result << ERR_BADCHANNELMASK(mesgArgs[0], mesgArgs[1]);
+        break;
+    case RPL_INVITING:
+        result << RPL_INVITING(mesgArgs[0], mesgArgs[1], mesgArgs[2]);
+        break;
     default:
         break;
     }
-    // std::cout << result.str();
     if (send(fd, result.str().c_str(), result.str().size(), 0) == -1)
         std::cerr << "Cannot Send reply to fd=" << fd << std::endl;
 }
@@ -347,16 +352,24 @@ bool Server::clientIsInServer(const std::string &nickname)
 Channel *Server::getSpecifiedChannel(const std::string &channelName)
 {
     if (channels.empty())
-    {
-        std::cout << "No channels!" << std::endl;
         return NULL;
-    }
     for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); ++it)
     {
         if (it->first == channelName)
-            return (std::cout << "Channel Found!" << std::endl, &(it->second));
+            return &(it->second);
     }
-    std::cout << "Channel not found!" << std::endl;
+    return NULL;
+}
+
+Client *Server::getSpecifiedClient(const std::string &nickName)
+{
+    if (clients.empty())
+        return NULL;
+    for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it)
+    {
+        if (it->second.getNickname() == nickName)
+            return &(it->second);
+    }
     return NULL;
 }
 

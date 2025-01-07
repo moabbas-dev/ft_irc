@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 12:53:55 by moabbas           #+#    #+#             */
 /*   Updated: 2025/01/07 23:36:42 by moabbas          ###   ########.fr       */
@@ -74,6 +74,11 @@ bool Client::getHasSetUser() const
 
 std::vector<Channel>& Client::getChannels() {
     return channels;
+}
+
+std::map<std::string, bool> &Client::getInvitationsBox()
+{
+    return invitationsBox;
 }
 
 // Setters
@@ -163,5 +168,47 @@ void Client::removeChannel(Channel& channel) {
             channels.erase(channels.begin() + i);
             break ;
         }
+    }
+}
+
+bool Client::isOperatorInChannel(const std::string &channelName, Server &server)
+{
+    std::map<std::string, Channel> &serverChannels = server.getChannels();
+    for (std::map<std::string, Channel>::iterator it = serverChannels.begin(); it != serverChannels.end(); ++it)
+    {
+        if (it->first == channelName)
+        {
+            const std::map<int, bool> &operators = it->second.getOperators();
+            std::map<int, bool>::const_iterator op_it = operators.begin();
+            while (op_it != operators.end())
+            {
+                if (op_it->first == this->getFd())
+                {
+                    if (op_it->second)
+                        return true;
+                }
+                ++op_it;
+            }
+        }
+    }
+    return false;
+}
+
+void Client::addInvitationToChannel(const std::string &channelName)
+{
+    invitationsBox[channelName] = true;
+}
+
+void Client::removeChannelInvitation(const std::string &channelName)
+{
+    std::map<std::string, bool>::iterator it = invitationsBox.begin();
+    while (it != invitationsBox.end())
+    {
+        if (it->first == channelName)
+        {
+            invitationsBox.erase(it);
+            break;
+        }
+        ++it;
     }
 }

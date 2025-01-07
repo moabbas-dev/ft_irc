@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 12:53:48 by moabbas           #+#    #+#             */
 /*   Updated: 2025/01/07 18:10:25 by moabbas          ###   ########.fr       */
@@ -248,4 +248,18 @@ void Channel::setTopicModifier(std::string name) {
 
 bool Channel::IsInviteOnly() {
     return this->inviteOnly;
+
+bool Channel::clientIsInChannel(const std::string &nickname)
+{
+    for (size_t i = 0; i < clients.size(); ++i)
+    {
+        if (clients[i].getNickname() == nickname)
+            return true;
+    }
+    return false;
+}
+
+int Channel::getClientsNumber()
+{
+    return clients.size();
 }
