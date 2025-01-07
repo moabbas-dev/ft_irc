@@ -1,6 +1,26 @@
 NAME = ircserv
 
-SRCS = main.cpp		\
+SRCS = 	srcs/Server.cpp		\
+		srcs/Client.cpp 	\
+		srcs/Channel.cpp 	\
+		srcs/Cmd.cpp		\
+		srcs/commands/JOIN.cpp   	\
+		srcs/commands/NICK.cpp		\
+		srcs/commands/PART.cpp		\
+		srcs/commands/PASS.cpp		\
+		srcs/commands/PING.cpp		\
+		srcs/commands/PRIVMSG.cpp	\
+		srcs/commands/USER.cpp		\
+		srcs/commands/KICK.cpp		\
+		srcs/commands/INVITE.cpp		\
+		srcs/commands/TOPIC.cpp		\
+		srcs/commands/QUIT.cpp		\
+		srcs/commands/MODE.cpp		\
+		srcs/Errors.cpp		\
+		srcs/StringUtils.cpp	\
+		srcs/commands/ModeUtils.cpp		\
+		main.cpp			\
+# SRCS = srcs/main_test.cpp
 
 OBJDIR = objs
 OBJCS = $(SRCS:%.cpp=$(OBJDIR)/%.o)
