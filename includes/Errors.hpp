@@ -31,10 +31,12 @@ class Errors {
 		static bool checkPING(Cmd &cmd, Client &client);
 		static bool checkPRIVMSG(Cmd &cmd, Client &client);
 		static bool checkKICK(Cmd &cmd, Client &client);
+		// static bool checkINVITE(Cmd &cmd, Client &client);
+		static bool checkTOPIC(Cmd &cmd, Server& server, Client &client);
 		static bool checkINVITE(Cmd &cmd, Client &client, Server &server);
-		static bool checkTOPIC(Cmd &cmd, Client &client);
+		// static bool checkTOPIC(Cmd &cmd, Client &client);
 		static bool checkMODE(Cmd &cmd, Client &client, Server &server);
-		// static bool checkQUIT(Cmd &cmd, Client &client, Server &server);
+		static bool checkQUIT(Cmd &cmd, Client &client, Server &server);
 
 	public:
 		static bool commandFound(const std::string &command);

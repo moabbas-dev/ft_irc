@@ -75,6 +75,7 @@ public:
     bool isOperator(Channel& channel) const;
     void clearTempChannels() ;
     bool isInsideTheChannel(const std::string &channelName);
+    void removeChannel(Channel& channel);
     bool isOperatorInChannel(const std::string &channelName, Server &server);
     void addInvitationToChannel(const std::string &channelName);
     void removeChannelInvitation(const std::string &channelName);

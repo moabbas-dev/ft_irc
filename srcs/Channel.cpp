@@ -6,7 +6,7 @@
 /*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 12:53:48 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/07 16:25:12 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/07 18:10:25 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ Channel::Channel(): name(""), channelKey("") {}
 Channel::Channel(std::string name, std::string key): name(name), channelKey(key)
 {
     creationTime = time(NULL);
+    topicTime =  time(NULL);
     mode['i'] = false;
     mode['t'] = false;
     mode['k'] = false;
@@ -25,11 +26,13 @@ Channel::Channel(std::string name, std::string key): name(name), channelKey(key)
     userLimit = -1;
     hasUserLimit = false;
     _hasKey = !key.empty();
+    inviteOnly = false;
 }
 
 Channel::Channel(std::string name): name(name), channelKey("")
 {
     creationTime = time(NULL);
+    topicTime = std::time(NULL);
     mode['i'] = false;
     mode['t'] = false;
     mode['k'] = false;
@@ -37,6 +40,7 @@ Channel::Channel(std::string name): name(name), channelKey("")
     userLimit = -1;
     hasUserLimit = false;
     _hasKey = false;
+    inviteOnly = false;
 }
 
 Channel::Channel(const Channel &other): 
@@ -51,6 +55,7 @@ Channel::Channel(const Channel &other):
 Channel::~Channel()
 {
     creationTime = time(NULL);
+    topicTime = std::time(NULL);
 }
 
 std::string Channel::getName() const {
@@ -128,6 +133,10 @@ void Channel::setHasUserLimit(bool hasUserLimit)
     this->hasUserLimit = hasUserLimit;
 }
 
+bool Channel::hasTopicRestricions() {
+    return topicRestricted;
+}
+
 bool Channel::isClientInChannel(int fd) const {
 	for (size_t i = 0;i < clients.size();i++) {
         if (clients.at(i).getFd() == fd)
@@ -167,7 +176,7 @@ void Channel::removeClient(int fd) {
     if (it != operators.end()) {
         operators.erase(it);
         std::ostringstream oss;
-        oss << "Client <" << fd << "> removed from the channel "<< name <<".";
+        oss << "Operator <" << fd << "> removed from the channel "<< name <<".";
         Server::printResponse(oss.str(), RED);
     }
 }
@@ -220,6 +229,25 @@ std::string Channel::clientslist() {
 	}
 	return list;
 }
+
+std::time_t Channel::getTopicTime() {
+    return topicTime;
+}
+
+void Channel::setTopicTime(std::time_t topicTime) {
+    this->topicTime = topicTime;
+}
+
+std::string Channel::getTopicModifier() {
+    return topic_modifier;
+}
+
+void Channel::setTopicModifier(std::string name) {
+    topic_modifier = name;
+}
+
+bool Channel::IsInviteOnly() {
+    return this->inviteOnly;
 
 bool Channel::clientIsInChannel(const std::string &nickname)
 {

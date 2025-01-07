@@ -54,7 +54,14 @@
     "list": "cpp",
     "ctime": "cpp",
     "ranges": "cpp",
-    "fstream": "cpp"
+    "fstream": "cpp",
+    "charconv": "cpp",
+    "chrono": "cpp",
+    "ratio": "cpp",
+    "format": "cpp",
+    "iomanip": "cpp",
+    "span": "cpp",
+    "variant": "cpp"
   },
   "C_Cpp_Runner.cCompilerPath": "gcc",
   "C_Cpp_Runner.cppCompilerPath": "g++",

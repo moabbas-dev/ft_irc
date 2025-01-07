@@ -96,7 +96,7 @@ void Server::acceptNewClient() {
     fds.push_back(newPoll);
 
     std::ostringstream oss;
-    oss << newClient.getHostName() << ":" << newClient.getIPadd()
+    oss << newClient.getoriginalhostname() << ":" << newClient.getIPadd()
         << "<" << newClient.getFd() << ">" << " has connected.";
     Server::printResponse(oss.str(), GREEN);
 }
@@ -110,7 +110,7 @@ void Server::signalHandler(int signum) {
 void Server::closeFds() {
     for(std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
         std::ostringstream oss;
-        std::string clientName = it->second.getHasSetNickName()? it->second.getNickname() : it->second.getHostName();
+        std::string clientName = it->second.getHasSetNickName()? it->second.getNickname() : it->second.getoriginalhostname();
         oss << clientName << "<" << it->second.getFd() << "> disconnected.";
         Server::printResponse(oss.str(), RED);
         close(it->second.getFd());
@@ -161,6 +161,7 @@ void Server::receiveData(int fd) {
     char buffer[1024] = {};
 
     ssize_t bytesRead = read(fd ,buffer ,sizeof(buffer) - 1);
+    // std::cout << buffer;
     std::map<int, Client>::iterator it = clients.find(fd);
     if(bytesRead > 0) {
         if (it != clients.end()) {
@@ -175,7 +176,7 @@ void Server::receiveData(int fd) {
     else if(bytesRead == 0) {
         if (it != clients.end()) {
             std::ostringstream oss;
-            std::string clientName = it->second.getHasSetNickName() ? it->second.getNickname() : it->second.getHostName();
+            std::string clientName = it->second.getHasSetNickName() ? it->second.getNickname() : it->second.getoriginalhostname();
             oss << clientName << "<" << it->second.getFd() << "> disconnected.";
             Server::printResponse(oss.str(), RED);
         }
@@ -277,8 +278,14 @@ void Server::sendReply(std::string mesgArgs[], int fd, messageCode messageCode) 
     case RPL_CREATIONTIME:
         result << RPL_CREATIONTIME(mesgArgs[0], mesgArgs[1], mesgArgs[2]);
         break;
-    case RPL_TOPICIS:
+    case RPL_TOPIC:
         result << RPL_TOPICIS(mesgArgs[0], mesgArgs[1], mesgArgs[2]);
+        break;
+    case RPL_NOTOPIC:
+        result << RPL_NOTOPIC(mesgArgs[0], mesgArgs[1]);
+        break;
+    case RPL_TOPICWHOTIME:
+        result << RPL_TOPICWHOTIME(mesgArgs[0], mesgArgs[1], mesgArgs[2], mesgArgs[3]);
         break;
     case RPL_NAMREPLY:
         result << RPL_NAMREPLY(mesgArgs[0], mesgArgs[1], mesgArgs[2]);
@@ -303,8 +310,11 @@ void Server::sendReply(std::string mesgArgs[], int fd, messageCode messageCode) 
     case RPL_CHANGEMODE:
         result << RPL_CHANGEMODE(mesgArgs[0], mesgArgs[1], mesgArgs[2], mesgArgs[3]);
         break;
-    case ERR_BADCHANNELKEY:
-        result << ERR_BADCHANNELKEY(mesgArgs[0], mesgArgs[1]);
+    case RPL_TOPICADMIN:
+        result << RPL_TOPICADMIN(mesgArgs[0], mesgArgs[1], mesgArgs[2], mesgArgs[3]);
+        break;
+    case RPL_NICKNAMECHANGED:
+        result << RPL_NICKCHANGE(mesgArgs[0], mesgArgs[1]);
         break;
     case ERR_BADCHANNELMASK:
         result << ERR_BADCHANNELMASK(mesgArgs[0], mesgArgs[1]);
@@ -419,8 +429,14 @@ void Server::sendError(std::string mesgArgs[], int fd, messageCode messageCode) 
     case ERR_NOTONCHANNEL:
         result << ERR_NOTONCHANNEL(mesgArgs[0], mesgArgs[2]);
         break;
+    case ERR_BADCHANNELKEY:
+        result << ERR_BADCHANNELKEY(mesgArgs[0], mesgArgs[1]);
+        break;
+    case ERR_BADCHANNELMASK:
+        result << ERR_BADCHANNELMASK(mesgArgs[0], mesgArgs[1]);
+        break;
     case ERR_CHANNELISFULL:
-        result << ERR_CHANNELISFULL(mesgArgs[0], mesgArgs[1], mesgArgs[2]);
+        result << ERR_CHANNELISFULL(mesgArgs[0], mesgArgs[1]);
         break;
     default:
         break;

@@ -6,14 +6,14 @@
 /*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 12:53:55 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/07 20:08:27 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/07 23:36:42 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Client.hpp"
 
 Client::Client() : fd(-1), isAuthenticated(false), hasSetPassword(false),
-    hasSetNickName(false), hasSetUser(false) { }
+    hasSetNickName(false), hasSetUser(false), tmp_channels(std::vector<Channel>()) { }
 
 Client::~Client() {
     
@@ -160,6 +160,15 @@ bool Client::isInsideTheChannel(const std::string &channelName)
 			return true;
 	}
 	return false;
+}
+
+void Client::removeChannel(Channel& channel) {
+    for (size_t i = 0;i < channels.size();i++) {
+        if (channels[i].getName() == channel.getName()) {
+            channels.erase(channels.begin() + i);
+            break ;
+        }
+    }
 }
 
 bool Client::isOperatorInChannel(const std::string &channelName, Server &server)

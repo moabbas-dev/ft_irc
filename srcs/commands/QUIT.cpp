@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 19:39:19 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/06 13:15:41 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/06 15:30:02 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,9 @@ std::string getReason(std::string param) {
 }
 
 void Cmd::QUIT(const Cmd& cmd, Server& server, Client& client) {
+	std::string messageArgs[] = {client.getNickname(), ""};
+	if (!client.getIsAuthenticated())
+		return (Server::sendError(messageArgs, client.getFd(), ERR_NOTREGISTERED), (void)0);
 	std::string reason = !cmd.getParams().empty()? getReason(cmd.getParams()[0]) : "";
     std::map<std::string, Channel>& channels = server.getChannels();
     int fd = client.getFd();

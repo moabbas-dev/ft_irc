@@ -24,7 +24,8 @@ bool Errors::commandFound(const std::string &command)
 		|| command == "NICK" || command == "PART"
 		|| command == "PING" || command == "PRIVMSG"
 		|| command == "USER" || command == "MODE"
-		|| command == "QUIT" || command == "INVITE";
+		|| command == "QUIT" || command == "TOPIC";
+		|| command == "INVITE";
 }
 
 bool Errors::validParameters(Cmd &cmd, Client &client, Server &server)
@@ -58,7 +59,7 @@ bool Errors::validParameters(Cmd &cmd, Client &client, Server &server)
 		return checkINVITE(cmd, client, server);
 
 	else if (command == "TOPIC")
-		return checkTOPIC(cmd, client);
+		return checkTOPIC(cmd, server, client);
 
 	else if (command == "MODE")
 		return checkMODE(cmd, client, server);
