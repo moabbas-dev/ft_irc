@@ -64,6 +64,7 @@ public:
     bool channelExistInServer(const std::string &channelName);
     bool clientIsInServer(const std::string &nickname);
     Channel *getSpecifiedChannel(const std::string &channelName);
+    Client *getSpecifiedClient(const std::string &nickName);
 
     static void printResponse(const std::string& message, const char* color);
     static void sendReply(std::string mesgArgs[], int fd, messageCode messageCode);

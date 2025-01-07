@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Errors.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 16:45:21 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/05 18:58:02 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/07 15:53:53 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ bool Errors::commandFound(const std::string &command)
 		|| command == "NICK" || command == "PART"
 		|| command == "PING" || command == "PRIVMSG"
 		|| command == "USER" || command == "MODE"
-		|| command == "QUIT";
+		|| command == "QUIT" || command == "INVITE";
 }
 
 bool Errors::validParameters(Cmd &cmd, Client &client, Server &server)
@@ -55,7 +55,7 @@ bool Errors::validParameters(Cmd &cmd, Client &client, Server &server)
 		return checkKICK(cmd, client);
 
 	else if (command == "INVITE")
-		return checkINVITE(cmd, client);
+		return checkINVITE(cmd, client, server);
 
 	else if (command == "TOPIC")
 		return checkTOPIC(cmd, client);

@@ -77,6 +77,7 @@ public:
     void setHasKey(bool hasKey);
     std::string clientslist();
     bool clientIsInChannel(const std::string &nickname);
+    int getClientsNumber();
 };
 
 #endif

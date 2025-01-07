@@ -6,7 +6,7 @@
 /*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 12:53:48 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/06 20:18:13 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/07 16:25:12 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -229,4 +229,9 @@ bool Channel::clientIsInChannel(const std::string &nickname)
             return true;
     }
     return false;
+}
+
+int Channel::getClientsNumber()
+{
+    return clients.size();
 }
