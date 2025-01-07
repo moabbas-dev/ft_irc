@@ -79,6 +79,7 @@ public:
     bool isOperatorInChannel(const std::string &channelName, Server &server);
     void addInvitationToChannel(const std::string &channelName);
     void removeChannelInvitation(const std::string &channelName);
+    bool isInvitedTochannel(Channel& channel);
 };
 
 #endif

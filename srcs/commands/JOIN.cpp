@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:46:43 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/07 23:04:57 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/08 00:06:09 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,22 +120,21 @@ void Cmd::JOIN(const Cmd& cmd, Server& server, Client& client) {
             Channel& server_channel = channel_it->second;
             std::cout <<  "User limit: " << server_channel.getUserLimit() << "\n";
             if (server_channel.IsInviteOnly()) {
-                // this code will use it so don't remove :)
-                // if (client.isInvitedToChannel(server_channel.getName())) {
-                //     if (alreadyInchannel(client_channels, server_channel)) {
-                //         std::string messageArgs[] = {client.getNickname(), channel_name};
-                //         Server::sendError(messageArgs, client.getFd(), ERR_USERONCHANNEL);
-                //         continue;
-                //     } else if (server_channel.getHasUserLimit() && server_channel.getClients().size() == (size_t)server_channel.getUserLimit()) {
-                //         std::string messageArgs[] = {client.getNickname(), channel_name};
-                //         Server::sendError(messageArgs, client.getFd(), ERR_CHANNELISFULL);
-                //         continue;
-                //     }
-                // } else {
-                //     std::string messageArgs[] = {client.getNickname(), channel_name};
-                //     Server::sendError(messageArgs, client.getFd(), ERR_INVITEONLYCHAN);
-                //     continue;
-                // }
+                if (client.isInvitedTochannel(server_channel)) {
+                    if (alreadyInchannel(client_channels, server_channel)) {
+                        std::string messageArgs[] = {client.getNickname(), channel_name};
+                        Server::sendError(messageArgs, client.getFd(), ERR_USERONCHANNEL);
+                        continue;
+                    } else if (server_channel.getHasUserLimit() && server_channel.getClients().size() == (size_t)server_channel.getUserLimit()) {
+                        std::string messageArgs[] = {client.getNickname(), channel_name};
+                        Server::sendError(messageArgs, client.getFd(), ERR_CHANNELISFULL);
+                        continue;
+                    }
+                } else {
+                    std::string messageArgs[] = {client.getNickname(), channel_name};
+                    Server::sendError(messageArgs, client.getFd(), ERR_INVITEONLYCHAN);
+                    continue;
+                }
             }
             else if (server_channel.hasKey() && server_channel.getChannelKey() != channel_key) {
                 std::string messageArgs[] = {client.getNickname(), channel_name};

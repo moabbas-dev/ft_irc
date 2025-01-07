@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
+/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 12:53:55 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/07 23:36:42 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/08 00:08:05 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -211,4 +211,8 @@ void Client::removeChannelInvitation(const std::string &channelName)
         }
         ++it;
     }
+}
+
+bool Client::isInvitedTochannel(Channel& channel) {
+    return invitationsBox.find(channel.getName()) != invitationsBox.end();
 }
