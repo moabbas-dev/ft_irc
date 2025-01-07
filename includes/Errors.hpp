@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 16:38:49 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/05 18:58:07 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/06 15:34:02 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ class Errors {
 		static bool checkPRIVMSG(Cmd &cmd, Client &client);
 		static bool checkKICK(Cmd &cmd, Client &client);
 		static bool checkINVITE(Cmd &cmd, Client &client);
-		static bool checkTOPIC(Cmd &cmd, Client &client);
+		static bool checkTOPIC(Cmd &cmd, Server& server, Client &client);
 		static bool checkMODE(Cmd &cmd, Client &client, Server &server);
 		// static bool checkQUIT(Cmd &cmd, Client &client, Server &server);
 

@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:51:14 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/05 18:36:00 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/06 19:31:22 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,6 @@ void Cmd::PASS(const Cmd& cmd, Server& server, Client& client) {
     (void)cmd;
     (void)server;
     client.setHasSetPassword(true);
-    std::string clientName = client.getHasSetNickName()? client.getNickname()
-                            : client.getHasSetUser()? client.getUsername()
-                            : client.getHostName();
+    std::string clientName = client.getoriginalhostname();
     Server::printResponse(clientName + " has registered.", BLUE);
 }

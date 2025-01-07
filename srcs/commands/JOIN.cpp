@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:46:43 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/05 21:44:47 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/07 23:04:57 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ bool checkChannelName(std::string channelName) {
             return false;
     }
 
-	return channelName.length() > 3
+	return channelName.length() > 2
 		&& channelName.length() <= MAX_CHANNEL_NAME_LENGTH
 		&& channelName[0] == '#';
 }
@@ -118,14 +118,36 @@ void Cmd::JOIN(const Cmd& cmd, Server& server, Client& client) {
         std::map<std::string, Channel>::iterator channel_it = server_channels.find(channel_name);
         if (channel_it != server_channels.end()) {
             Channel& server_channel = channel_it->second;
-
-            if (server_channel.hasKey() && server_channel.getChannelKey() != channel_key) {
+            std::cout <<  "User limit: " << server_channel.getUserLimit() << "\n";
+            if (server_channel.IsInviteOnly()) {
+                // this code will use it so don't remove :)
+                // if (client.isInvitedToChannel(server_channel.getName())) {
+                //     if (alreadyInchannel(client_channels, server_channel)) {
+                //         std::string messageArgs[] = {client.getNickname(), channel_name};
+                //         Server::sendError(messageArgs, client.getFd(), ERR_USERONCHANNEL);
+                //         continue;
+                //     } else if (server_channel.getHasUserLimit() && server_channel.getClients().size() == (size_t)server_channel.getUserLimit()) {
+                //         std::string messageArgs[] = {client.getNickname(), channel_name};
+                //         Server::sendError(messageArgs, client.getFd(), ERR_CHANNELISFULL);
+                //         continue;
+                //     }
+                // } else {
+                //     std::string messageArgs[] = {client.getNickname(), channel_name};
+                //     Server::sendError(messageArgs, client.getFd(), ERR_INVITEONLYCHAN);
+                //     continue;
+                // }
+            }
+            else if (server_channel.hasKey() && server_channel.getChannelKey() != channel_key) {
                 std::string messageArgs[] = {client.getNickname(), channel_name};
                 Server::sendError(messageArgs, client.getFd(), ERR_BADCHANNELKEY);
                 continue;
             } else if (alreadyInchannel(client_channels, server_channel)) {
                 std::string messageArgs[] = {client.getNickname(), channel_name};
                 Server::sendError(messageArgs, client.getFd(), ERR_USERONCHANNEL);
+                continue;
+            } else if (server_channel.getHasUserLimit() && server_channel.getClients().size() == (size_t)server_channel.getUserLimit()) {
+                std::string messageArgs[] = {client.getNickname(), channel_name};
+                Server::sendError(messageArgs, client.getFd(), ERR_CHANNELISFULL);
                 continue;
             }
             server_channel.addClient(client);
@@ -136,7 +158,7 @@ void Cmd::JOIN(const Cmd& cmd, Server& server, Client& client) {
             Server::sendReply(messageArgs, client.getFd(), RPL_CREATECHANNELMSG);
             if (!server_channel.getTopic().empty()) {
                 messageArgs[0] = client.getNickname(); messageArgs[1] = server_channel.getName(); messageArgs[2] = server_channel.getTopic();
-                Server::sendReply(messageArgs, client.getFd(), RPL_TOPICIS);
+                Server::sendReply(messageArgs, client.getFd(), RPL_TOPIC);
             }
             server_channel.broadcastMessage(RPL_JOINMSG(client.getHostName(), client.getIPadd(),server_channel.getName()), client.getFd());
         } else {

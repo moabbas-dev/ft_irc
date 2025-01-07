@@ -69,6 +69,7 @@ public:
     bool isOperator(Channel& channel) const;
     void clearTempChannels() ;
     bool isInsideTheChannel(const std::string &channelName);
+    void removeChannel(Channel& channel);
 };
 
 #endif
