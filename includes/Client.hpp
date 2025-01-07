@@ -32,6 +32,9 @@ private:
     //store the commands for each client here (valid commands only) to execute them
     std::list<Cmd> commands; 
 
+    // store the invitations received by the client
+    std::map<std::string, bool> invitationsBox;
+
 public:
     Client();
     ~Client();
@@ -51,6 +54,7 @@ public:
     std::list<Cmd> getCommands() const;
     std::vector<Channel>& getChannels() ;
     std::vector<Channel> getTempChannels() const;
+    std::map<std::string, bool> &getInvitationsBox();
 
     // Setters
     void setFd(int fd);
@@ -72,6 +76,8 @@ public:
     void clearTempChannels() ;
     bool isInsideTheChannel(const std::string &channelName);
     bool isOperatorInChannel(const std::string &channelName, Server &server);
+    void addInvitationToChannel(const std::string &channelName);
+    void removeChannelInvitation(const std::string &channelName);
 };
 
 #endif

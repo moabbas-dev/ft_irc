@@ -6,7 +6,7 @@
 /*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 12:53:55 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/06 16:28:42 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/07 20:08:27 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,11 @@ bool Client::getHasSetUser() const
 
 std::vector<Channel>& Client::getChannels() {
     return channels;
+}
+
+std::map<std::string, bool> &Client::getInvitationsBox()
+{
+    return invitationsBox;
 }
 
 // Setters
@@ -178,4 +183,23 @@ bool Client::isOperatorInChannel(const std::string &channelName, Server &server)
         }
     }
     return false;
+}
+
+void Client::addInvitationToChannel(const std::string &channelName)
+{
+    invitationsBox[channelName] = true;
+}
+
+void Client::removeChannelInvitation(const std::string &channelName)
+{
+    std::map<std::string, bool>::iterator it = invitationsBox.begin();
+    while (it != invitationsBox.end())
+    {
+        if (it->first == channelName)
+        {
+            invitationsBox.erase(it);
+            break;
+        }
+        ++it;
+    }
 }

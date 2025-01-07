@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Replies.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 14:33:45 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/05 21:29:54 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/07 19:59:54 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 #define RPL_NAMREPLY(nickname, channelname, clientslist) (": 353 " + nickname + " @ " + channelname + " :" + clientslist + BREAK)
 #define RPL_ENDOFNAMES(nickname, channelname) (": 366 " + nickname + " " + channelname + " :END of /NAMES list" + BREAK)
 #define RPL_TOPICIS(nickname, channelname, topic) (": 332 " + nickname  +channelname + " :" + topic + BREAK)
+#define RPL_INVITING(nickname, nickname2, channelname) (": 341 " + nickname + " " + nickname2 + " " + channelname + BREAK)
 
 #define ERR_NOTENOUGHPARAM(nickname) (": 461 " + nickname + " :Not enough parameters." + BREAK)
 #define ERR_NEEDMODEPARM(channelname, mode) (": 696 " + channelname + " * You must specify a parameter for the key mode. " + mode + BREAK)
@@ -44,6 +45,7 @@
 #define ERR_BADCHANNELMASK(nickname, channelname) (": 476 " + nickname + " " + channelname + " :Invalid channel name" + BREAK)
 #define ERR_USERONCHANNEL(nickname, channelname) (": 443 " + nickname + " " + channelname + " :is already on channel" + BREAK)
 #define ERR_NOTONCHANNEL(nickname, channelname) (": 442 " + nickname + " " + channelname + " :You're not on that channel" + BREAK)
+#define ERR_CHANNELISFULL(nickname, nickname2, channelname) (": 471 " + nickname + " " + nickname2 + " " + channelname + " :Cannot join channel (+l)" + BREAK)
 
 enum messageCode {
 	RPL_WELCOME = 1,
@@ -58,6 +60,7 @@ enum messageCode {
 	RPL_CREATECHANNELMSG,
 	RPL_UMODEIS,
 	RPL_CHANGEMODE,
+	RPL_INVITING = 341,
 
 	ERR_NOSUCHNICK = 401,
 	ERR_NOSUCHCHANNEL = 403,
@@ -72,6 +75,7 @@ enum messageCode {
 	ERR_ALREADYREGISTERED = 462,
 	ERR_PASSWDMISMATCH = 464,
 	ERR_KEYSET = 467,
+	ERR_CHANNELISFULL = 471,
 	ERR_UNKNOWNMODE = 472,
 	ERR_BADCHANNELKEY = 475,
 	ERR_BADCHANNELMASK = 476,

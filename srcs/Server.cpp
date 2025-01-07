@@ -307,7 +307,10 @@ void Server::sendReply(std::string mesgArgs[], int fd, messageCode messageCode) 
         result << ERR_BADCHANNELKEY(mesgArgs[0], mesgArgs[1]);
         break;
     case ERR_BADCHANNELMASK:
-        result << ERR_BADCHANNELMASK(mesgArgs[0], mesgArgs[1]);;
+        result << ERR_BADCHANNELMASK(mesgArgs[0], mesgArgs[1]);
+        break;
+    case RPL_INVITING:
+        result << RPL_INVITING(mesgArgs[0], mesgArgs[1], mesgArgs[2]);
         break;
     default:
         break;
@@ -343,6 +346,18 @@ Channel *Server::getSpecifiedChannel(const std::string &channelName)
     for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); ++it)
     {
         if (it->first == channelName)
+            return &(it->second);
+    }
+    return NULL;
+}
+
+Client *Server::getSpecifiedClient(const std::string &nickName)
+{
+    if (clients.empty())
+        return NULL;
+    for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it)
+    {
+        if (it->second.getNickname() == nickName)
             return &(it->second);
     }
     return NULL;
@@ -403,6 +418,10 @@ void Server::sendError(std::string mesgArgs[], int fd, messageCode messageCode) 
         break;
     case ERR_NOTONCHANNEL:
         result << ERR_NOTONCHANNEL(mesgArgs[0], mesgArgs[2]);
+        break;
+    case ERR_CHANNELISFULL:
+        result << ERR_CHANNELISFULL(mesgArgs[0], mesgArgs[1], mesgArgs[2]);
+        break;
     default:
         break;
     }
