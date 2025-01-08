@@ -6,7 +6,7 @@
 /*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 14:33:45 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/08 22:13:52 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/08 22:48:25 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@
 #define RPL_ENDOFNAMES(nickname, channelname) (": 366 " + nickname + " " + channelname + " :END of /NAMES list" + BREAK)
 #define RPL_INVITING(nickname, nickname2, channelname) (": 341 " + nickname + " " + nickname2 + " " + channelname + BREAK)
 #define RPL_KICK(nickname, username, channelname, kicked_nickname, comment) (":" + nickname + "!~" + username + "@localhost" + " KICK " + channelname + " " +kicked_nickname + " :" + comment + BREAK)
+#define RPL_AWAY(nickname1, nickname2, message) (":localhost 301 " + nickname1 + " " + nickname2 + " :" + message + BREAK)
 
 #define ERR_NOSUCHNICK(channelname, name) (":localhost 401 " + channelname + " " + name + " :No such nick/channel" + BREAK )
 #define ERR_NOSUCHCHANNEL(nickname, channelname) (": 403 " + nickname + " " + channelname + " :No such channel" + BREAK)
@@ -56,12 +57,13 @@
 #define ERR_NOTOPERATOR(nickname, channelname) (":localhost 482 " + nickname + " " + channelname + " :You're not a channel operator" + BREAK)
 // #define ERR_NOTOPERATOR(channelname) (":localhost 482 " + channelname + " :You're not a channel operator" + BREAK)
 #define ERR_NEEDMODEPARM(channelname, mode) (": 696 " + channelname + " * You must specify a parameter for the key mode. " + mode + BREAK)
-#define ERR_INVALIDMODEPARM(channelname, mode) ": 696 " + channelname + " Invalid mode parameter. " + mode + BREAK
-#define ERR_NOTEXTTOSEND(nickname) ": 412 " + nickname + " :No text to send" + BREAK
-#define ERR_CANNOTSENDTOCHAN(nickname, channelname) ": 404 " + nickname + " " + channelname + " :Cannot send to channel" + BREAK
+#define ERR_INVALIDMODEPARM(channelname, mode) (": 696 " + channelname + " Invalid mode parameter. " + mode + BREAK)
+#define ERR_NOTEXTTOSEND(nickname) (": 412 " + nickname + " :No text to send" + BREAK)
+#define ERR_CANNOTSENDTOCHAN(nickname, channelname) (": 404 " + nickname + " " + channelname + " :Cannot send to channel" + BREAK)
 
 enum messageCode {
 	RPL_WELCOME = 1,
+	RPL_AWAY = 301,
 	RPL_CHANNELMODEIS = 324,
 	RPL_CREATIONTIME = 329,
 	RPL_TOPIC = 332,

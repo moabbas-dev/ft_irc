@@ -6,7 +6,7 @@
 /*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:48:58 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/08 22:15:33 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/08 23:05:26 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ bool Errors::checkPRIVMSG(Cmd &cmd, Client &client, Server &server)
         {
             messageArgs[0] = client.getUsername();
             messageArgs[1] = cmd.getParams()[0];
-            return (Server::sendError(messageArgs, client.getFd(), ERR_NOSUCHCHANNEL), false);
+            return (Server::sendError(messageArgs, client.getFd(), ERR_NOSUCHNICK), false);
         }
     }
     if (cmd.getParams()[1].empty())
@@ -54,9 +54,37 @@ bool Errors::checkPRIVMSG(Cmd &cmd, Client &client, Server &server)
 
 void Cmd::PRIVMSG(const Cmd &cmd, Server &server, Client &client)
 {
-    std::cout << "Executing PRIVMSG command\n";
-    (void)cmd;
-    (void)server;
-    (void)client;
-    // @mabbas && @jfatfat > here we can  implement PRIVMSG
+    std::string messageArgs[] = {client.getNickname(), "", ""};
+    bool isAchannel = cmd.getParams()[0][0] == '#';
+
+    if (isAchannel)
+    {
+        Channel *channel = server.getSpecifiedChannel(cmd.getParams()[0]);
+        if (!channel)
+        {
+            messageArgs[0] = client.getUsername();
+            messageArgs[1] = cmd.getParams()[0];
+            Server::sendError(messageArgs, client.getFd(), ERR_NOSUCHCHANNEL);
+            return ;
+        }
+        std::string msg = ":" + client.getNickname() + "!" +
+            client.getUsername() + "@" + client.getHostName() + " PRIVMSG " +
+                channel->getName() + " :" + cmd.getParams()[1] + "\r\n";
+        channel->broadcastMessage(msg, client.getFd());
+    }
+    else
+    {
+        Client *clt = server.getSpecifiedClient(cmd.getParams()[0]);
+        if (!clt)
+        {
+            messageArgs[0] = client.getUsername();
+            messageArgs[1] = cmd.getParams()[0];
+            Server::sendError(messageArgs, client.getFd(), ERR_NOSUCHNICK);
+            return ;
+        }
+        std::string msg = ":" + client.getNickname() + "!" +
+            client.getUsername() + "@" + client.getHostName() + " PRIVMSG " +
+                clt->getNickname() + " :" + cmd.getParams()[1] + "\r\n";
+        send(clt->getFd(), msg.c_str(), msg.size(), 0);
+    }
 }
