@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 19:06:01 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/08 10:10:56 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/08 15:38:34 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,10 +29,13 @@ bool Errors::checkINVITE(Cmd &cmd, Client &client, Server &server)
 	}
 	if (!client.isInsideTheChannel(cmd.getParams()[1]))
 		return (Server::sendError(messageArgs, client.getFd(), ERR_NOTONCHANNEL), false);
+	messageArgs[0] = client.getNickname();
 	if (!client.isOperatorInChannel(cmd.getParams()[1], server))
 		return (Server::sendError(messageArgs, client.getFd(), ERR_CHANOPRIVSNEEDED), false);
+	messageArgs[0] = client.getUsername();
 	if (!server.clientIsInServer(cmd.getParams()[0]))
 	{
+		messageArgs[0] = cmd.getParams()[1];
 		messageArgs[1] = cmd.getParams()[0];
 		return (Server::sendError(messageArgs, client.getFd(), ERR_NOSUCHNICK), false);
 	}

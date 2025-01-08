@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 16:45:21 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/08 00:01:56 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/08 13:01:22 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,12 +20,12 @@ std::map<int, std::string> Errors::errors;
 
 bool Errors::commandFound(const std::string &command)
 {
-	return command == "PASS" || command == "JOIN"
-		|| command == "NICK" || command == "PART"
-		|| command == "PING" || command == "PRIVMSG"
-		|| command == "USER" || command == "MODE"
-		|| command == "QUIT" || command == "TOPIC"
-		|| command == "INVITE";
+	return command == "PASS"   || command == "JOIN"
+		|| command == "NICK"   || command == "PART"
+		|| command == "PING"   || command == "PRIVMSG"
+		|| command == "USER"   || command == "MODE"
+		|| command == "QUIT"   || command == "TOPIC"
+		|| command == "INVITE" || command == "KICK";
 }
 
 bool Errors::validParameters(Cmd &cmd, Client &client, Server &server)
@@ -53,7 +53,7 @@ bool Errors::validParameters(Cmd &cmd, Client &client, Server &server)
 		return checkUSER(cmd, client);
 
 	else if (command == "KICK")
-		return checkKICK(cmd, client);
+		return checkKICK(cmd, client, server);
 
 	else if (command == "INVITE")
 		return checkINVITE(cmd, client, server);

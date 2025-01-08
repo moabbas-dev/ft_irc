@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:11:08 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/08 11:11:11 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/08 13:06:59 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,8 +112,8 @@ std::list<Cmd> Parser::splitCommands(std::string input, Client& client, Server &
         Cmd parsedCommand = parseCommand(command);
         if (!Errors::commandFound(parsedCommand.getName())) {
             start = end + 1;
-            if (!parsedCommand.getName().empty() && (trimString(command)=="CAP LS 302" || trimString(command) == "WHO" || trimString(command) == "CAP LS")) {
-                std::string messageArgs[] = {client.getNickname(), trimString(command)};
+            if (parsedCommand.getName().empty() ||(parsedCommand.getName() != "WHO" && parsedCommand.getName() != "CAP")) {
+                std::string messageArgs[] = {client.getNickname(), parsedCommand.getName()};
                 Server::sendError(messageArgs, client.getFd(), ERR_UNKNOWCOMMAND);
             }
             continue;

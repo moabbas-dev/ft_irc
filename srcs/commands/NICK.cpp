@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:50:34 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/07 17:45:19 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/08 15:27:28 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,8 +68,9 @@ void Cmd::NICK(const Cmd& cmd, Server& server, Client& client) {
         std::string oldNickname = client.getNickname().empty()? client.getoriginalhostname() : client.getNickname();
         client.setNickname(cmd.getParams()[0]);
         oss << oldNickname << " changed his nickname to: " << client.getNickname() << ".";
-		std::string mesgArgs[] = {oldNickname, cmd.getParams()[0]};
-		Server::sendReply(mesgArgs, client.getFd(), RPL_NICKCHANGE);
+		std::string message = RPL_NICKCHANGE(oldNickname, cmd.getParams()[0]);
+		for (size_t i = 0;i < client.getChannels().size(); i++)
+			client.getChannels()[i].broadcastMessage(message, -1);
     }
     Server::printResponse(oss.str() , BLUE);
     client.setHasSetNickName(true);

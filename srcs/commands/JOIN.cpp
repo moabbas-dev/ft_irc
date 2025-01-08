@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:46:43 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/08 10:57:41 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/08 11:37:07 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,7 +123,11 @@ void Cmd::JOIN(const Cmd& cmd, Server& server, Client& client) {
         if (channel_it != server_channels.end()) {
             Channel& server_channel = channel_it->second;
             std::cout <<  "Client channels: " << client.getChannels().size() << "\n";
-            if (server_channel.IsInviteOnly()) {
+            if (joinedTooManyChannels(client)) {
+                std::string messageArgs[] = {client.getNickname(), channel_name};
+                Server::sendError(messageArgs, client.getFd(), ERR_TOOMANYCHANNELS);
+                continue;
+            } else if (server_channel.IsInviteOnly()) {
                 if (client.isInvitedTochannel(server_channel)) {
                     if (alreadyInchannel(client_channels, server_channel)) {
                         std::string messageArgs[] = {client.getNickname(), channel_name};

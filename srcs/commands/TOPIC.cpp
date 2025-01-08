@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 19:06:04 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/07 16:51:53 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/08 15:20:29 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,13 +46,14 @@ bool Errors::checkTOPIC(Cmd &cmd, Server& server, Client &client)
 void Cmd::TOPIC(const Cmd& cmd, Server& server, Client& client) {
 
 	std::string channel_name = cmd.getParams()[0];
-	std::string messageArgs[] = {client.getNickname(), channel_name, "", ""};
+	std::string messageArgs[] = {client.getNickname(), channel_name, ""};
 	std::map<std::string, Channel>::iterator it = server.getChannels().find(channel_name);
 	Channel& channel = it->second;
 
 	if (cmd.getParams().size() == 1) {
 		if (channel.getTopic().empty())
 			return (Server::sendReply(messageArgs, client.getFd(), RPL_NOTOPIC), (void)0);
+		messageArgs[1] = channel_name;
 		messageArgs[2] = channel.getTopic();
 		Server::sendReply(messageArgs, client.getFd(), RPL_TOPIC);
 		messageArgs[2] = channel.getTopicModifier();
@@ -70,10 +71,11 @@ void Cmd::TOPIC(const Cmd& cmd, Server& server, Client& client) {
 		channel.setTopic("");
 		channel.setTopicModifier(client.getNickname());
 		channel.setTopicTime(std::time(NULL));
-		messageArgs[2] = channel.getTopic();
-		Server::sendReply(messageArgs, client.getFd(), RPL_TOPIC);
-		messageArgs[0] = channel_name;
-		return (Server::sendReply(messageArgs, client.getFd(), RPL_NOTOPIC), (void)0);
+		std::string msg = RPL_NOTOPIC(client.getNickname(), channel_name);
+		channel.broadcastMessage(msg, -1);
+		msg = RPL_TOPICIS(client.getNickname(), channel_name, "");
+		channel.broadcastMessage(msg, -1);
+		return ;
 	}
 	if (channel.getTopic() == topic)
 		return ;

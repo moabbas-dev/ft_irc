@@ -29,6 +29,9 @@ private:
     // temporary channels that are syntaxly true but we dont know if are exists or not
     std::vector<Channel> tmp_channels;
 
+    // temporary clients names that are syntaxly true and exists in the server
+    std::vector<std::string> tmp_kick_users;
+
     //store the commands for each client here (valid commands only) to execute them
     std::list<Cmd> commands; 
 
@@ -54,6 +57,8 @@ public:
     std::list<Cmd> getCommands() const;
     std::vector<Channel>& getChannels() ;
     std::vector<Channel> getTempChannels() const;
+    std::vector<std::string> getTempKickUsers() const;
+    void clearTempKickUsers();
     std::map<std::string, bool> &getInvitationsBox();
 
     // Setters
@@ -70,7 +75,7 @@ public:
     void setHasSetUser(bool hasSetUser);
     void setChannels(std::vector<Channel> channels);
     void setTempChannels(std::vector<Channel> tmp_channels);
-
+    void  setTempKickUsers(std::vector<std::string> tmp_kick_users);
     // Other
     bool isOperator(Channel& channel) const;
     void clearTempChannels() ;
