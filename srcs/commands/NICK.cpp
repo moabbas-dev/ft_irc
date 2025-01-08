@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:50:34 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/08 15:27:28 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/08 18:57:31 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ void Cmd::NICK(const Cmd& cmd, Server& server, Client& client) {
     (void)server;
     
     std::ostringstream oss;
-    if (!client.getHasSetNickName()) {
+    if (client.getNickname().empty()) {
         client.setNickname(cmd.getParams()[0]);
         oss << client.getHostName() << "<" << client.getFd()
             << "> has set his Nickname to: "<< client.getNickname() << ".";
@@ -69,8 +69,11 @@ void Cmd::NICK(const Cmd& cmd, Server& server, Client& client) {
         client.setNickname(cmd.getParams()[0]);
         oss << oldNickname << " changed his nickname to: " << client.getNickname() << ".";
 		std::string message = RPL_NICKCHANGE(oldNickname, cmd.getParams()[0]);
-		for (size_t i = 0;i < client.getChannels().size(); i++)
-			client.getChannels()[i].broadcastMessage(message, -1);
+		send(client.getFd(), message.c_str(), message.size(), 0);
+		std::vector<Channel>& client_channels = client.getChannels();
+		for (size_t i = 0;i < client_channels.size(); i++) {
+			client_channels[i].broadcastMessage(message, client.getFd());
+		}
     }
     Server::printResponse(oss.str() , BLUE);
     client.setHasSetNickName(true);

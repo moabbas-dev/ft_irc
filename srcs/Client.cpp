@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 12:53:55 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/08 14:38:45 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/08 20:09:30 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,34 @@ std::map<std::string, bool> &Client::getInvitationsBox()
 {
     return invitationsBox;
 }
+
+Channel *Client::getSpecifiedChannel(const std::string &channelName)
+{
+    std::cout << "TTTT: " << channels.size() <<"\n";
+    if (channels.empty())
+        return NULL;
+    for (std::vector<Channel>::iterator it = channels.begin(); it != channels.end(); ++it)
+    {
+        if ((*it).getName() == channelName)
+            return &(*it);
+    }
+    return NULL;
+}
+
+
+void Client::setSpecifiedChannel(Channel& channel) {
+    Channel* old_Channel = getSpecifiedChannel(channel.getName());
+    if (!old_Channel)
+        return ;
+    for (size_t i = 0;i < channels.size(); i++) {
+        if (channels[i].getName() == old_Channel->getName()) {
+            channels.erase(channels.begin() + i);
+            channels.push_back(channel);
+        }
+    }
+    
+}
+
 
 // Setters
 void Client::setFd(int fd) {

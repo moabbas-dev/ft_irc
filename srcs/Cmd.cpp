@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:11:08 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/08 13:06:59 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/08 20:16:52 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,19 +63,6 @@ const std::vector<std::string>& Cmd::getParams() const
 
 void Cmd::execute(Server& server ,Client& client) const
 {
-    // std::cout << "New command: " << _cmdName << std::endl;
-    // if(!_cmdParams.empty())
-    // {
-    //     std::cout << "Parameters: ";
-    //     for(size_t i = 0; i < _cmdParams.size(); ++i)
-    //     {
-    //         std::cout << _cmdParams[i];
-    //         if(i < _cmdParams.size() - 1)
-    //             std::cout << ", ";
-    //     }
-    //     std::cout << std::endl;
-    // }
-
     std::map<std::string ,CommandCallback>::const_iterator it = _commands.find(_cmdName);
     if(it != _commands.end())
         it->second(*this ,server ,client);

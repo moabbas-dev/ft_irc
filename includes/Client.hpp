@@ -60,6 +60,7 @@ public:
     std::vector<std::string> getTempKickUsers() const;
     void clearTempKickUsers();
     std::map<std::string, bool> &getInvitationsBox();
+    Channel *getSpecifiedChannel(const std::string &channelName);
 
     // Setters
     void setFd(int fd);
@@ -76,6 +77,7 @@ public:
     void setChannels(std::vector<Channel> channels);
     void setTempChannels(std::vector<Channel> tmp_channels);
     void  setTempKickUsers(std::vector<std::string> tmp_kick_users);
+    void setSpecifiedChannel(Channel& channel);
     // Other
     bool isOperator(Channel& channel) const;
     void clearTempChannels() ;

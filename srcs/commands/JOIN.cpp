@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:46:43 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/08 11:37:07 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/08 20:22:38 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,6 +109,21 @@ bool joinedTooManyChannels(Client &client) {
     return client.getChannels().size() == 3;
 }
 
+void update_otherClientChannels(Channel & channel, Client& client) {
+    std::vector<Client> &oldClients = channel.getClients();
+    for (size_t i = 0;i < oldClients.size();i++) {
+        if (oldClients[i].getFd() == client.getFd())
+            continue;
+        // std::cout << "MMMMMM: " << oldClients[i].getNickname() << "\n";
+        Channel* oldClientChannel =  oldClients[i].getSpecifiedChannel(channel.getName());
+        if (!oldClientChannel)
+            continue;
+        std::cout << "MMMMMM: " << oldClients[i].getNickname() << "\n";
+        oldClientChannel->addClient(client);
+        oldClients[i].setSpecifiedChannel(*oldClientChannel);
+    }
+}
+
 void Cmd::JOIN(const Cmd& cmd, Server& server, Client& client) {
     (void)cmd;
     std::vector<Channel> tmp_channels = client.getTempChannels();
@@ -168,6 +183,7 @@ void Cmd::JOIN(const Cmd& cmd, Server& server, Client& client) {
             }
             server_channel.addClient(client);
             client_channels.push_back(server_channel);
+            update_otherClientChannels(server_channel, client);
             std::string message = (client.getHasSetNickName()?client.getNickname() : client.getHostName()) + " has joined channel " + channel_name + ".";
             Server::printResponse(message, BLUE);
             std::string messageArgs[] = {client.getHostName(),client.getIPadd(),server_channel.getName(), client.getNickname(), server_channel.clientslist()};
@@ -187,7 +203,7 @@ void Cmd::JOIN(const Cmd& cmd, Server& server, Client& client) {
             new_channel.addClient(client);
             new_channel.addOperator(client.getFd());
             server_channels[channel_name] = new_channel;
-            client_channels.push_back(new_channel);
+            client_channels.push_back(server_channels[channel_name]);
             std::string message = client.getNickname() + " has created channel " + channel_name  + (new_channel.hasKey()? " with key=" + new_channel.getChannelKey() : "") + ".";
             Server::printResponse(message, GREEN);
             std::string messageArgs[] = {client.getHostName(),client.getIPadd(),channel_name, client.getNickname(), new_channel.clientslist()};
