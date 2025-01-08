@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   KICK.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: afarachi <afarachi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 19:05:51 by moabbas           #+#    #+#             */
 /*   Updated: 2025/01/08 14:46:59 by moabbas          ###   ########.fr       */
@@ -73,3 +73,6 @@ void Cmd::KICK(const Cmd& cmd, Server& server, Client& client) {
 		server.deleteChannel(channel_name);
 	client.clearTempKickUsers();
 }
+
+
+
