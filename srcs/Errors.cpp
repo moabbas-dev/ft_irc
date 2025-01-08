@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Errors.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
+/*   By: afarachi <afarachi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 16:45:21 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/07 15:53:53 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/08 02:10:08 by afarachi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ bool Errors::validParameters(Cmd &cmd, Client &client, Server &server)
 		return checkUSER(cmd, client);
 
 	else if (command == "KICK")
-		return checkKICK(cmd, client);
+		return checkKICK(cmd, client, server);
 
 	else if (command == "INVITE")
 		return checkINVITE(cmd, client, server);
