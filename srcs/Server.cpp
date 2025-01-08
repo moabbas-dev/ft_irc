@@ -20,6 +20,11 @@ const std::map<int, Client> &Server::getClients() const
     return this->clients;
 }
 
+std::map<int, Client> &Server::getClients() 
+{
+    return this->clients;
+}
+
 std::string Server::getPassword() const {
     return password;
 }

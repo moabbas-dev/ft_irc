@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:50:34 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/08 18:57:31 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/08 21:43:02 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,20 @@ bool Errors::checkNICK(Cmd &cmd, Client &client, Server &server)
 	return true;
 }
 
+void updateOldNickInChannels(Client& client,Server& server) {
+	(void)server;
+	std::vector<Channel> &client_channels = client.getChannels();
+	for (int i = 0;i < (int)client_channels.size();i++) {
+		std::vector<Client> &channel_clients = client_channels[i].getClients();
+		for (size_t j = 0;j < channel_clients.size();j++) {
+			if (channel_clients[i].getFd() == client.getFd()) {
+				std::cout<<"TTTTT\n";
+				channel_clients[i].setNickname(client.getNickname());
+			}
+		}
+	}
+}
+
 void Cmd::NICK(const Cmd& cmd, Server& server, Client& client) {
     (void)server;
     
@@ -67,6 +81,7 @@ void Cmd::NICK(const Cmd& cmd, Server& server, Client& client) {
     else {
         std::string oldNickname = client.getNickname().empty()? client.getoriginalhostname() : client.getNickname();
         client.setNickname(cmd.getParams()[0]);
+		// updateOldNickInChannels(client, server);
         oss << oldNickname << " changed his nickname to: " << client.getNickname() << ".";
 		std::string message = RPL_NICKCHANGE(oldNickname, cmd.getParams()[0]);
 		send(client.getFd(), message.c_str(), message.size(), 0);
