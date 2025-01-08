@@ -29,6 +29,8 @@ private:
     bool topicRestricted;
     bool _hasKey;
     bool hasUserLimit;
+    std::time_t topicTime;
+    std::string topic_modifier;
 
 public:
     Channel(std::string name, std::string key);
@@ -50,6 +52,8 @@ public:
     std::time_t getCreationTime() const;
     std::map<char, bool> &getMode();
     std::vector<Client> &getClients();
+    std::time_t getTopicTime();
+    std::string getTopicModifier();
 
     // setters
     void setTopic(const std::string& topic);
@@ -58,7 +62,8 @@ public:
     void setTopicRestricted(bool topicRestricted);
     void setUserLimit(int userLimit);
     void setHasUserLimit(bool hasUserLimit);
-
+    void setTopicTime(std::time_t topicTime);
+    void setTopicModifier(std::string name);
 
     // client's methods
     bool addClient(Client& client, const std::string& key = "");
@@ -75,8 +80,11 @@ public:
     void broadcastMessage(const std::string& message, int senderFd) const;
     bool hasKey() const;
     void setHasKey(bool hasKey);
+    bool hasTopicRestricions();
     std::string clientslist();
+    bool IsInviteOnly();
     bool clientIsInChannel(const std::string &nickname);
+    int getClientsNumber();
 };
 
 #endif

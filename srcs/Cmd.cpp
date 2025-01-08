@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:11:08 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/05 19:03:54 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/07 01:05:32 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,7 +138,7 @@ Cmd Parser::parseCommand(std::string clientBuffer) {
         if(!command.empty() && command[command.size() - 1] == '\r')
             command.erase(command.size() - 1);
         std::string trimmed = trimString(command);
-        if(trimmed.empty() || trimmed == "CAP LS")
+        if(trimmed.empty() || trimmed == "CAP LS 302")
             continue;
         size_t firstSpace = trimmed.find(' ');
         commandName = trimmed.substr(0 ,firstSpace);
@@ -159,7 +159,9 @@ Cmd Parser::parseCommand(std::string clientBuffer) {
             }
             if(startIdx < rest.size()) {
                 std::string lastParam = rest.substr(startIdx);
-                if(!lastParam.empty() && lastParam[0] == ':')
+                if (lastParam.size() == 2 && lastParam == "::")
+                    params.push_back("");
+                else if(!lastParam.empty() && lastParam[0] == ':')
                     params.push_back(lastParam.substr(1));
                 else
                     params.push_back(lastParam);

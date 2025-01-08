@@ -6,14 +6,14 @@
 /*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 12:53:55 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/06 16:28:42 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/07 23:36:42 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Client.hpp"
 
 Client::Client() : fd(-1), isAuthenticated(false), hasSetPassword(false),
-    hasSetNickName(false), hasSetUser(false) { }
+    hasSetNickName(false), hasSetUser(false), tmp_channels(std::vector<Channel>()) { }
 
 Client::~Client() {
     
@@ -74,6 +74,11 @@ bool Client::getHasSetUser() const
 
 std::vector<Channel>& Client::getChannels() {
     return channels;
+}
+
+std::map<std::string, bool> &Client::getInvitationsBox()
+{
+    return invitationsBox;
 }
 
 // Setters
@@ -157,6 +162,15 @@ bool Client::isInsideTheChannel(const std::string &channelName)
 	return false;
 }
 
+void Client::removeChannel(Channel& channel) {
+    for (size_t i = 0;i < channels.size();i++) {
+        if (channels[i].getName() == channel.getName()) {
+            channels.erase(channels.begin() + i);
+            break ;
+        }
+    }
+}
+
 bool Client::isOperatorInChannel(const std::string &channelName, Server &server)
 {
     std::map<std::string, Channel> &serverChannels = server.getChannels();
@@ -178,4 +192,23 @@ bool Client::isOperatorInChannel(const std::string &channelName, Server &server)
         }
     }
     return false;
+}
+
+void Client::addInvitationToChannel(const std::string &channelName)
+{
+    invitationsBox[channelName] = true;
+}
+
+void Client::removeChannelInvitation(const std::string &channelName)
+{
+    std::map<std::string, bool>::iterator it = invitationsBox.begin();
+    while (it != invitationsBox.end())
+    {
+        if (it->first == channelName)
+        {
+            invitationsBox.erase(it);
+            break;
+        }
+        ++it;
+    }
 }
