@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Replies.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
+/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 14:33:45 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/07 18:12:13 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/08 10:32:56 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@
 
 #define ERR_NOSUCHNICK(channelname, name) (": 401 " + channelname + " " + name + " :No such nick/channel" + BREAK )
 #define ERR_NOSUCHCHANNEL(nickname, channelname) (": 403 " + nickname + " " + channelname + " :No such channel" + BREAK)
+#define ERR_TOOMANYCHANNELS(nickname, channelname) (": 405 " + nickname + " " + channelname + " :You have joined too many channels" + BREAK)
 #define ERR_CMDNOTFOUND(nickname, command) (": 421 " + nickname + " " + command + " :Unknown command" + BREAK)
 #define ERR_NONICKNAMEGIVEN(nickname) (": 431 " + nickname + " :No nickname given" + BREAK )
 #define ERR_ERRONEUSNICK(nickname) (": 432 " + nickname + " :Erroneus nickname" + BREAK)
@@ -47,7 +48,7 @@
 #define ERR_KEYSET(channelname) ": 467 " + channelname + " Channel key already set. " + BREAK
 #define ERR_CHANNELISFULL(nickname, channelname) (": 471 " + nickname + " " + channelname + " :Cannot join channel (+l)" + BREAK)
 #define ERR_UNKNOWNMODE(nickname, channelname, mode) ": 472 " + nickname + " " + channelname + " " + mode + " :is not a recognised channel mode" + BREAK
-#define ERR_INVITEONLYCHAN(nickname, channelname) (": 473 " + nickname + " " + channelname + " :Cannot join channel (+i)" + BREAK)
+#define ERR_INVITEONLYCHAN(nickname, channelname) (":localhost 473 " + nickname + " " + channelname + " :Cannot join channel (+i)" + BREAK)
 #define ERR_BADCHANNELKEY(nickname, channelname) (": 475 " + nickname + " " + channelname + " :Bad channel key" + BREAK)
 #define ERR_BADCHANNELMASK(nickname, channelname) (": 476 " + nickname + " " + channelname + " :Invalid channel name" + BREAK)
 #define ERR_NOTOPERATOR(channelname) (": 482 " + channelname + " :You're not a channel operator" + BREAK)
@@ -74,6 +75,7 @@ enum messageCode {
  
 	ERR_NOSUCHNICK = 401,
 	ERR_NOSUCHCHANNEL = 403,
+	ERR_TOOMANYCHANNELS = 405,
 	ERR_UNKNOWCOMMAND = 421,
 	ERR_NONICKNAMEGIVEN = 431,
 	ERR_ERRONEUSNICK = 432,

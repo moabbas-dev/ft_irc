@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:11:08 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/07 01:05:32 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/08 11:11:11 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,7 +112,7 @@ std::list<Cmd> Parser::splitCommands(std::string input, Client& client, Server &
         Cmd parsedCommand = parseCommand(command);
         if (!Errors::commandFound(parsedCommand.getName())) {
             start = end + 1;
-            if (!parsedCommand.getName().empty() && trimString(command).compare("CAP LS 302")) {
+            if (!parsedCommand.getName().empty() && (trimString(command)=="CAP LS 302" || trimString(command) == "WHO" || trimString(command) == "CAP LS")) {
                 std::string messageArgs[] = {client.getNickname(), trimString(command)};
                 Server::sendError(messageArgs, client.getFd(), ERR_UNKNOWCOMMAND);
             }
@@ -138,7 +138,7 @@ Cmd Parser::parseCommand(std::string clientBuffer) {
         if(!command.empty() && command[command.size() - 1] == '\r')
             command.erase(command.size() - 1);
         std::string trimmed = trimString(command);
-        if(trimmed.empty() || trimmed == "CAP LS 302")
+        if(trimmed.empty() || trimmed == "CAP LS 302" || trimmed == "CAP LS")
             continue;
         size_t firstSpace = trimmed.find(' ');
         commandName = trimmed.substr(0 ,firstSpace);

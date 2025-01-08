@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   INVITE.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
+/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 19:06:01 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/07 20:57:19 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/08 10:10:56 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,6 @@
 
 bool Errors::checkINVITE(Cmd &cmd, Client &client, Server &server)
 {
-	// (void)cmd;
-	// (void)client;
 	std::string messageArgs[] = {client.getNickname(), "", ""};
 	
 	if (!client.getIsAuthenticated())
@@ -58,9 +56,6 @@ bool Errors::checkINVITE(Cmd &cmd, Client &client, Server &server)
 }
 
 void Cmd::INVITE(const Cmd& cmd, Server& server, Client& client) {
-	// (void)cmd;
-	// (void)server;
-	// (void)client;
 	Client *clt = server.getSpecifiedClient(cmd.getParams()[0]);
 	if (!clt)
 	{
@@ -69,15 +64,9 @@ void Cmd::INVITE(const Cmd& cmd, Server& server, Client& client) {
 		return ;
 	}
 	
-	std::string messageArgs[] = {"", "", ""};
-	messageArgs[0] = client.getNickname();
-	messageArgs[1] = clt->getNickname();
-	messageArgs[2] = cmd.getParams()[1];
+	std::string messageArgs[] = {client.getNickname(), clt->getNickname(), cmd.getParams()[1]};
 	Server::sendReply(messageArgs, client.getFd(), RPL_INVITING);
-
 	clt->addInvitationToChannel(cmd.getParams()[1]);
-	
-	std::string cltMsg = ":" + clt->getHostName() + " INVITE " + clt->getNickname() + " " + cmd.getParams()[1] + "\r\n";
+	std::string cltMsg = ":" + client.getHostName() + " INVITE " + clt->getNickname() + " " + cmd.getParams()[1] + "\r\n";
 	send(clt->getFd(), cltMsg.c_str(), cltMsg.size(), 0);
-	// TODO: Implement INVITE command
 }

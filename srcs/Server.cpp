@@ -438,6 +438,12 @@ void Server::sendError(std::string mesgArgs[], int fd, messageCode messageCode) 
     case ERR_CHANNELISFULL:
         result << ERR_CHANNELISFULL(mesgArgs[0], mesgArgs[1]);
         break;
+    case ERR_INVITEONLYCHAN:
+        result << ERR_INVITEONLYCHAN(mesgArgs[0], mesgArgs[1]);
+        break;
+    case ERR_TOOMANYCHANNELS:
+        result << ERR_TOOMANYCHANNELS(mesgArgs[0], mesgArgs[1]);
+        break;
     default:
         break;
     }
