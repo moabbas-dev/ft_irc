@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:46:43 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/07 23:04:57 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/08 11:37:07 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,11 +98,15 @@ bool alreadyInchannel (const std::vector<Channel>& client_channels, const Channe
     std::vector<Channel>::const_iterator it = client_channels.begin();
     while (it != client_channels.end())
     {
-        if (*it == channel)
+        if ((*it).getName() == channel.getName())
             return true;
         ++it;
     }
     return false;
+}
+
+bool joinedTooManyChannels(Client &client) {
+    return client.getChannels().size() == 3;
 }
 
 void Cmd::JOIN(const Cmd& cmd, Server& server, Client& client) {
@@ -118,32 +122,44 @@ void Cmd::JOIN(const Cmd& cmd, Server& server, Client& client) {
         std::map<std::string, Channel>::iterator channel_it = server_channels.find(channel_name);
         if (channel_it != server_channels.end()) {
             Channel& server_channel = channel_it->second;
-            std::cout <<  "User limit: " << server_channel.getUserLimit() << "\n";
-            if (server_channel.IsInviteOnly()) {
-                // this code will use it so don't remove :)
-                // if (client.isInvitedToChannel(server_channel.getName())) {
-                //     if (alreadyInchannel(client_channels, server_channel)) {
-                //         std::string messageArgs[] = {client.getNickname(), channel_name};
-                //         Server::sendError(messageArgs, client.getFd(), ERR_USERONCHANNEL);
-                //         continue;
-                //     } else if (server_channel.getHasUserLimit() && server_channel.getClients().size() == (size_t)server_channel.getUserLimit()) {
-                //         std::string messageArgs[] = {client.getNickname(), channel_name};
-                //         Server::sendError(messageArgs, client.getFd(), ERR_CHANNELISFULL);
-                //         continue;
-                //     }
-                // } else {
-                //     std::string messageArgs[] = {client.getNickname(), channel_name};
-                //     Server::sendError(messageArgs, client.getFd(), ERR_INVITEONLYCHAN);
-                //     continue;
-                // }
-            }
-            else if (server_channel.hasKey() && server_channel.getChannelKey() != channel_key) {
+            std::cout <<  "Client channels: " << client.getChannels().size() << "\n";
+            if (joinedTooManyChannels(client)) {
                 std::string messageArgs[] = {client.getNickname(), channel_name};
-                Server::sendError(messageArgs, client.getFd(), ERR_BADCHANNELKEY);
+                Server::sendError(messageArgs, client.getFd(), ERR_TOOMANYCHANNELS);
                 continue;
-            } else if (alreadyInchannel(client_channels, server_channel)) {
+            } else if (server_channel.IsInviteOnly()) {
+                if (client.isInvitedTochannel(server_channel)) {
+                    if (alreadyInchannel(client_channels, server_channel)) {
+                        std::string messageArgs[] = {client.getNickname(), channel_name};
+                        Server::sendError(messageArgs, client.getFd(), ERR_USERONCHANNEL);
+                        continue;
+                    } else if (server_channel.getHasUserLimit() && server_channel.getClients().size() == (size_t)server_channel.getUserLimit()) {
+                        std::string messageArgs[] = {client.getNickname(), channel_name};
+                        Server::sendError(messageArgs, client.getFd(), ERR_CHANNELISFULL);
+                        continue;
+                    }
+                } else {
+                    std::string messageArgs[] = {client.getNickname(), client.getUsername(), channel_name};
+                    Server::sendError(messageArgs, client.getFd(), ERR_INVITEONLYCHAN);
+                    continue;
+                }
+            } else if (client.isInvitedTochannel(server_channel)) {
+                if (alreadyInchannel(client_channels, server_channel)) {
+                    std::string messageArgs[] = {client.getNickname(), channel_name};
+                    Server::sendError(messageArgs, client.getFd(), ERR_USERONCHANNEL);
+                    continue;
+                } else if (server_channel.getHasUserLimit() && server_channel.getClients().size() == (size_t)server_channel.getUserLimit()) {
+                    std::string messageArgs[] = {client.getNickname(), channel_name};
+                    Server::sendError(messageArgs, client.getFd(), ERR_CHANNELISFULL);
+                    continue;
+                }
+            }else if (alreadyInchannel(client_channels, server_channel)) {
                 std::string messageArgs[] = {client.getNickname(), channel_name};
                 Server::sendError(messageArgs, client.getFd(), ERR_USERONCHANNEL);
+                continue;
+            } else if (server_channel.hasKey() && server_channel.getChannelKey() != channel_key) {
+                std::string messageArgs[] = {client.getNickname(), channel_name};
+                Server::sendError(messageArgs, client.getFd(), ERR_BADCHANNELKEY);
                 continue;
             } else if (server_channel.getHasUserLimit() && server_channel.getClients().size() == (size_t)server_channel.getUserLimit()) {
                 std::string messageArgs[] = {client.getNickname(), channel_name};
@@ -162,6 +178,11 @@ void Cmd::JOIN(const Cmd& cmd, Server& server, Client& client) {
             }
             server_channel.broadcastMessage(RPL_JOINMSG(client.getHostName(), client.getIPadd(),server_channel.getName()), client.getFd());
         } else {
+            if (joinedTooManyChannels(client)) {
+                std::string messageArgs[] = {client.getNickname(), channel_name};
+                Server::sendError(messageArgs, client.getFd(), ERR_TOOMANYCHANNELS);
+                continue;
+            }
             Channel new_channel(channel_name, channel_key);
             new_channel.addClient(client);
             new_channel.addOperator(client.getFd());

@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
+/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 12:53:48 by moabbas           #+#    #+#             */
 /*   Updated: 2025/01/08 15:08:21 by jfatfat          ###   ########.fr       */
