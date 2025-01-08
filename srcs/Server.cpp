@@ -325,6 +325,9 @@ void Server::sendReply(std::string mesgArgs[], int fd, messageCode messageCode) 
     case RPL_KICK:
         result << RPL_KICK(mesgArgs[0], mesgArgs[1], mesgArgs[2], mesgArgs[3], mesgArgs[4]);
         break;
+    case RPL_AWAY:
+        result << RPL_AWAY(mesgArgs[0], mesgArgs[1], mesgArgs[2]);
+        break;
     default:
         break;
     }
