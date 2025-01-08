@@ -161,7 +161,7 @@ void Server::receiveData(int fd) {
     char buffer[1024] = {};
 
     ssize_t bytesRead = read(fd ,buffer ,sizeof(buffer) - 1);
-    // std::cout << buffer;
+    std::cout << buffer;
     std::map<int, Client>::iterator it = clients.find(fd);
     if(bytesRead > 0) {
         if (it != clients.end()) {
@@ -322,6 +322,9 @@ void Server::sendReply(std::string mesgArgs[], int fd, messageCode messageCode) 
     case RPL_INVITING:
         result << RPL_INVITING(mesgArgs[0], mesgArgs[1], mesgArgs[2]);
         break;
+    case RPL_KICK:
+        result << RPL_KICK(mesgArgs[0], mesgArgs[1], mesgArgs[2], mesgArgs[3], mesgArgs[4]);
+        break;
     default:
         break;
     }
@@ -415,7 +418,7 @@ void Server::sendError(std::string mesgArgs[], int fd, messageCode messageCode) 
         result << ERR_UNKNOWNMODE(mesgArgs[0], mesgArgs[1], mesgArgs[2]);
         break;
     case ERR_CHANOPRIVSNEEDED:
-        result << ERR_NOTOPERATOR(mesgArgs[0]);
+        result << ERR_NOTOPERATOR(mesgArgs[0], mesgArgs[1]);
         break;
     case ERR_NEEDMODEPARM:
         result << ERR_NEEDMODEPARM(mesgArgs[0], mesgArgs[1]);
@@ -437,6 +440,15 @@ void Server::sendError(std::string mesgArgs[], int fd, messageCode messageCode) 
         break;
     case ERR_CHANNELISFULL:
         result << ERR_CHANNELISFULL(mesgArgs[0], mesgArgs[1]);
+        break;
+    case ERR_INVITEONLYCHAN:
+        result << ERR_INVITEONLYCHAN(mesgArgs[0], mesgArgs[1]);
+        break;
+    case ERR_TOOMANYCHANNELS:
+        result << ERR_TOOMANYCHANNELS(mesgArgs[0], mesgArgs[1]);
+        break;
+    case ERR_NOTONTHATCHANNEL:
+        result << ERR_NOTONTHATCHANNEL(mesgArgs[0], mesgArgs[1]);
         break;
     default:
         break;
