@@ -352,6 +352,29 @@ bool Server::clientIsInServer(const std::string &nickname)
 	return false;
 }
 
+bool Server::isAChannelName(const std::string &str)
+{
+    std::map<std::string, Channel>::iterator it = channels.begin();
+    while (it != channels.end())
+    {
+        if (it->first == str)
+            return true;
+        ++it;
+    }
+    return false;
+}
+
+bool Server::isAClientName(const std::string &str)
+{
+    std::map<int, Client>::iterator it = clients.begin();
+    while (it != clients.end())
+    {
+        if (it->second.getNickname() == str)
+            return true;
+    }
+    return false;
+}
+
 Channel *Server::getSpecifiedChannel(const std::string &channelName)
 {
     if (channels.empty())
@@ -449,6 +472,12 @@ void Server::sendError(std::string mesgArgs[], int fd, messageCode messageCode) 
         break;
     case ERR_NOTONTHATCHANNEL:
         result << ERR_NOTONTHATCHANNEL(mesgArgs[0], mesgArgs[1]);
+        break;
+    case ERR_NOTEXTTOSEND:
+        result << ERR_NOTEXTTOSEND(mesgArgs[0]);
+        break;
+    case ERR_CANNOTSENDTOCHAN:
+        result << ERR_CANNOTSENDTOCHAN(mesgArgs[0], mesgArgs[1]);
         break;
     default:
         break;

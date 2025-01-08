@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Errors.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 16:38:49 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/08 11:28:18 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/08 21:23:57 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ class Errors {
 		static bool checkNICK(Cmd &cmd, Client &client, Server &server);
 		static bool checkPART(Cmd &cmd, Client &client, Server &server);
 		static bool checkPING(Cmd &cmd, Client &client);
-		static bool checkPRIVMSG(Cmd &cmd, Client &client);
+		static bool checkPRIVMSG(Cmd &cmd, Client &client, Server &server);
 		static bool checkKICK(Cmd &cmd, Client &client, Server &server);
 		// static bool checkINVITE(Cmd &cmd, Client &client);
 		static bool checkTOPIC(Cmd &cmd, Server& server, Client &client);
