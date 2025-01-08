@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Replies.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 14:33:45 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/08 15:37:03 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/08 22:13:52 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,8 @@
 // #define ERR_NOTOPERATOR(channelname) (":localhost 482 " + channelname + " :You're not a channel operator" + BREAK)
 #define ERR_NEEDMODEPARM(channelname, mode) (": 696 " + channelname + " * You must specify a parameter for the key mode. " + mode + BREAK)
 #define ERR_INVALIDMODEPARM(channelname, mode) ": 696 " + channelname + " Invalid mode parameter. " + mode + BREAK
+#define ERR_NOTEXTTOSEND(nickname) ": 412 " + nickname + " :No text to send" + BREAK
+#define ERR_CANNOTSENDTOCHAN(nickname, channelname) ": 404 " + nickname + " " + channelname + " :Cannot send to channel" + BREAK
 
 enum messageCode {
 	RPL_WELCOME = 1,
@@ -79,7 +81,9 @@ enum messageCode {
  
 	ERR_NOSUCHNICK = 401,
 	ERR_NOSUCHCHANNEL = 403,
+	ERR_CANNOTSENDTOCHAN = 404,
 	ERR_TOOMANYCHANNELS = 405,
+	ERR_NOTEXTTOSEND = 412,
 	ERR_UNKNOWCOMMAND = 421,
 	ERR_NONICKNAMEGIVEN = 431,
 	ERR_ERRONEUSNICK = 432,
