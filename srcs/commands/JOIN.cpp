@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:46:43 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/08 11:37:07 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/09 21:15:52 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,6 +109,19 @@ bool joinedTooManyChannels(Client &client) {
     return client.getChannels().size() == 3;
 }
 
+void update_otherClientChannels(Channel & channel, Client& client, Server& server) {
+    std::vector<Client> &oldClients = channel.getClients();
+    for (size_t i = 0;i < oldClients.size();i++) {
+        if (oldClients[i].getFd() == client.getFd())
+            continue;
+        std::vector<Channel> channels = oldClients[i].getChannels();
+        std::map<int, Client>& server_clients = server.getClients();
+        channels.push_back(channel);
+        oldClients[i].setChannels(channels);
+        server_clients[oldClients[i].getFd()] = oldClients[i];
+    }
+}
+
 void Cmd::JOIN(const Cmd& cmd, Server& server, Client& client) {
     (void)cmd;
     std::vector<Channel> tmp_channels = client.getTempChannels();
@@ -138,6 +151,7 @@ void Cmd::JOIN(const Cmd& cmd, Server& server, Client& client) {
                         Server::sendError(messageArgs, client.getFd(), ERR_CHANNELISFULL);
                         continue;
                     }
+                    client.removeChannelInvitation(server_channel.getName());
                 } else {
                     std::string messageArgs[] = {client.getNickname(), client.getUsername(), channel_name};
                     Server::sendError(messageArgs, client.getFd(), ERR_INVITEONLYCHAN);
@@ -153,7 +167,8 @@ void Cmd::JOIN(const Cmd& cmd, Server& server, Client& client) {
                     Server::sendError(messageArgs, client.getFd(), ERR_CHANNELISFULL);
                     continue;
                 }
-            }else if (alreadyInchannel(client_channels, server_channel)) {
+                client.removeChannelInvitation(server_channel.getName());
+            } else if (alreadyInchannel(client_channels, server_channel)) {
                 std::string messageArgs[] = {client.getNickname(), channel_name};
                 Server::sendError(messageArgs, client.getFd(), ERR_USERONCHANNEL);
                 continue;
@@ -168,6 +183,7 @@ void Cmd::JOIN(const Cmd& cmd, Server& server, Client& client) {
             }
             server_channel.addClient(client);
             client_channels.push_back(server_channel);
+            update_otherClientChannels(server_channel, client, server);
             std::string message = (client.getHasSetNickName()?client.getNickname() : client.getHostName()) + " has joined channel " + channel_name + ".";
             Server::printResponse(message, BLUE);
             std::string messageArgs[] = {client.getHostName(),client.getIPadd(),server_channel.getName(), client.getNickname(), server_channel.clientslist()};
@@ -187,7 +203,7 @@ void Cmd::JOIN(const Cmd& cmd, Server& server, Client& client) {
             new_channel.addClient(client);
             new_channel.addOperator(client.getFd());
             server_channels[channel_name] = new_channel;
-            client_channels.push_back(new_channel);
+            client_channels.push_back(server_channels[channel_name]);
             std::string message = client.getNickname() + " has created channel " + channel_name  + (new_channel.hasKey()? " with key=" + new_channel.getChannelKey() : "") + ".";
             Server::printResponse(message, GREEN);
             std::string messageArgs[] = {client.getHostName(),client.getIPadd(),channel_name, client.getNickname(), new_channel.clientslist()};

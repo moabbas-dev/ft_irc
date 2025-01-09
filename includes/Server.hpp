@@ -47,6 +47,7 @@ public:
     Server(int port, const std::string& password);
     ~Server();
     const std::map<int, Client> &getClients() const;
+    std::map<int, Client> &getClients() ;
     void serverInit(int port, std::string password);
     void createServerSocket();
     void acceptNewClient();

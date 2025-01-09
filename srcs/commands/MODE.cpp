@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   MODE.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
+/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 19:06:07 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/06 20:33:48 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/09 20:50:14 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,8 +191,8 @@ static void handleMultipleArguments(const Cmd &cmd, Client &client, Channel *cha
 				case 'o':
 					if (!server.clientIsInServer(cmd.getParams()[argsIndex]))
 					{
-						std::string msg = ": 401 " + client.getNickname() + " "
-							+ cmd.getParams()[argsIndex] + " :No such nick\n";
+						std::string msg = ":localhost 401 " + client.getNickname() + " "
+							+ cmd.getParams()[argsIndex] + " :No such nick/channel\r\n";
 						send(client.getFd(), msg.c_str(), msg.size(), 0);
 						++argsIndex;
 						continue;
