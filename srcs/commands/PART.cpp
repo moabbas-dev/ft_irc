@@ -6,12 +6,19 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:48:10 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/07 23:38:54 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/09 21:27:24 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/Cmd.hpp"
 #include "../../includes/Errors.hpp"
+
+std::string getTime(unsigned long long nb)
+{
+	std::ostringstream oss;
+    oss << nb;
+    return oss.str();
+}
 
 bool Errors::checkPART(Cmd &cmd, Client &client, Server &server)
 {
@@ -67,7 +74,28 @@ void Cmd::PART(const Cmd& cmd, Server& server, Client& client) {
             return ;
         }
         Channel& channel = channel_iterator->second;
+        if (channel.isOperator(client.getFd())) {
+            bool hasOtherOperator = false;
+            std::vector<Client>& channel_clients = channel.getClients();
+            for (size_t i = 0;i < channel_clients.size(); i++) {
+                if (client.getFd() == channel_clients[i].getFd())
+                    continue;
+                if (channel.isOperator(channel_clients[i].getFd())) {
+                    hasOtherOperator = true; break;
+                }
+            }
+            if (!hasOtherOperator) {
+                Client& first_client = channel_clients[0].getFd() == client.getFd()? channel_clients[1] : channel_clients[0];
+                channel.addOperator(first_client.getFd());
+                client.removeChannel(channel);
+                std::string msg = RPL_NAMREPLY(first_client.getNickname(), channel.getName(), channel.clientslist());
+                msg += RPL_ENDOFNAMES(first_client.getNickname(), channel.getName());
+                channel.broadcastMessage(msg, -1);
+                std::cout << msg;
+            }
+        }
         channel.removeClient(client.getFd());
+        channel.removeOperator(client.getFd());
         client.removeChannel(channel);
         std::string reason = (cmd.getParams().size() > 1) ? cmd.getParams()[1] : "";
         std::string part_message = ":" + client.getNickname() + "!~" + client.getUsername() + "@localhost" + " PART " + channel_name;

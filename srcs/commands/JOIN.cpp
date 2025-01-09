@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:46:43 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/08 21:41:59 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/09 21:15:52 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,6 +151,7 @@ void Cmd::JOIN(const Cmd& cmd, Server& server, Client& client) {
                         Server::sendError(messageArgs, client.getFd(), ERR_CHANNELISFULL);
                         continue;
                     }
+                    client.removeChannelInvitation(server_channel.getName());
                 } else {
                     std::string messageArgs[] = {client.getNickname(), client.getUsername(), channel_name};
                     Server::sendError(messageArgs, client.getFd(), ERR_INVITEONLYCHAN);
@@ -166,7 +167,8 @@ void Cmd::JOIN(const Cmd& cmd, Server& server, Client& client) {
                     Server::sendError(messageArgs, client.getFd(), ERR_CHANNELISFULL);
                     continue;
                 }
-            }else if (alreadyInchannel(client_channels, server_channel)) {
+                client.removeChannelInvitation(server_channel.getName());
+            } else if (alreadyInchannel(client_channels, server_channel)) {
                 std::string messageArgs[] = {client.getNickname(), channel_name};
                 Server::sendError(messageArgs, client.getFd(), ERR_USERONCHANNEL);
                 continue;
