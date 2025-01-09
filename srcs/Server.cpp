@@ -330,6 +330,9 @@ void Server::sendReply(std::string mesgArgs[], int fd, messageCode messageCode) 
     case RPL_KICK:
         result << RPL_KICK(mesgArgs[0], mesgArgs[1], mesgArgs[2], mesgArgs[3], mesgArgs[4]);
         break;
+    case RPL_AWAY:
+        result << RPL_AWAY(mesgArgs[0], mesgArgs[1], mesgArgs[2]);
+        break;
     default:
         break;
     }
@@ -355,6 +358,29 @@ bool Server::clientIsInServer(const std::string &nickname)
 			return true;
 	}
 	return false;
+}
+
+bool Server::isAChannelName(const std::string &str)
+{
+    std::map<std::string, Channel>::iterator it = channels.begin();
+    while (it != channels.end())
+    {
+        if (it->first == str)
+            return true;
+        ++it;
+    }
+    return false;
+}
+
+bool Server::isAClientName(const std::string &str)
+{
+    std::map<int, Client>::iterator it = clients.begin();
+    while (it != clients.end())
+    {
+        if (it->second.getNickname() == str)
+            return true;
+    }
+    return false;
 }
 
 Channel *Server::getSpecifiedChannel(const std::string &channelName)
@@ -454,6 +480,12 @@ void Server::sendError(std::string mesgArgs[], int fd, messageCode messageCode) 
         break;
     case ERR_NOTONTHATCHANNEL:
         result << ERR_NOTONTHATCHANNEL(mesgArgs[0], mesgArgs[1]);
+        break;
+    case ERR_NOTEXTTOSEND:
+        result << ERR_NOTEXTTOSEND(mesgArgs[0]);
+        break;
+    case ERR_CANNOTSENDTOCHAN:
+        result << ERR_CANNOTSENDTOCHAN(mesgArgs[0], mesgArgs[1]);
         break;
     default:
         break;

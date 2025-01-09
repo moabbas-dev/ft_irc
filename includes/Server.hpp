@@ -64,6 +64,8 @@ public:
     void deleteChannel(const std::string& channel_name);
     bool channelExistInServer(const std::string &channelName);
     bool clientIsInServer(const std::string &nickname);
+    bool isAClientName(const std::string &str);
+    bool isAChannelName(const std::string &str);
     Channel *getSpecifiedChannel(const std::string &channelName);
     Client *getSpecifiedClient(const std::string &nickName);
 

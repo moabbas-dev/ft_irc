@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Errors.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 16:45:21 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/08 13:01:22 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/08 21:24:11 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ bool Errors::validParameters(Cmd &cmd, Client &client, Server &server)
 		return checkPING(cmd, client);
 
 	else if (command == "PRIVMSG")
-		return checkPRIVMSG(cmd, client);
+		return checkPRIVMSG(cmd, client, server);
 
 	else if (command == "USER")
 		return checkUSER(cmd, client);
