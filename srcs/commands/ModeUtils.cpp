@@ -1,4 +1,6 @@
 #include "../../includes/ModeUtils.hpp"
+#include "../../includes/Channel.hpp"
+#include "../../includes/Client.hpp"
 
 std::vector<char> getStringsSymbols(const std::string &modeStr)
 {

@@ -6,7 +6,7 @@
 /*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:10:02 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/05 21:55:05 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/11 15:51:13 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,7 @@
 #include <vector>
 #include <list>
 #include <map>
-#include "Client.hpp"
 #include "Channel.hpp"
-#include "Server.hpp"
 
 #define _USERLEN 10
 
