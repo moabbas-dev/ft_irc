@@ -11,6 +11,8 @@ class Bot : public Client
 	public:
 		Bot();
 		~Bot();
+
+		void connectToServer(Server &server);
 };
 
 #endif
