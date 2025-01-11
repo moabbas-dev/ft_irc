@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   KICK.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: afarachi <afarachi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 19:05:51 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/09 12:18:25 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/11 13:16:40 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ bool Errors::checkKICK(Cmd &cmd, Client &client, Server& server)
 void Cmd::KICK(const Cmd& cmd, Server& server, Client& client) {
 	std::string channel_name = cmd.getParams()[0];
 	std::vector<std::string> tmp_users = client.getTempKickUsers();
-	std::string comment = cmd.getParams().size() >= 3? cmd.getParams()[2] : "Mr. Walid please don't give us zero :)";
+	std::string comment = cmd.getParams().size() >= 3 && !cmd.getParams()[2].empty()? cmd.getParams()[2] : "Mr. Walid please don't give us zero :)";
 
 	Channel& target_channel = server.getChannels().find(channel_name)->second;
 	for (size_t i = 0;i < tmp_users.size();i++) {
