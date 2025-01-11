@@ -56,8 +56,8 @@ public:
     void closeFds();
     void clearClient(int fd);
     void removeClientFromChannels(int fd);
-    void acceptNewBot();
     void run();
+    int getPort() const;
     std::string getPassword() const;
     std::map<std::string, Channel>& getChannels() ;
     void setChannels(std::map<std::string, Channel> channels);

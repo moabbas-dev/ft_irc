@@ -25,6 +25,11 @@ std::map<int, Client> &Server::getClients()
     return this->clients;
 }
 
+int Server::getPort() const
+{
+    return port;
+}
+
 std::string Server::getPassword() const {
     return password;
 }
@@ -212,49 +217,9 @@ void Server::processClientCommands(int fd) {
     }
 }
 
-void Server::acceptNewBot()
-{
-    struct sockaddr_in clientAddr;
-    socklen_t addrlen = sizeof(clientAddr);
-
-    int clientFd = accept(serSocketFd, (struct sockaddr *)&clientAddr, &addrlen);
-    if (clientFd < 0)
-    {
-        perror("accept");
-        std::cerr << "Error: accept client connection failed" << std::endl;
-        return ;
-    }
-    if (fcntl(clientFd, F_SETFL, O_NONBLOCK) == -1)
-    {
-        std::cerr << "Error: failed to set non-blocking mode on client socket" << std::endl;
-        close(clientFd);
-        return ;
-    }
-    std::string ipAddress = std::string(inet_ntoa(clientAddr.sin_addr));
-    std::string hostname = "Unknown";
-    struct hostent *host = gethostbyaddr(&clientAddr.sin_addr, sizeof(clientAddr.sin_addr), AF_INET);
-    if (host && host->h_name)
-        hostname = std::string(host->h_name);
-    Bot bot;
-    bot.setFd(clientFd);
-    bot.setIPadd(std::string(inet_ntoa(clientAddr.sin_addr)));
-    bot.setHostName(hostname);
-    clients.insert(std::pair<int, Client>(clientFd, bot));
-
-    struct pollfd newPoll;
-    newPoll.fd = clientFd;
-    newPoll.events = POLLIN;
-    newPoll.revents = 0;
-    fds.push_back(newPoll);
-
-    std::ostringstream oss;
-    oss << "Marvin bot" << ":" << bot.getIPadd() << "<" << bot.getFd() << ">"
-        << " has connected.";
-    printResponse(oss.str(), GREEN);
-}
-
 void Server::run() {
-    acceptNewBot();
+    Bot bot;
+    bot.connectToServer(*this);
     while(!isSignalReceived) {
         int pollCount = poll(&fds[0] ,fds.size() ,-1);
         if(pollCount == -1) {
