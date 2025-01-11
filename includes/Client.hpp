@@ -5,13 +5,14 @@
 #include <vector>
 #include <list>
 #include <string>
-#include "Cmd.hpp"
-#include "Server.hpp"
+#include <map>
+
 class Cmd;
 class Channel;
 class Server;
+
 class Client {
-private:
+protected:
     int fd;
     std::string IPadd;
     std::string nickname;
@@ -40,7 +41,7 @@ private:
 
 public:
     Client();
-    ~Client();
+    virtual ~Client();
 
     // Getters
     int getFd() const;

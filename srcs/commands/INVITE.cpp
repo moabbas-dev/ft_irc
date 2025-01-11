@@ -6,7 +6,7 @@
 /*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 19:06:01 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/08 21:36:36 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/11 20:43:07 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ bool Errors::checkINVITE(Cmd &cmd, Client &client, Server &server)
 	if (!server.channelExistInServer(cmd.getParams()[1]))
 	{
 		messageArgs[0] = client.getUsername();
-		messageArgs[1] = cmd.getParams()[0];
+		messageArgs[1] = cmd.getParams()[1];
 		return (Server::sendError(messageArgs, client.getFd(), ERR_NOSUCHCHANNEL), false);
 	}
 	if (!client.isInsideTheChannel(cmd.getParams()[1]))

@@ -21,6 +21,7 @@
 #include <netdb.h>
 #include "Replies.hpp"
 #include "Cmd.hpp"
+#include "Bot.hpp"
 
 #define RESET "\033[0m"
 #define BLUE "\033[34m"
@@ -28,7 +29,6 @@
 #define RED "\033[31m"
 
 class Client;
-
 class Channel;
 
 class Server {
@@ -57,6 +57,7 @@ public:
     void clearClient(int fd);
     void removeClientFromChannels(int fd);
     void run();
+    int getPort() const;
     std::string getPassword() const;
     std::map<std::string, Channel>& getChannels() ;
     void setChannels(std::map<std::string, Channel> channels);

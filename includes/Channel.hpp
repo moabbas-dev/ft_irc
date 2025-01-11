@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "Client.hpp"
 #include <sys/socket.h>
 #include <sstream>
 #include <ctime>

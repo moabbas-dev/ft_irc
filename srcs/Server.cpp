@@ -25,6 +25,11 @@ std::map<int, Client> &Server::getClients()
     return this->clients;
 }
 
+int Server::getPort() const
+{
+    return port;
+}
+
 std::string Server::getPassword() const {
     return password;
 }
@@ -213,6 +218,8 @@ void Server::processClientCommands(int fd) {
 }
 
 void Server::run() {
+    Bot bot;
+    bot.connectToServer(*this);
     while(!isSignalReceived) {
         int pollCount = poll(&fds[0] ,fds.size() ,-1);
         if(pollCount == -1) {

@@ -3,14 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 12:53:55 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/09 21:16:16 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/11 15:57:46 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Client.hpp"
+#include "../includes/Cmd.hpp"
+#include "../includes/Channel.hpp"
+#include "../includes/Server.hpp"
 
 Client::Client() : fd(-1), isAuthenticated(false), hasSetPassword(false),
     hasSetNickName(false), hasSetUser(false), tmp_channels(std::vector<Channel>()) { }
