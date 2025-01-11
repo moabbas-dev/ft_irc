@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cmd.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:11:08 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/08 20:16:52 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/11 15:51:42 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 #include <iostream>
 #include "../includes/Cmd.hpp"
 #include "../includes/Errors.hpp"
+#include "../includes/Server.hpp"
+#include "../includes/Client.hpp"
 
 std::map<std::string ,Cmd::CommandCallback> Cmd::_commands;
 

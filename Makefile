@@ -19,6 +19,7 @@ SRCS = 	srcs/Server.cpp		\
 		srcs/Errors.cpp		\
 		srcs/StringUtils.cpp	\
 		srcs/commands/ModeUtils.cpp		\
+		srcs/Bot.cpp				\
 		main.cpp			\
 # SRCS = srcs/main_test.cpp
 
