@@ -30,6 +30,7 @@
 
 class Client;
 class Channel;
+class Bot;
 
 class Server {
 private:
@@ -41,11 +42,13 @@ private:
     std::string password;
     std::map<std::string, Channel> channels;
     std::map<int, std::string> clientBuffers;
+    Bot* marvinBot;
 
 public:
     Server();
     Server(int port, const std::string& password);
     ~Server();
+    Bot* getBot();
     const std::map<int, Client> &getClients() const;
     std::map<int, Client> &getClients() ;
     void serverInit(int port, std::string password);

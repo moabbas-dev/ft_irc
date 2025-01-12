@@ -6,12 +6,24 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:48:58 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/11 16:15:39 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/12 11:46:19 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/Cmd.hpp"
 #include "../../includes/Errors.hpp"
+
+void askMarvin(Bot* bot, Client& client, std::string command) {
+    if (command == "!age")
+        bot->sendAgeMsg(client);
+    else if (command == "!joke")
+        bot->sendJokeMsg(client);
+    else if(command == "!help")
+        bot->sendHelpMsg(client);
+    else 
+        bot->sendUnknowCmdMsg(client);
+}
+
 
 bool Errors::checkPRIVMSG(Cmd &cmd, Client &client, Server &server)
 {
@@ -66,11 +78,18 @@ void Cmd::PRIVMSG(const Cmd &cmd, Server &server, Client &client)
             channel->broadcastMessage(msg, client.getFd());
         } else {
             Client *clt = server.getSpecifiedClient(users[i]);
-            std::string msg = ":" + client.getNickname() + "!~"
-                    + client.getUsername() + "@localhost PRIVMSG "
-                    + clt->getNickname() + " :" + cmd.getParams()[1] + "\r\n";
-            if (client.getNickname() != clt->getNickname())
-                send(clt->getFd(), msg.c_str(), msg.size(), 0);
+            std::string msg;
+            if (clt->getFd() == 5) {
+                Bot* bot = server.getBot();
+                askMarvin(bot, client, cmd.getParams()[1]);
+            }
+            else {
+                msg = ":" + client.getNickname() + "!~"
+                        + client.getUsername() + "@localhost PRIVMSG "
+                        + clt->getNickname() + " :" + cmd.getParams()[1] + "\r\n";
+                if (client.getNickname() != clt->getNickname())
+                    send(clt->getFd(), msg.c_str(), msg.size(), 0);
+            }
         }
     }
     users.clear();

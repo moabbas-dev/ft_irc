@@ -1,9 +1,9 @@
 #ifndef BOT_HPP
 # define BOT_HPP
 
-#include "Server.hpp"
 #include "Cmd.hpp"
 #include "StringUtils.hpp"
+#include "Server.hpp"
 #include "Client.hpp"
 
 class Bot : public Client
@@ -13,6 +13,10 @@ class Bot : public Client
 		~Bot();
 
 		void connectToServer(Server &server);
+		void sendAgeMsg(Client& client);
+		void sendJokeMsg(Client& client);
+		void sendHelpMsg(Client& client);
+		void sendUnknowCmdMsg(Client& client);
 };
 
 #endif

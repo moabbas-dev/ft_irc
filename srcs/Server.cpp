@@ -5,14 +5,15 @@
 
 bool Server::isSignalReceived = false;
 
-Server::Server(): port(0) ,serSocketFd(-1) {}
+Server::Server(): port(0) ,serSocketFd(-1), marvinBot(new Bot()) {}
 
 Server::Server(int port ,const std::string& password)
-    : port(port) ,serSocketFd(-1) ,password(password) {}
+    : port(port) ,serSocketFd(-1) ,password(password), marvinBot(new Bot()) {}
 
 Server::~Server() {
     for (std::map<int, Client>::iterator it = clients.begin();it != clients.end(); ++it)
         it->second.getCommands().clear();
+    delete marvinBot;
 }
 
 const std::map<int, Client> &Server::getClients() const
@@ -93,22 +94,37 @@ void Server::acceptNewClient() {
     struct hostent* host = gethostbyaddr(&clientAddr.sin_addr, sizeof(clientAddr.sin_addr), AF_INET);
     if (host && host->h_name)
         hostname = std::string(host->h_name);
-    Client newClient;
-    newClient.setFd(clientFd);
-    newClient.setIPadd(std::string(inet_ntoa(clientAddr.sin_addr)));
-    newClient.setHostName(hostname);
-    clients.insert(std::pair<int, Client>(clientFd, newClient));
-
+    if (clientFd == 5) {
+        marvinBot->setFd(clientFd);
+        marvinBot->setIPadd(std::string(inet_ntoa(clientAddr.sin_addr)));
+        marvinBot->setHostName(hostname);
+        marvinBot->setIsAuthenticated(true);
+        marvinBot->setHasSetPassword(true);
+        marvinBot->setNickname("$marvin");
+        marvinBot->setHasSetNickName(true);
+        marvinBot->setUsername("marvin_bot");
+        marvinBot->setHasSetUser(true);
+        marvinBot->setRealname("Marvin the bot");
+        Client newClient;
+        newClient.setNickname("$marvin");
+        newClient.setFd(clientFd);
+        clients.insert(std::pair<int, Client>(clientFd, newClient));
+    } else {
+        Client newClient;
+        newClient.setFd(clientFd);
+        newClient.setIPadd(std::string(inet_ntoa(clientAddr.sin_addr)));
+        newClient.setHostName(hostname);
+        clients.insert(std::pair<int, Client>(clientFd, newClient));
+        std::ostringstream oss;
+        oss << newClient.getoriginalhostname() << ":" << newClient.getIPadd()
+            << "<" << newClient.getFd() << ">" << " has connected.";
+        Server::printResponse(oss.str(), GREEN);
+    }
     struct pollfd newPoll;
     newPoll.fd = clientFd;
     newPoll.events = POLLIN;
     newPoll.revents = 0;
     fds.push_back(newPoll);
-
-    std::ostringstream oss;
-    oss << newClient.getoriginalhostname() << ":" << newClient.getIPadd()
-        << "<" << newClient.getFd() << ">" << " has connected.";
-    Server::printResponse(oss.str(), GREEN);
 }
 
 void Server::signalHandler(int signum) {
@@ -502,3 +518,6 @@ void Server::sendError(std::string mesgArgs[], int fd, messageCode messageCode) 
         std::cerr << "Cannot Send error to fd=" << fd << std::endl;
 }
 
+Bot* Server::getBot() {
+    return marvinBot;
+}
