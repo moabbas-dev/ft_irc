@@ -3,88 +3,95 @@
 /*                                                        :::      ::::::::   */
 /*   PRIVMSG.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
+/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:48:58 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/08 23:05:26 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/12 11:46:19 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/Cmd.hpp"
 #include "../../includes/Errors.hpp"
 
+void askMarvin(Bot* bot, Client& client, std::string command) {
+    if (command == "!age")
+        bot->sendAgeMsg(client);
+    else if (command == "!joke")
+        bot->sendJokeMsg(client);
+    else if(command == "!help")
+        bot->sendHelpMsg(client);
+    else 
+        bot->sendUnknowCmdMsg(client);
+}
+
+
 bool Errors::checkPRIVMSG(Cmd &cmd, Client &client, Server &server)
 {
     std::string messageArgs[] = {client.getNickname(), "", ""};
-    bool isAchannel;
 
     if (!client.getIsAuthenticated())
         return (Server::sendError(messageArgs, client.getFd(), ERR_NOTREGISTERED), false);
+
     if (cmd.getParams().size() < 2)
         return (Server::sendError(messageArgs, client.getFd(), ERR_NOTENOUGHPARAM), false);
-    isAchannel = cmd.getParams()[0][0] == '#';
-    if (isAchannel)
-    {
-        if (!server.channelExistInServer(cmd.getParams()[0]))
-        {
-            messageArgs[0] = client.getUsername();
-            messageArgs[1] = cmd.getParams()[0];
-            return (Server::sendError(messageArgs, client.getFd(), ERR_NOSUCHCHANNEL), false);
-        }
-        if (!client.isInsideTheChannel(cmd.getParams()[0]))
-        {
-            messageArgs[0] = client.getUsername();
-            messageArgs[1] = cmd.getParams()[0];
-            return (Server::sendError(messageArgs, client.getFd(), ERR_CANNOTSENDTOCHAN), false);
-        }
-    }
-    else
-    {
-        if (!server.clientIsInServer(cmd.getParams()[0]))
-        {
-            messageArgs[0] = client.getUsername();
-            messageArgs[1] = cmd.getParams()[0];
-            return (Server::sendError(messageArgs, client.getFd(), ERR_NOSUCHNICK), false);
+
+    std::vector<std::string> users = split(cmd.getParams()[0], ',');
+    std::vector<std::string> tmp_users = client.getTempKickUsers();
+    for (size_t i = 0;i < users.size(); i++) {
+        if (users[i][0] == '#') {
+            if (!server.channelExistInServer(users[i])) {
+                messageArgs[0] = client.getUsername();
+                messageArgs[1] = users[i];
+                return (Server::sendError(messageArgs, client.getFd(), ERR_NOSUCHCHANNEL), false);
+            }
+            if (!client.isInsideTheChannel(users[i])) {
+                messageArgs[0] = client.getUsername();
+                messageArgs[1] = users[i];
+                return (Server::sendError(messageArgs, client.getFd(), ERR_CANNOTSENDTOCHAN), false);
+            }
+            tmp_users.push_back(users[i]);
+        } else {
+            if (!server.clientIsInServer(users[i]))
+            {
+                messageArgs[0] = client.getUsername();
+                messageArgs[1] = users[i];
+                return (Server::sendError(messageArgs, client.getFd(), ERR_NOSUCHNICK), false);
+            }
+            tmp_users.push_back(users[i]);
         }
     }
     if (cmd.getParams()[1].empty())
         return (Server::sendError(messageArgs, client.getFd(), ERR_NOTEXTTOSEND), false);
+    client.setTempKickUsers(tmp_users);
     return true;
 }
 
 void Cmd::PRIVMSG(const Cmd &cmd, Server &server, Client &client)
 {
-    std::string messageArgs[] = {client.getNickname(), "", ""};
-    bool isAchannel = cmd.getParams()[0][0] == '#';
-
-    if (isAchannel)
-    {
-        Channel *channel = server.getSpecifiedChannel(cmd.getParams()[0]);
-        if (!channel)
-        {
-            messageArgs[0] = client.getUsername();
-            messageArgs[1] = cmd.getParams()[0];
-            Server::sendError(messageArgs, client.getFd(), ERR_NOSUCHCHANNEL);
-            return ;
+    std::vector<std::string> users = client.getTempKickUsers();
+    for (size_t i = 0;i < users.size(); i++) {
+        if (users[i][0] == '#') {
+            Channel *channel = server.getSpecifiedChannel(users[i]);
+            std::string msg = ":" + client.getNickname() + "!~"
+                    + client.getUsername() + "@localhost PRIVMSG "
+                    + channel->getName() + " :" + cmd.getParams()[1] + "\r\n";
+            channel->broadcastMessage(msg, client.getFd());
+        } else {
+            Client *clt = server.getSpecifiedClient(users[i]);
+            std::string msg;
+            if (clt->getFd() == 5) {
+                Bot* bot = server.getBot();
+                askMarvin(bot, client, cmd.getParams()[1]);
+            }
+            else {
+                msg = ":" + client.getNickname() + "!~"
+                        + client.getUsername() + "@localhost PRIVMSG "
+                        + clt->getNickname() + " :" + cmd.getParams()[1] + "\r\n";
+                if (client.getNickname() != clt->getNickname())
+                    send(clt->getFd(), msg.c_str(), msg.size(), 0);
+            }
         }
-        std::string msg = ":" + client.getNickname() + "!" +
-            client.getUsername() + "@" + client.getHostName() + " PRIVMSG " +
-                channel->getName() + " :" + cmd.getParams()[1] + "\r\n";
-        channel->broadcastMessage(msg, client.getFd());
     }
-    else
-    {
-        Client *clt = server.getSpecifiedClient(cmd.getParams()[0]);
-        if (!clt)
-        {
-            messageArgs[0] = client.getUsername();
-            messageArgs[1] = cmd.getParams()[0];
-            Server::sendError(messageArgs, client.getFd(), ERR_NOSUCHNICK);
-            return ;
-        }
-        std::string msg = ":" + client.getNickname() + "!" +
-            client.getUsername() + "@" + client.getHostName() + " PRIVMSG " +
-                clt->getNickname() + " :" + cmd.getParams()[1] + "\r\n";
-        send(clt->getFd(), msg.c_str(), msg.size(), 0);
-    }
+    users.clear();
+    client.setTempKickUsers(users);
 }

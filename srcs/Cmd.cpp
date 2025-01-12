@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cmd.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
+/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:11:08 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/11 15:51:42 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/11 21:41:27 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,11 @@ void Cmd::errorServerClient(std::string s_side, std::string c_side, int c_fd) {
 }
 
 void Parser::parse(std::list<Cmd> *commandsList, std::string input, Client& client, Server &server) {
+	if (trimString(input).empty())
+        return ;
+    if (input.size() >= 2 && input.substr(input.size() - 2) != "\r\n") {
+        input += "\r\n";
+    }
     std::list<Cmd> commands = Parser::splitCommands(input, client, server);
     commandsList->splice(commandsList->end(), commands);
 }
@@ -101,7 +106,7 @@ std::list<Cmd> Parser::splitCommands(std::string input, Client& client, Server &
         Cmd parsedCommand = parseCommand(command);
         if (!Errors::commandFound(parsedCommand.getName())) {
             start = end + 1;
-            if (parsedCommand.getName().empty() ||(parsedCommand.getName() != "WHO" && parsedCommand.getName() != "CAP")) {
+            if (!parsedCommand.getName().empty() && parsedCommand.getName() != "WHO" && parsedCommand.getName() != "CAP") {
                 std::string messageArgs[] = {client.getNickname(), parsedCommand.getName()};
                 Server::sendError(messageArgs, client.getFd(), ERR_UNKNOWCOMMAND);
             }
