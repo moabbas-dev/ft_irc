@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   MODE.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 19:06:07 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/09 20:50:14 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/12 20:54:39 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,17 +191,15 @@ static void handleMultipleArguments(const Cmd &cmd, Client &client, Channel *cha
 				case 'o':
 					if (!server.clientIsInServer(cmd.getParams()[argsIndex]))
 					{
-						std::string msg = ":localhost 401 " + client.getNickname() + " "
-							+ cmd.getParams()[argsIndex] + " :No such nick/channel\r\n";
-						send(client.getFd(), msg.c_str(), msg.size(), 0);
+						std::string mesgArgs[] = {channel->getName(), cmd.getParams()[argsIndex]};
+						server.sendError(mesgArgs, client.getFd(), ERR_NOSUCHNICK);
 						++argsIndex;
 						continue;
 					}
 					if (!channel->clientIsInChannel(cmd.getParams()[argsIndex]))
 					{
-						std::string msg = ": 441 " + client.getNickname() + " "
-							+ channel->getName() + " :They aren't on that channel\n";
-						send(client.getFd(), msg.c_str(), msg.size(), 0);
+						std::string mesgArgs[] = {client.getNickname(), channel->getName()};
+						server.sendError(mesgArgs, client.getFd(), ERR_NOTONTHATCHANNEL);
 						++argsIndex;
 						continue;
 					}
@@ -263,7 +261,6 @@ void Cmd::MODE(const Cmd& cmd, Server& server, Client& client)
 	Channel *channel = server.getSpecifiedChannel(channelName);
 	if (!channel)
 	{
-		// aya shi
 		std::string messageArgs[] = {client.getNickname(), cmd.getName()};
 		Server::sendError(messageArgs, client.getFd(), ERR_NOSUCHCHANNEL);
 		return ;
