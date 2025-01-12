@@ -5,6 +5,8 @@
 #include "StringUtils.hpp"
 #include "Server.hpp"
 #include "Client.hpp"
+#include <cstdlib>
+#include <ctime>
 
 class Bot : public Client
 {
@@ -13,7 +15,7 @@ class Bot : public Client
 		~Bot();
 
 		void connectToServer(Server &server);
-		void sendAgeMsg(Client& client);
+		void sendAgeMsg(Client& client, const std::string &command);
 		void sendJokeMsg(Client& client);
 		void sendHelpMsg(Client& client);
 		void sendUnknowCmdMsg(Client& client);

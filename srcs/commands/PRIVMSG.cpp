@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   PRIVMSG.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:48:58 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/12 11:46:19 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/12 13:49:35 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 #include "../../includes/Errors.hpp"
 
 void askMarvin(Bot* bot, Client& client, std::string command) {
-    if (command == "!age")
-        bot->sendAgeMsg(client);
+    if (command == "!age" || (command.substr(0, 4) == "!age" && split(command, " ").size() == 2))
+        bot->sendAgeMsg(client, command);
     else if (command == "!joke")
         bot->sendJokeMsg(client);
     else if(command == "!help")
