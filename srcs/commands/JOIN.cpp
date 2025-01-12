@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   JOIN.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:46:43 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/09 21:15:52 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/12 20:37:02 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,7 +153,7 @@ void Cmd::JOIN(const Cmd& cmd, Server& server, Client& client) {
                     }
                     client.removeChannelInvitation(server_channel.getName());
                 } else {
-                    std::string messageArgs[] = {client.getNickname(), client.getUsername(), channel_name};
+                    std::string messageArgs[] = {client.getNickname(), channel_name, channel_name};
                     Server::sendError(messageArgs, client.getFd(), ERR_INVITEONLYCHAN);
                     continue;
                 }

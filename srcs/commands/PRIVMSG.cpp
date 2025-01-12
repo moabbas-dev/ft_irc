@@ -6,7 +6,7 @@
 /*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:48:58 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/12 13:49:35 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/12 20:50:47 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,8 @@ void Cmd::PRIVMSG(const Cmd &cmd, Server &server, Client &client)
             channel->broadcastMessage(msg, client.getFd());
         } else {
             Client *clt = server.getSpecifiedClient(users[i]);
+            if (client.getNickname() == clt->getNickname())
+                return ;
             std::string msg;
             if (clt->getFd() == 5) {
                 Bot* bot = server.getBot();
