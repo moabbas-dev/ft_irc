@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   PASS.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:51:14 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/11 13:42:44 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/16 13:37:40 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ bool Errors::checkPASS(Cmd &cmd, Client &client, Server &server)
 {
 	std::string messageArgs[] = {client.getNickname()};
 	if (client.getIsAuthenticated() || client.getHasSetUser() || client.getHasSetNickName() || client.getHasSetPassword())
-		return (Server::sendError(messageArgs, client.getFd(), ERR_NOTREGISTERED), false);
+		return (Server::sendError(messageArgs, client.getFd(), ERR_ALREADYREGISTERED), false);
 
 	if (cmd.getParams().size() < 1)
 		return (Server::sendError(messageArgs, client.getFd(), ERR_NOTENOUGHPARAM), false);
