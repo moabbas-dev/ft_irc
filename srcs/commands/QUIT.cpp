@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 19:39:19 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/11 15:58:26 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/17 13:41:16 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,24 @@ std::string getReason(std::string param) {
 		reason.insert(reason.begin(), ':');
 	}
 	return reason;
+}
+
+void updateOtherClientChannels(Channel & channel, Client& client, Server& server) {
+    std::vector<Client> &oldClients = channel.getClients();
+    for (size_t i = 0;i < oldClients.size();i++) {
+        if (oldClients[i].getFd() == client.getFd())
+            continue;
+        std::vector<Channel> channels = oldClients[i].getChannels();
+		for(size_t i = 0;i < channels.size(); i++) {
+			if (channels[i].getName() == channel.getName()) {
+				channels[i].removeClient(client.getFd());
+				channels[i].removeOperator(client.getFd());
+			}
+		}
+        oldClients[i].setChannels(channels);
+        std::map<int, Client>& server_clients = server.getClients();
+        server_clients[oldClients[i].getFd()] = oldClients[i];
+    }
 }
 
 void Cmd::QUIT(const Cmd& cmd, Server& server, Client& client) {
@@ -62,9 +80,9 @@ void Cmd::QUIT(const Cmd& cmd, Server& server, Client& client) {
                 currentChannel.broadcastMessage(rpl, fd);
             }
         }
+		updateOtherClientChannels(currentChannel, client, server);
         ++channel;
     }
-
 	std::ostringstream msg;
 	msg << client.getNickname() << "<" << fd << "> disconnected.";
 	Server::printResponse(msg.str(), RED);

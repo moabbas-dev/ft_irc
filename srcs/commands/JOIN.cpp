@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   JOIN.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
+/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:46:43 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/12 20:37:02 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/17 14:08:52 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ bool Errors::checkJOIN(Cmd &cmd, Client &client)
 
 	std::vector<std::string> channelsNames = split(cmd.getParams()[0], ',');
 	std::vector<std::string> channelsKeys = cmd.getParams().size() == 2? split(cmd.getParams()[1], ',') : std::vector<std::string>();
-	std::vector<Channel> channels = client.getTempChannels();
+	std::vector<Channel> channels = std::vector<Channel>();
 	std::vector<std::string>::iterator key_it = channelsKeys.begin();
 	for (std::vector<std::string>::iterator name_it = channelsNames.begin() ; name_it != channelsNames.end(); ++name_it) {
 		if (!checkChannelName(*name_it)) {

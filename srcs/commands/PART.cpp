@@ -6,7 +6,7 @@
 /*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 23:48:10 by afarachi          #+#    #+#             */
-/*   Updated: 2025/01/09 21:27:24 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/17 14:00:03 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,25 @@ std::string getTime(unsigned long long nb)
 	std::ostringstream oss;
     oss << nb;
     return oss.str();
+}
+
+void updateOtherClientsChannels(Channel & channel, Client& client, Server& server) {
+    std::vector<Client> &oldClients = channel.getClients();
+	// server.getChannels
+    for (size_t i = 0;i < oldClients.size();i++) {
+        if (oldClients[i].getFd() == client.getFd())
+            continue;
+        std::vector<Channel> channels = oldClients[i].getChannels();
+		for(size_t i = 0;i < channels.size(); i++) {
+			if (channels[i].getName() == channel.getName()) {
+				channels[i].removeClient(client.getFd());
+				channels[i].removeOperator(client.getFd());
+			}
+		}
+        oldClients[i].setChannels(channels);
+        std::map<int, Client>& server_clients = server.getClients();
+        server_clients[oldClients[i].getFd()] = oldClients[i];
+    }
 }
 
 bool Errors::checkPART(Cmd &cmd, Client &client, Server &server)
@@ -94,6 +113,7 @@ void Cmd::PART(const Cmd& cmd, Server& server, Client& client) {
                 std::cout << msg;
             }
         }
+		updateOtherClientsChannels(channel, client, server);
         channel.removeClient(client.getFd());
         channel.removeOperator(client.getFd());
         client.removeChannel(channel);
