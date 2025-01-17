@@ -3,13 +3,12 @@
 /*                                                        :::      ::::::::   */
 /*   Errors.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
+/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 16:45:21 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/08 21:24:11 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/17 14:52:08 by moabbas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 
 #include "../includes/Errors.hpp"
 #include "../includes/Cmd.hpp"
