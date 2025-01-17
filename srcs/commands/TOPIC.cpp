@@ -46,7 +46,7 @@ bool Errors::checkTOPIC(Cmd &cmd, Server& server, Client &client)
 void Cmd::TOPIC(const Cmd& cmd, Server& server, Client& client) {
 
 	std::string channel_name = cmd.getParams()[0];
-	std::string messageArgs[] = {client.getNickname(), channel_name, ""};
+	std::string messageArgs[] = {client.getNickname(), channel_name, "", ""};
 	std::map<std::string, Channel>::iterator it = server.getChannels().find(channel_name);
 	Channel& channel = it->second;
 
