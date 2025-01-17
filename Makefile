@@ -21,7 +21,6 @@ SRCS = 	srcs/Server.cpp		\
 		srcs/commands/ModeUtils.cpp		\
 		srcs/Bot.cpp				\
 		main.cpp			\
-# SRCS = srcs/main_test.cpp
 
 OBJDIR = objs
 OBJCS = $(SRCS:%.cpp=$(OBJDIR)/%.o)

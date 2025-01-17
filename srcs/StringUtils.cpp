@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   StringUtils.cpp                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/01/17 14:40:06 by jfatfat           #+#    #+#             */
+/*   Updated: 2025/01/17 14:40:07 by jfatfat          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/StringUtils.hpp"
 
 std::vector<std::string> split(const std::string& str, const std::string& delimiters)
