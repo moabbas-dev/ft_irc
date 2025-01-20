@@ -6,7 +6,7 @@
 /*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 14:38:53 by jfatfat           #+#    #+#             */
-/*   Updated: 2025/01/17 14:38:54 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/20 13:09:09 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@ bool isCorrectModeString(const std::string &modeString);
 size_t getNbOfModeArguments(const std::string &modeString);
 bool isValidLimitString(const std::string &str, Channel *channel);
 std::string formatModeString(const std::string &modeStr);
+void separateAndBroadcast(Client &client, Channel *channel,
+	const std::string &modeStr, std::vector<std::string> &args);
 
 
 #endif

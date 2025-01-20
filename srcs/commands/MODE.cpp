@@ -6,7 +6,7 @@
 /*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 19:06:07 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/12 20:54:39 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/20 21:37:15 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ static void handleSingleArgument(const Cmd &cmd, Client &client, Channel *channe
 		cmd.getParams()[0] + " ";
 	std::string msg329 = ": 329 " + client.getNickname() + " " +
 		cmd.getParams()[0] + " " +
-			getNumberAsString((time_t)channel->getCreationTime()) + "\n";
+			getNumberAsString((time_t)channel->getCreationTime()) + "\r\n";
 	for (std::map<char, bool>::iterator it = mode.begin(); it != mode.end(); ++it)
 	{
 		if (it->second)
@@ -102,7 +102,7 @@ static void handleSingleArgument(const Cmd &cmd, Client &client, Channel *channe
 		if (it != mode.end())
 			msg324 += " ";
 	}
-	msg324 += "\n";
+	msg324 += "\r\n";
 	send(client.getFd(), msg324.c_str(), msg324.size(), 0);
 	send(client.getFd(), msg329.c_str(), msg329.size(), 0);
 }
@@ -238,20 +238,22 @@ static void handleMultipleArguments(const Cmd &cmd, Client &client, Channel *cha
 			}
 		}
 	}
-	std::string msg = ":" + client.getHostName() + " MODE " + channel->getName()
-		+ " " + formatModeString(modeNewStr) + " ";
-	for (size_t i = 0; i < validArgs.size(); ++i)
-	{
-		msg += validArgs[i];
-		if (i != validArgs.size() - 1)
-			msg += " ";
-	}
-	msg += "\r\n";
-	std::vector<Client> &clients = channel->getClients();
-	for (size_t i = 0; i < clients.size(); ++i)
-	{
-		send(clients[i].getFd(), msg.c_str(), msg.size(), 0);
-	}
+	// std::string msg = ":" + client.getHostName() + " MODE " + channel->getName()
+	// 	+ " " + formatModeString(modeNewStr) + " ";
+	// for (size_t i = 0; i < validArgs.size(); ++i)
+	// {
+	// 	msg += validArgs[i];
+	// 	if (i != validArgs.size() - 1)
+	// 		msg += " ";
+	// }
+	// msg += "\r\n";
+	// std::cout << msg << std::endl;
+	// std::vector<Client> &clients = channel->getClients();
+	// for (size_t i = 0; i < clients.size(); ++i)
+	// {
+	// 	send(clients[i].getFd(), msg.c_str(), msg.size(), 0);
+	// }
+	separateAndBroadcast(client, channel, formatModeString(modeNewStr), validArgs);
 }
 
 void Cmd::MODE(const Cmd& cmd, Server& server, Client& client)

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moabbas <moabbas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/29 12:53:48 by moabbas           #+#    #+#             */
-/*   Updated: 2025/01/17 14:51:55 by moabbas          ###   ########.fr       */
+/*   Updated: 2025/01/19 23:32:01 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,8 @@ Channel::Channel(std::string name, std::string key): name(name), channelKey(key)
     creationTime = time(NULL);
     topicTime =  time(NULL);
     mode['i'] = false;
-    mode['t'] = false;
-    mode['k'] = false;
+    mode['t'] = true;
+    mode['k'] = !key.empty();
     mode['l'] = false;
     userLimit = -1;
     hasUserLimit = false;
@@ -35,7 +35,7 @@ Channel::Channel(std::string name): name(name), channelKey("")
     creationTime = time(NULL);
     topicTime = std::time(NULL);
     mode['i'] = false;
-    mode['t'] = false;
+    mode['t'] = true;
     mode['k'] = false;
     mode['l'] = false;
     userLimit = -1;

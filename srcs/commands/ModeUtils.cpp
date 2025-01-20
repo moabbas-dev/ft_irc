@@ -6,7 +6,7 @@
 /*   By: jfatfat <jfatfat@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 14:39:33 by jfatfat           #+#    #+#             */
-/*   Updated: 2025/01/17 14:39:34 by jfatfat          ###   ########.fr       */
+/*   Updated: 2025/01/20 21:47:00 by jfatfat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,4 +153,56 @@ std::string formatModeString(const std::string &modeStr)
 			newModeStr += modeStr[i];
 	}
 	return newModeStr;
+}
+
+void separateAndBroadcast(Client &client, Channel *channel,
+	const std::string &modeStr, std::vector<std::string> &args)
+{
+	bool set;
+	size_t len = 0;
+	std::vector<std::string> msgs;
+	std::string msg;
+	char symbol;
+
+	if (!channel)
+		return ;
+	for (size_t i = 0; i < modeStr.size(); ++i)
+	{
+		if (modeStr[i] == '-' || modeStr[i] == '+')
+			set = (modeStr[i] == '+');
+		else if (modeStr[i] == 'i' || modeStr[i] == 't')
+		{
+			symbol = set ? '+' : '-';
+			msg = ":" + client.getHostName() + " MODE " + channel->getName()
+				+ " " + symbol + modeStr[i] + "\r\n";
+			msgs.push_back(msg);
+		}
+		else if (modeStr[i] == 'k' || modeStr[i] == 'l')
+		{
+			symbol = set ? '+' : '-';
+			msg = ":" + client.getHostName() + " MODE " + channel->getName()
+				+ " " + symbol + modeStr[i];
+			if (set)
+			{
+				msg = msg + " " + args[len];
+				++len;	
+			}
+			msg += "\r\n";
+			msgs.push_back(msg);
+		}
+		else if (modeStr[i] == 'o')
+		{
+			symbol = set ? '+' : '-';
+			msg = ":" + client.getHostName() + " MODE " + channel->getName()
+				+ " " + symbol + modeStr[i] + " " + args[len] + "\r\n";
+			++len;
+			msgs.push_back(msg);
+		}
+	}
+	std::vector<Client> &clients = channel->getClients();
+	for (size_t i = 0; i < clients.size(); ++i)
+	{
+		for (size_t j = 0; j < msgs.size(); ++j)
+			send(clients[i].getFd(), msgs[j].c_str(), msgs[j].size(), 0);
+	}
 }
